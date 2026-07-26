@@ -5,8 +5,10 @@ import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.raven.launcher.apps.AppManager
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -18,6 +20,7 @@ class TaskbarView(
 
     private val clockView: TextView
     private val handler = Handler(Looper.getMainLooper())
+    private val appManager = AppManager(context)
 
     private val clockUpdater = object : Runnable {
         override fun run() {
@@ -57,7 +60,7 @@ class TaskbarView(
         addView(startButton)
 
         // =========================
-        // APPLICATION AREA
+        // PINNED APPLICATION AREA
         // =========================
 
         val appArea = LinearLayout(context)
@@ -73,6 +76,8 @@ class TaskbarView(
                 1f
             )
         )
+
+        loadPinnedApps(appArea)
 
         // =========================
         // SYSTEM CLOCK
@@ -101,6 +106,51 @@ class TaskbarView(
 
         updateClock()
         handler.post(clockUpdater)
+    }
+
+    private fun loadPinnedApps(
+        container: LinearLayout
+    ) {
+
+        val apps = appManager.getInstalledApps()
+
+        /*
+         * Peringkat awal Taskbar v3:
+         * paparkan maksimum 4 aplikasi launcher.
+         */
+        apps.take(4).forEach { app ->
+
+            val icon = ImageView(context)
+
+            icon.setImageDrawable(
+                app.loadIcon(context.packageManager)
+            )
+
+            icon.contentDescription =
+                app.loadLabel(context.packageManager)
+                    .toString()
+
+            icon.setPadding(
+                12,
+                12,
+                12,
+                12
+            )
+
+            val params = LayoutParams(
+                70,
+                70
+            )
+
+            icon.setOnClickListener {
+                appManager.launchApp(app)
+            }
+
+            container.addView(
+                icon,
+                params
+            )
+        }
     }
 
     private fun updateClock() {
