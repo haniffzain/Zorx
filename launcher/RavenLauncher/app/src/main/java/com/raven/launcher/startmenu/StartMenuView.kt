@@ -7,7 +7,10 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
 
-class StartMenuView(context: Context) : LinearLayout(context) {
+class StartMenuView(
+    context: Context,
+    private val onApplicationsClick: () -> Unit
+) : LinearLayout(context) {
 
     init {
         orientation = VERTICAL
@@ -28,26 +31,40 @@ class StartMenuView(context: Context) : LinearLayout(context) {
         )
 
         addMenuItem("🦅  Raven OS")
-        addMenuItem("📱  Applications")
+        addMenuItem("📱  Applications") {
+            onApplicationsClick()
+        }
         addMenuItem("📁  Files")
         addMenuItem("⚙  Settings")
         addMenuItem("🔍  Search")
         addMenuItem("⏻  Power")
     }
 
-    private fun addMenuItem(title: String) {
+    private fun addMenuItem(
+        title: String,
+        onClick: (() -> Unit)? = null
+    ) {
 
         val item = TextView(context).apply {
             text = title
             textSize = 18f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER_VERTICAL
+
             setPadding(
                 20,
                 20,
                 20,
                 20
             )
+
+            if (onClick != null) {
+                isClickable = true
+
+                setOnClickListener {
+                    onClick()
+                }
+            }
         }
 
         addView(

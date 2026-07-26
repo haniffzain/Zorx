@@ -6,12 +6,14 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.raven.launcher.R
+import com.raven.launcher.apps.AppDrawerView
 import com.raven.launcher.startmenu.StartMenuView
 import com.raven.launcher.taskbar.TaskbarView
 
 class DesktopActivity : AppCompatActivity() {
 
     private lateinit var startMenu: StartMenuView
+    private lateinit var appDrawer: AppDrawerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,10 +24,37 @@ class DesktopActivity : AppCompatActivity() {
             findViewById<FrameLayout>(R.id.raven_desktop)
 
         // =========================
+        // APPLICATION DRAWER
+        // =========================
+
+        appDrawer = AppDrawerView(this)
+
+        val appDrawerParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        )
+
+        appDrawerParams.setMargins(
+            0,
+            0,
+            0,
+            80
+        )
+
+        appDrawer.visibility = View.GONE
+
+        desktop.addView(
+            appDrawer,
+            appDrawerParams
+        )
+
+        // =========================
         // START MENU
         // =========================
 
-        startMenu = StartMenuView(this)
+        startMenu = StartMenuView(this) {
+            openApplications()
+        }
 
         val startMenuParams = FrameLayout.LayoutParams(
             500,
@@ -74,6 +103,18 @@ class DesktopActivity : AppCompatActivity() {
 
         startMenu.visibility =
             if (startMenu.visibility == View.VISIBLE) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+    }
+
+    private fun openApplications() {
+
+        startMenu.visibility = View.GONE
+
+        appDrawer.visibility =
+            if (appDrawer.visibility == View.VISIBLE) {
                 View.GONE
             } else {
                 View.VISIBLE
