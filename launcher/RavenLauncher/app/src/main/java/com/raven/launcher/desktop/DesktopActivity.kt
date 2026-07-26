@@ -99,16 +99,20 @@ class DesktopActivity : AppCompatActivity() {
         )
     }
 
-    private fun toggleStartMenu() {
+private fun toggleStartMenu() {
 
-        startMenu.visibility =
-            if (startMenu.visibility == View.VISIBLE) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
+    if (startMenu.visibility == View.VISIBLE) {
+
+        startMenu.visibility = View.GONE
+
+    } else {
+
+        // Tutup App Drawer sebelum membuka Start Menu
+        appDrawer.visibility = View.GONE
+
+        startMenu.visibility = View.VISIBLE
     }
-
+}
     private fun openApplications() {
 
         startMenu.visibility = View.GONE
