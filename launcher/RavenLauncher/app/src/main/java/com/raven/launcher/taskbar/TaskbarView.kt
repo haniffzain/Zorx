@@ -2,21 +2,39 @@ package com.raven.launcher.taskbar
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class TaskbarView(
     context: Context,
     private val onStartClick: () -> Unit
 ) : LinearLayout(context) {
 
+    private val clockView: TextView
+    private val handler = Handler(Looper.getMainLooper())
+
+    private val clockUpdater = object : Runnable {
+        override fun run() {
+            updateClock()
+            handler.postDelayed(this, 1000)
+        }
+    }
+
     init {
 
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
-
         setBackgroundColor(Color.BLACK)
+
+        // =========================
+        // START BUTTON
+        // =========================
 
         val startButton = TextView(context)
 
@@ -37,5 +55,69 @@ class TaskbarView(
         }
 
         addView(startButton)
+
+        // =========================
+        // APPLICATION AREA
+        // =========================
+
+        val appArea = LinearLayout(context)
+
+        appArea.orientation = HORIZONTAL
+        appArea.gravity = Gravity.CENTER_VERTICAL
+
+        addView(
+            appArea,
+            LayoutParams(
+                0,
+                LayoutParams.MATCH_PARENT,
+                1f
+            )
+        )
+
+        // =========================
+        // SYSTEM CLOCK
+        // =========================
+
+        clockView = TextView(context)
+
+        clockView.textSize = 16f
+        clockView.setTextColor(Color.WHITE)
+        clockView.gravity = Gravity.CENTER
+
+        clockView.setPadding(
+            25,
+            0,
+            25,
+            0
+        )
+
+        addView(
+            clockView,
+            LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT
+            )
+        )
+
+        updateClock()
+        handler.post(clockUpdater)
+    }
+
+    private fun updateClock() {
+
+        val formatter =
+            SimpleDateFormat(
+                "HH:mm",
+                Locale.getDefault()
+            )
+
+        clockView.text =
+            formatter.format(Date())
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+
+        handler.removeCallbacks(clockUpdater)
     }
 }
