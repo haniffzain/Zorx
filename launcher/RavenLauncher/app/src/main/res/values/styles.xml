@@ -2,11 +2,15 @@
 
 <resources>
 
-    <style name="Theme.RavenLauncher" parent="android:style/Theme.Material.NoActionBar">
+    <style name="Theme.RavenLauncher" parent="Theme.AppCompat.Light.NoActionBar">
 
         <item name="android:fontFamily">sans</item>
 
         <item name="android:windowFullscreen">true</item>
+
+        <item name="android:windowNoTitle">true</item>
+
+        <item name="android:windowActionModeOverlay">true</item>
 
         <item name="android:colorAccent">#6A5ACD</item>
 

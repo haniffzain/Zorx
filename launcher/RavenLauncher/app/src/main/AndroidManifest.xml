@@ -9,10 +9,11 @@
         android:allowBackup="true"
         android:supportsRtl="true">
 
-        <activity
-            android:name=".desktop.DesktopActivity"
-            android:screenOrientation="landscape" 
-            android:exported="false" />
+<activity
+    android:name=".desktop.DesktopActivity"
+    android:theme="@style/Theme.RavenLauncher"
+    android:screenOrientation="landscape"
+    android:exported="false" />
 
         <activity
             android:name=".MainActivity"
