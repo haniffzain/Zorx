@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.raven.launcher.apps.AppManager
+import com.raven.launcher.apps.PinnedAppManager
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -19,32 +20,52 @@ class TaskbarView(
 ) : LinearLayout(context) {
 
     private val clockView: TextView
-    private val handler = Handler(Looper.getMainLooper())
-    private val appManager = AppManager(context)
 
-    private val clockUpdater = object : Runnable {
-        override fun run() {
-            updateClock()
-            handler.postDelayed(this, 1000)
+    private val handler =
+        Handler(Looper.getMainLooper())
+
+    private val appManager =
+        AppManager(context)
+
+    private val pinnedAppManager =
+        PinnedAppManager(context)
+
+    private val appArea =
+        LinearLayout(context)
+
+    private val clockUpdater =
+        object : Runnable {
+
+            override fun run() {
+                updateClock()
+
+                handler.postDelayed(
+                    this,
+                    1000
+                )
+            }
         }
-    }
 
     init {
 
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
+
         setBackgroundColor(Color.BLACK)
 
         // =========================
         // START BUTTON
         // =========================
 
-        val startButton = TextView(context)
+        val startButton =
+            TextView(context)
 
         startButton.text = "🦅 Raven"
         startButton.textSize = 18f
         startButton.setTextColor(Color.WHITE)
-        startButton.gravity = Gravity.CENTER_VERTICAL
+
+        startButton.gravity =
+            Gravity.CENTER_VERTICAL
 
         startButton.setPadding(
             30,
@@ -63,10 +84,11 @@ class TaskbarView(
         // PINNED APPLICATION AREA
         // =========================
 
-        val appArea = LinearLayout(context)
+        appArea.orientation =
+            HORIZONTAL
 
-        appArea.orientation = HORIZONTAL
-        appArea.gravity = Gravity.CENTER_VERTICAL
+        appArea.gravity =
+            Gravity.CENTER_VERTICAL
 
         addView(
             appArea,
@@ -77,17 +99,20 @@ class TaskbarView(
             )
         )
 
-        loadPinnedApps(appArea)
+        refreshPinnedApps()
 
         // =========================
         // SYSTEM CLOCK
         // =========================
 
-        clockView = TextView(context)
+        clockView =
+            TextView(context)
 
         clockView.textSize = 16f
         clockView.setTextColor(Color.WHITE)
-        clockView.gravity = Gravity.CENTER
+
+        clockView.gravity =
+            Gravity.CENTER
 
         clockView.setPadding(
             25,
@@ -105,53 +130,86 @@ class TaskbarView(
         )
 
         updateClock()
+
         handler.post(clockUpdater)
     }
 
-    private fun loadPinnedApps(
-        container: LinearLayout
-    ) {
+    // =========================
+    // PINNED APPS
+    // =========================
 
-        val apps = appManager.getInstalledApps()
+    fun refreshPinnedApps() {
 
-        /*
-         * Peringkat awal Taskbar v3:
-         * paparkan maksimum 4 aplikasi launcher.
-         */
-        apps.take(4).forEach { app ->
+        appArea.removeAllViews()
 
-            val icon = ImageView(context)
+        val installedApps =
+            appManager.getInstalledApps()
 
-            icon.setImageDrawable(
-                app.loadIcon(context.packageManager)
-            )
+        val pinnedIds =
+            pinnedAppManager.getPinnedIds()
 
-            icon.contentDescription =
-                app.loadLabel(context.packageManager)
-                    .toString()
+        pinnedIds.forEach { pinnedId ->
 
-            icon.setPadding(
-                12,
-                12,
-                12,
-                12
-            )
+            val packageName =
+                pinnedAppManager.getPackageName(
+                    pinnedId
+                )
 
-            val params = LayoutParams(
-                70,
-                70
-            )
+            val activityName =
+                pinnedAppManager.getActivityName(
+                    pinnedId
+                )
 
-            icon.setOnClickListener {
-                appManager.launchApp(app)
+            val app =
+                installedApps.find {
+
+                    it.activityInfo.packageName ==
+                        packageName &&
+                    it.activityInfo.name ==
+                        activityName
+                }
+
+            if (app != null) {
+
+                val icon =
+                    ImageView(context)
+
+                icon.setImageDrawable(
+                    app.loadIcon(
+                        context.packageManager
+                    )
+                )
+
+                icon.contentDescription =
+                    app.loadLabel(
+                        context.packageManager
+                    ).toString()
+
+                icon.setPadding(
+                    12,
+                    12,
+                    12,
+                    12
+                )
+
+                icon.setOnClickListener {
+                    appManager.launchApp(app)
+                }
+
+                appArea.addView(
+                    icon,
+                    LayoutParams(
+                        70,
+                        70
+                    )
+                )
             }
-
-            container.addView(
-                icon,
-                params
-            )
         }
     }
+
+    // =========================
+    // CLOCK
+    // =========================
 
     private fun updateClock() {
 
@@ -166,8 +224,11 @@ class TaskbarView(
     }
 
     override fun onDetachedFromWindow() {
+
         super.onDetachedFromWindow()
 
-        handler.removeCallbacks(clockUpdater)
+        handler.removeCallbacks(
+            clockUpdater
+        )
     }
 }

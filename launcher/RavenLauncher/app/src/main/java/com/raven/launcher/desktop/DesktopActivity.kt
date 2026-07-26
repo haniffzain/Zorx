@@ -14,7 +14,7 @@ class DesktopActivity : AppCompatActivity() {
 
     private lateinit var startMenu: StartMenuView
     private lateinit var appDrawer: AppDrawerView
-
+    private lateinit var taskbar: TaskbarView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -27,8 +27,12 @@ class DesktopActivity : AppCompatActivity() {
         // APPLICATION DRAWER
         // =========================
 
-        appDrawer = AppDrawerView(this)
+appDrawer = AppDrawerView(this) {
 
+    if (::taskbar.isInitialized) {
+        taskbar.refreshPinnedApps()
+    }
+}
         val appDrawerParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT
@@ -82,7 +86,7 @@ class DesktopActivity : AppCompatActivity() {
         // TASKBAR
         // =========================
 
-        val taskbar = TaskbarView(this) {
+        taskbar = TaskbarView(this) {
             toggleStartMenu()
         }
 

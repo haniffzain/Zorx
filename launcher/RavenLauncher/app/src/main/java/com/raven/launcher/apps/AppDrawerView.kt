@@ -1,5 +1,6 @@
 package com.raven.launcher.apps
 
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
 import android.view.Gravity
@@ -8,16 +9,21 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 
-class AppDrawerView(context: Context) : ScrollView(context) {
-
+class AppDrawerView(
+    context: Context,
+    private val onPinnedAppsChanged: () -> Unit = {}
+) : ScrollView(context) {
     private val appManager = AppManager(context)
+    private val pinnedAppManager = PinnedAppManager(context)
 
     init {
 
         setBackgroundColor(Color.rgb(20, 22, 28))
 
         val grid = GridLayout(context).apply {
+
             columnCount = 5
 
             setPadding(
@@ -47,35 +53,92 @@ class AppDrawerView(context: Context) : ScrollView(context) {
                 isClickable = true
                 isFocusable = true
 
+                // Normal click = launch application
                 setOnClickListener {
                     appManager.launchApp(app)
+                }
+
+                // Long press = Pin / Unpin
+                setOnLongClickListener {
+
+                    val appName =
+                        app.loadLabel(
+                            context.packageManager
+                        ).toString()
+
+                    val currentlyPinned =
+                        pinnedAppManager.isPinned(app)
+
+                    val action =
+                        if (currentlyPinned) {
+                            "Unpin from Taskbar"
+                        } else {
+                            "Pin to Taskbar"
+                        }
+
+                    AlertDialog.Builder(context)
+                        .setTitle(appName)
+                        .setItems(
+                            arrayOf(action)
+                        ) { _, _ ->
+
+                            if (currentlyPinned) {
+
+                                pinnedAppManager.unpinApp(app)
+                                
+                                onPinnedAppsChanged()
+                                
+                                Toast.makeText(
+                                    context,
+                                    "$appName removed from Taskbar",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                            } else {
+
+                                pinnedAppManager.pinApp(app)
+
+                                onPinnedAppsChanged()
+
+                                Toast.makeText(
+                                    context,
+                                    "$appName pinned to Taskbar",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                        .show()
+
+                    true
                 }
             }
 
             val icon = ImageView(context).apply {
 
                 setImageDrawable(
-                    app.loadIcon(context.packageManager)
+                    app.loadIcon(
+                        context.packageManager
+                    )
                 )
 
-                layoutParams = LinearLayout.LayoutParams(
-                    72,
-                    72
-                )
+                layoutParams =
+                    LinearLayout.LayoutParams(
+                        72,
+                        72
+                    )
             }
 
             val label = TextView(context).apply {
 
-                text = app.loadLabel(
-                    context.packageManager
-                )
+                text =
+                    app.loadLabel(
+                        context.packageManager
+                    )
 
                 setTextColor(Color.WHITE)
 
                 textSize = 14f
-
                 gravity = Gravity.CENTER
-
                 maxLines = 2
 
                 setPadding(
@@ -89,18 +152,19 @@ class AppDrawerView(context: Context) : ScrollView(context) {
             appContainer.addView(icon)
             appContainer.addView(label)
 
-            val itemParams = GridLayout.LayoutParams().apply {
+            val itemParams =
+                GridLayout.LayoutParams().apply {
 
-                width = 180
-                height = 150
+                    width = 180
+                    height = 150
 
-                setMargins(
-                    10,
-                    10,
-                    10,
-                    10
-                )
-            }
+                    setMargins(
+                        10,
+                        10,
+                        10,
+                        10
+                    )
+                }
 
             grid.addView(
                 appContainer,
