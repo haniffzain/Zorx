@@ -6,12 +6,14 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
 
-class TaskbarView(context: Context) : LinearLayout(context) {
+class TaskbarView(
+    context: Context,
+    private val onStartClick: () -> Unit
+) : LinearLayout(context) {
 
     init {
 
         orientation = HORIZONTAL
-
         gravity = Gravity.CENTER_VERTICAL
 
         setBackgroundColor(Color.BLACK)
@@ -19,10 +21,9 @@ class TaskbarView(context: Context) : LinearLayout(context) {
         val startButton = TextView(context)
 
         startButton.text = "🦅 Raven"
-
         startButton.textSize = 18f
-
         startButton.setTextColor(Color.WHITE)
+        startButton.gravity = Gravity.CENTER_VERTICAL
 
         startButton.setPadding(
             30,
@@ -31,7 +32,10 @@ class TaskbarView(context: Context) : LinearLayout(context) {
             15
         )
 
-        addView(startButton)
+        startButton.setOnClickListener {
+            onStartClick()
+        }
 
+        addView(startButton)
     }
 }
