@@ -5,9 +5,11 @@ import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.raven.launcher.apps.ActiveAppManager
 import com.raven.launcher.apps.AppManager
 import com.raven.launcher.apps.PinnedAppManager
 import java.text.SimpleDateFormat
@@ -30,6 +32,9 @@ class TaskbarView(
     private val pinnedAppManager =
         PinnedAppManager(context)
 
+    private val activeAppManager =
+        ActiveAppManager(context)
+
     private val appArea =
         LinearLayout(context)
 
@@ -37,6 +42,7 @@ class TaskbarView(
         object : Runnable {
 
             override fun run() {
+
                 updateClock()
 
                 handler.postDelayed(
@@ -171,6 +177,14 @@ class TaskbarView(
 
             if (app != null) {
 
+                // Container holds icon + active indicator
+                val appContainer =
+                    LinearLayout(context).apply {
+
+                        orientation = VERTICAL
+                        gravity = Gravity.CENTER
+                    }
+
                 val icon =
                     ImageView(context)
 
@@ -187,17 +201,67 @@ class TaskbarView(
 
                 icon.setPadding(
                     12,
+                    8,
                     12,
-                    12,
-                    12
+                    8
                 )
 
-                icon.setOnClickListener {
-                    appManager.launchApp(app)
+                val indicator =
+                    View(context)
+
+                indicator.setBackgroundColor(
+                    Color.rgb(
+                        106,
+                        90,
+                        205
+                    )
+                )
+
+                indicator.visibility =
+                    if (
+                        activeAppManager.isActive(app)
+                    ) {
+                        View.VISIBLE
+                    } else {
+                        View.INVISIBLE
+                    }
+
+                appContainer.addView(
+                    icon,
+                    LinearLayout.LayoutParams(
+                        64,
+                        58
+                    )
+                )
+
+                appContainer.addView(
+                    indicator,
+                    LinearLayout.LayoutParams(
+                        32,
+                        4
+                    )
+                )
+
+                appContainer.setOnClickListener {
+
+                    val launched =
+                        appManager.launchApp(app)
+
+                    if (launched) {
+
+                        /*
+                         * AppManager has already updated
+                         * ActiveAppManager at this point.
+                         *
+                         * Rebuild the pinned area so the
+                         * indicator moves to this app.
+                         */
+                        refreshPinnedApps()
+                    }
                 }
 
                 appArea.addView(
-                    icon,
+                    appContainer,
                     LayoutParams(
                         70,
                         70

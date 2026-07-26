@@ -8,40 +8,68 @@ class AppManager(
     private val context: Context
 ) {
 
+    private val activeAppManager =
+        ActiveAppManager(context)
+
     fun getInstalledApps(): List<ResolveInfo> {
 
-        val intent = Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
+        val intent =
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_LAUNCHER)
+            }
 
         return context.packageManager
-            .queryIntentActivities(intent, 0)
+            .queryIntentActivities(
+                intent,
+                0
+            )
             .sortedBy {
-                it.loadLabel(context.packageManager)
+                it.loadLabel(
+                    context.packageManager
+                )
                     .toString()
                     .lowercase()
             }
     }
 
-    fun launchApp(resolveInfo: ResolveInfo): Boolean {
+    fun launchApp(
+        resolveInfo: ResolveInfo
+    ): Boolean {
 
-        val activityInfo = resolveInfo.activityInfo
+        val activityInfo =
+            resolveInfo.activityInfo
 
-        val intent = Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
+        val intent =
+            Intent(Intent.ACTION_MAIN).apply {
 
-            setClassName(
-                activityInfo.packageName,
-                activityInfo.name
-            )
+                addCategory(
+                    Intent.CATEGORY_LAUNCHER
+                )
 
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
+                setClassName(
+                    activityInfo.packageName,
+                    activityInfo.name
+                )
+
+                addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK
+                )
+            }
 
         return try {
+
             context.startActivity(intent)
+
+            // Raven records the application
+            // successfully launched by the user.
+            activeAppManager.setActiveApp(
+                resolveInfo
+            )
+
             true
+
         } catch (exception: Exception) {
+
             false
         }
     }
