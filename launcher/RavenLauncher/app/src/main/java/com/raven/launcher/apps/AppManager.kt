@@ -3,6 +3,9 @@ package com.raven.launcher.apps
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ResolveInfo
+import android.graphics.Rect
+import android.os.Handler
+import android.os.Looper
 
 class AppManager(
     private val context: Context
@@ -10,6 +13,12 @@ class AppManager(
 
     private val activeAppManager =
         ActiveAppManager(context)
+
+    private val ravenWindowManager =
+        RavenWindowManager(context)
+
+    private val handler =
+        Handler(Looper.getMainLooper())
 
     fun getInstalledApps(): List<ResolveInfo> {
 
@@ -60,8 +69,26 @@ class AppManager(
 
             context.startActivity(intent)
 
-            // Raven records the application
-            // successfully launched by the user.
+            /*
+             * Give Android time to create the task.
+             * Raven will then locate the task and
+             * attempt to convert it to FREEFORM.
+             */
+            handler.postDelayed(
+                {
+                    ravenWindowManager.movePackageToFreeform(
+                        activityInfo.packageName,
+                        Rect(
+                            300,
+                            150,
+                            1800,
+                            1250
+                        )
+                    )
+                },
+                500
+            )
+
             activeAppManager.setActiveApp(
                 resolveInfo
             )
