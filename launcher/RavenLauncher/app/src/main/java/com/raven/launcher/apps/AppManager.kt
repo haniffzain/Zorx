@@ -1,24 +1,29 @@
 package com.raven.launcher.apps
 
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ResolveInfo
 import android.graphics.Rect
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 
 class AppManager(
     private val context: Context
 ) {
 
+    companion object {
+        private const val TAG = "AppManager"
+
+        // Android WindowConfiguration.WINDOWING_MODE_FREEFORM
+        private const val WINDOWING_MODE_FREEFORM = 5
+
+        // Confirmed from Android 15 ActivityOptions framework.
+        private const val KEY_LAUNCH_WINDOWING_MODE =
+            "android.activity.windowingMode"
+    }
+
     private val activeAppManager =
         ActiveAppManager(context)
-
-    private val ravenWindowManager =
-        RavenWindowManager(context)
-
-    private val handler =
-        Handler(Looper.getMainLooper())
 
     fun getInstalledApps(): List<ResolveInfo> {
 
@@ -67,17 +72,13 @@ class AppManager(
 
         return try {
 
-            context.startActivity(intent)
-
             /*
-             * Give Android time to create the task.
-             * Raven will then locate the task and
-             * attempt to convert it to FREEFORM.
+             * Create launch options with initial Raven
+             * desktop window bounds.
              */
-            handler.postDelayed(
-                {
-                    ravenWindowManager.movePackageToFreeform(
-                        activityInfo.packageName,
+            val options =
+                ActivityOptions.makeBasic()
+                    .setLaunchBounds(
                         Rect(
                             300,
                             150,
@@ -85,8 +86,34 @@ class AppManager(
                             1250
                         )
                     )
-                },
-                500
+
+            /*
+             * ActivityOptions.setLaunchWindowingMode()
+             * is hidden/blocked on Android 15.
+             *
+             * The framework Bundle key has been confirmed as:
+             *
+             * android.activity.windowingMode
+             *
+             * WINDOWING_MODE_FREEFORM = 5
+             */
+            val bundle =
+                options.toBundle()
+
+            bundle.putInt(
+                KEY_LAUNCH_WINDOWING_MODE,
+                WINDOWING_MODE_FREEFORM
+            )
+
+            Log.i(
+                TAG,
+                "Launching ${activityInfo.packageName} " +
+                    "directly in FREEFORM mode"
+            )
+
+            context.startActivity(
+                intent,
+                bundle
             )
 
             activeAppManager.setActiveApp(
@@ -96,6 +123,13 @@ class AppManager(
             true
 
         } catch (exception: Exception) {
+
+            Log.e(
+                TAG,
+                "Failed launching ${activityInfo.packageName} " +
+                    "in FREEFORM mode",
+                exception
+            )
 
             false
         }
