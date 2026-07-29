@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ResolveInfo
 import android.graphics.Rect
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 
 class AppManager(
@@ -24,6 +26,12 @@ class AppManager(
 
     private val activeAppManager =
         ActiveAppManager(context)
+
+    private val ravenWindowManager =
+        RavenWindowManager(context)
+
+    private val handler =
+        Handler(Looper.getMainLooper())
 
     fun getInstalledApps(): List<ResolveInfo> {
 
@@ -114,6 +122,31 @@ class AppManager(
             context.startActivity(
                 intent,
                 bundle
+            )
+
+            /*
+             * TEMPORARY TEST:
+             * Allow Android to create the freeform task,
+             * then ask RavenWindowManager to resize it.
+             */
+            handler.postDelayed(
+                {
+                    Log.i(
+                        TAG,
+                        "Requesting Raven resize for ${activityInfo.packageName}"
+                    )
+
+                    ravenWindowManager.movePackageToFreeform(
+                        activityInfo.packageName,
+                        Rect(
+                            500,
+                            250,
+                            1700,
+                            1050
+                        )
+                    )
+                },
+                1000
             )
 
             activeAppManager.setActiveApp(

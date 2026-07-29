@@ -74,139 +74,105 @@ fun movePackageToFreeform(
 
         return try {
 
-            val activityManager =
-                context.getSystemService(Context.ACTIVITY_SERVICE)
-                        as ActivityManager
-
-            val tasks =
-                activityManager.getRunningTasks(100)
-
-            val task =
-                tasks.firstOrNull {
-                    it.id == taskId
-                }
-                    ?: run {
-                        Log.e(TAG, "Task $taskId not found")
-                        return false
-                    }
+            Log.i(
+                TAG,
+                "resizeTask: taskId=$taskId bounds=$bounds"
+            )
 
             /*
-             * RunningTaskInfo extends TaskInfo.
-             * TaskInfo contains the hidden field:
+             * Android 15 RavenOS:
              *
-             * WindowContainerToken token
+             * ServiceManager.getService("activity_task")
+             *     -> IBinder
+             *
+             * IActivityTaskManager.Stub.asInterface(IBinder)
+             *     -> IActivityTaskManager
+             *
+             * IActivityTaskManager.resizeTask(
+             *     int taskId,
+             *     Rect bounds,
+             *     int flags
+             * )
              */
 
-val taskInfoClass =
-    Class.forName("android.app.TaskInfo")
-
-val getTokenMethod =
-    taskInfoClass.getDeclaredMethod("getToken")
-
-getTokenMethod.isAccessible = true
-
-val token =
-    getTokenMethod.invoke(task)
-
-            if (token == null) {
-                Log.e(TAG, "WindowContainerToken is null")
-                return false
-            }
-
-            val tokenClass =
+            val serviceManagerClass =
                 Class.forName(
-                    "android.window.WindowContainerToken"
+                    "android.os.ServiceManager"
                 )
 
-            val wctClass =
-                Class.forName(
-                    "android.window.WindowContainerTransaction"
+            val getServiceMethod =
+                serviceManagerClass.getMethod(
+                    "getService",
+                    String::class.java
                 )
 
-            val wct =
-                wctClass
-                    .getDeclaredConstructor()
-                    .newInstance()
+            val binder =
+                getServiceMethod.invoke(
+                    null,
+                    "activity_task"
+                )
+                    ?: throw IllegalStateException(
+                        "activity_task binder unavailable"
+                    )
 
-            val setWindowingMode =
-                wctClass.getDeclaredMethod(
-                    "setWindowingMode",
-                    tokenClass,
+            Log.i(
+                TAG,
+                "activity_task binder acquired"
+            )
+
+            val iBinderClass =
+                Class.forName(
+                    "android.os.IBinder"
+                )
+
+            val stubClass =
+                Class.forName(
+                    "android.app.IActivityTaskManager\$Stub"
+                )
+
+            val asInterfaceMethod =
+                stubClass.getMethod(
+                    "asInterface",
+                    iBinderClass
+                )
+
+            val service =
+                asInterfaceMethod.invoke(
+                    null,
+                    binder
+                )
+                    ?: throw IllegalStateException(
+                        "IActivityTaskManager unavailable"
+                    )
+
+            Log.i(
+                TAG,
+                "IActivityTaskManager acquired"
+            )
+
+            val iAtmClass =
+                Class.forName(
+                    "android.app.IActivityTaskManager"
+                )
+
+            val resizeTaskMethod =
+                iAtmClass.getMethod(
+                    "resizeTask",
+                    Int::class.javaPrimitiveType,
+                    Rect::class.java,
                     Int::class.javaPrimitiveType
                 )
 
-            setWindowingMode.invoke(
-                wct,
-                token,
-                WINDOWING_MODE_FREEFORM
-            )
-
-            val setBounds =
-                wctClass.getDeclaredMethod(
-                    "setBounds",
-                    tokenClass,
-                    Rect::class.java
-                )
-
-            setBounds.invoke(
-                wct,
-                token,
-                bounds
-            )
-
-            /*
-             * ActivityTaskManager.getService()
-             */
-            val atmClass =
-                Class.forName(
-                    "android.app.ActivityTaskManager"
-                )
-
-            val getService =
-                atmClass.getDeclaredMethod("getService")
-
-            getService.isAccessible = true
-
-            val activityTaskManager =
-                getService.invoke(null)
-
-            val getWindowOrganizerController =
-                activityTaskManager.javaClass.interfaces
-                    .firstOrNull {
-                        it.name ==
-                            "android.app.IActivityTaskManager"
-                    }
-                    ?.getMethod(
-                        "getWindowOrganizerController"
-                    )
-                    ?: throw NoSuchMethodException(
-                        "getWindowOrganizerController"
-                    )
-
-            val organizerController =
-                getWindowOrganizerController.invoke(
-                    activityTaskManager
-                )
-
-            val organizerInterface =
-                Class.forName(
-                    "android.window.IWindowOrganizerController"
-                )
-
-            val applyTransaction =
-                organizerInterface.getMethod(
-                    "applyTransaction",
-                    wctClass
-                )
-
-            applyTransaction.invoke(
-                organizerController,
-                wct
+            resizeTaskMethod.invoke(
+                service,
+                taskId,
+                bounds,
+                0
             )
 
             Log.i(
                 TAG,
-                "Task $taskId moved to FREEFORM: $bounds"
+                "resizeTask SUCCESS: taskId=$taskId bounds=$bounds"
             )
 
             true
@@ -215,7 +181,7 @@ val token =
 
             Log.e(
                 TAG,
-                "Failed moving task to FREEFORM",
+                "resizeTask FAILED: taskId=$taskId",
                 exception
             )
 
