@@ -6,7 +6,7 @@ package com.raven.launcher.window
  * For now this manages only the internal registry.
  * Android backend integration will be added later.
  */
-class LumaWindowManager {
+object LumaWindowManager {
 
     private val registry =
         WindowRegistry

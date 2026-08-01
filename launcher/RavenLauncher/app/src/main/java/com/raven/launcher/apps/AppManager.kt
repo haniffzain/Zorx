@@ -1,4 +1,5 @@
 package com.raven.launcher.apps
+import com.raven.launcher.service.LumaWindowService
 
 import android.app.ActivityOptions
 import android.content.Context
@@ -27,11 +28,14 @@ class AppManager(
     private val activeAppManager =
         ActiveAppManager(context)
 
-    private val ravenWindowManager =
-        RavenWindowManager(context)
+    private val androidWindowBackend =
+        AndroidWindowBackend(context)
 
     private val handler =
         Handler(Looper.getMainLooper())
+
+        private val lumaWindowService =
+    LumaWindowService()
 
     fun getInstalledApps(): List<ResolveInfo> {
 
@@ -136,7 +140,7 @@ class AppManager(
                         "Requesting Raven resize for ${activityInfo.packageName}"
                     )
 
-                    ravenWindowManager.movePackageToFreeform(
+                    androidWindowBackend.movePackageToFreeform(
                         activityInfo.packageName,
                         Rect(
                             500,

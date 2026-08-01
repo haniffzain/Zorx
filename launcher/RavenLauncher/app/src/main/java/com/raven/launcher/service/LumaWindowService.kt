@@ -15,7 +15,7 @@ import com.raven.launcher.window.LumaWindowManager
 class LumaWindowService {
 
     private val windowManager =
-        LumaWindowManager()
+        LumaWindowManager
 
     fun registerWindow(
     window: LumaWindow

@@ -5,7 +5,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.util.Log
 
-class RavenWindowManager(
+class AndroidWindowBackend(
     private val context: Context
 ) {
 
@@ -61,7 +61,7 @@ fun movePackageToFreeform(
 }
 
     companion object {
-        private const val TAG = "RavenWindowManager"
+        private const val TAG = "AndroidWindowBackend"
 
         // WindowConfiguration.WINDOWING_MODE_FREEFORM
         private const val WINDOWING_MODE_FREEFORM = 5

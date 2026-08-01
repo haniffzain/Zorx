@@ -35,6 +35,9 @@ class TaskbarView(
     private val activeAppManager =
         ActiveAppManager(context)
 
+        private val taskbarController =
+    TaskbarController(this)
+
     private val appArea =
         LinearLayout(context)
 
@@ -66,7 +69,7 @@ class TaskbarView(
         val startButton =
             TextView(context)
 
-        startButton.text = "🦅 Raven"
+        startButton.text = "◉ Luma"
         startButton.textSize = 18f
         startButton.setTextColor(Color.WHITE)
 
@@ -294,5 +297,6 @@ class TaskbarView(
         handler.removeCallbacks(
             clockUpdater
         )
+          taskbarController.destroy()
     }
 }
