@@ -9,8 +9,8 @@ package com.raven.launcher.window
 class LumaWindowManager {
 
     private val registry =
-        WindowRegistry()
-
+        WindowRegistry
+        
     fun registerWindow(
         window: LumaWindow
     ) {

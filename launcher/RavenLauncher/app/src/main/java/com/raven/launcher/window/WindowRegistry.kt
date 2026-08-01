@@ -1,9 +1,11 @@
 package com.raven.launcher.window
 
 /**
- * Stores all active Luma desktop windows.
+ * Global registry containing every active window in LumaOS.
+ *
+ * Every component shares this single instance.
  */
-class WindowRegistry {
+object WindowRegistry {
 
     private val windows =
         mutableListOf<LumaWindow>()
@@ -11,6 +13,7 @@ class WindowRegistry {
     fun addWindow(
         window: LumaWindow
     ) {
+
         windows.removeAll {
             it.taskId == window.taskId
         }
@@ -21,6 +24,7 @@ class WindowRegistry {
     fun removeWindow(
         taskId: Int
     ) {
+
         windows.removeAll {
             it.taskId == taskId
         }
@@ -43,5 +47,10 @@ class WindowRegistry {
     fun clear() {
 
         windows.clear()
+    }
+
+    fun count(): Int {
+
+        return windows.size
     }
 }
