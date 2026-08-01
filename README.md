@@ -1,29 +1,98 @@
-# Raven OS
+# LumaOS
 
-## Black Wing Edition
+LumaOS is a modern desktop environment for Android built directly on AOSP.
 
-Version: 1.0
+Unlike traditional Android launchers, LumaOS provides a true desktop experience with native freeform windows, multitasking, taskbar integration and future desktop-class features.
 
-A desktop Android operating system for PC.
+---
 
-## Main Features
+## Current Features
 
-- Raven Launcher
-- Desktop Environment
-- Start Menu
+- Native Android Launcher
+- Desktop Workspace
+- Native Freeform Window Launch
+- Native Recents Replacement
 - Taskbar
-- Window Mode
-- Raven Control Center
-- Raven Update System
+- Application Drawer
+- Active Application Tracking
 
-## Architecture
+---
 
-x86_64
+## Android Version
 
-## Base System
+Currently targeting:
 
-Android Open Source Project / Android-x86
+Android 15 (AOSP)
 
-## Status
+---
 
-Development Phase
+## Project Structure
+
+launcher/
+Desktop UI and Launcher
+
+docs/
+Architecture and documentation
+
+branding/
+Logos and artwork
+
+screenshots/
+Project screenshots
+
+---
+
+## Current Progress
+
+✔ Desktop Environment
+
+✔ Freeform Launch
+
+✔ Native Recents
+
+✔ Android 15 Compatibility
+
+🚧 Window Resize
+
+🚧 Window Dragging
+
+🚧 Snap Layout
+
+🚧 Multi Desktop
+
+---
+
+## Roadmap
+
+Version 0.5
+- Desktop
+- Launcher
+- Taskbar
+- Native Freeform
+
+Version 0.6
+- Window Resize
+- Window Move
+- Window Focus
+
+Version 0.7
+- File Manager
+- Terminal
+- Settings
+
+Version 0.8
+- Snap Layout
+- Virtual Desktop
+
+Version 0.9
+- Multi Monitor
+
+Version 1.0
+- Stable Desktop Operating Environment
+
+---
+
+Author
+
+Mohd Haniff
+LumaOS Project
