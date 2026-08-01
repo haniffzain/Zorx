@@ -1,6 +1,6 @@
 package com.raven.launcher.apps
 import com.raven.launcher.service.LumaWindowService
-
+import com.raven.launcher.window.LumaWindow
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
@@ -127,6 +127,32 @@ class AppManager(
                 intent,
                 bundle
             )
+
+lumaWindowService.registerWindow(
+
+    LumaWindow(
+
+        taskId = -1,
+
+        packageName =
+            activityInfo.packageName,
+
+        title =
+    resolveInfo.loadLabel(
+        context.packageManager
+    ).toString(),
+    
+        bounds =
+            Rect(
+                300,
+                150,
+                1800,
+                1250
+            )
+
+    )
+
+)
 
             /*
              * TEMPORARY TEST:

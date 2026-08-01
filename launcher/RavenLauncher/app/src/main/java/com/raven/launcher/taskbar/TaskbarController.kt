@@ -1,5 +1,6 @@
 package com.raven.launcher.taskbar
 
+import android.util.Log
 import com.raven.launcher.events.LumaEvent
 import com.raven.launcher.events.LumaEventBus
 import com.raven.launcher.events.LumaEventListener
@@ -12,6 +13,12 @@ class TaskbarController(
     private val taskbarView: TaskbarView
 ) : LumaEventListener {
 
+companion object {
+
+    private const val TAG = "TaskbarController"
+
+}
+
     init {
         LumaEventBus.register(this)
     }
@@ -22,11 +29,16 @@ class TaskbarController(
 
         when (event) {
 
-            is WindowOpenedEvent -> {
+         is WindowOpenedEvent -> {
 
-                taskbarView.refreshPinnedApps()
+    Log.i(
+        TAG,
+        "Window opened: ${event.window.packageName}"
+    )
 
-            }
+    taskbarView.refreshPinnedApps()
+
+}
 
         }
     }
