@@ -1,5 +1,10 @@
 package com.raven.launcher.spatial
 
+import com.raven.launcher.events.LumaEventBus
+import com.raven.launcher.events.desktop.DesktopAddedEvent
+import com.raven.launcher.events.desktop.DesktopMovedEvent
+import com.raven.launcher.events.desktop.DesktopRemovedEvent
+
 /**
  * Central coordinator for the Luma Spatial Engine.
  *
@@ -14,13 +19,43 @@ class SpatialEngine(
 
 ) {
 
+fun moveObject(
+    id: String,
+    newBounds: SpatialBounds
+) {
+
+    val desktopObject =
+        repository.find(id)
+            ?: return
+
+    desktopObject.bounds =
+    newBounds
+
+LumaEventBus.post(
+
+    DesktopMovedEvent(
+        desktopObject
+    )
+
+)
+
+}
+
     fun addObject(
         desktopObject: DesktopObject
     ) {
 
         repository.add(
-            desktopObject
-        )
+    desktopObject
+)
+
+LumaEventBus.post(
+
+    DesktopAddedEvent(
+        desktopObject
+    )
+
+)
 
     }
 
@@ -28,7 +63,7 @@ class SpatialEngine(
         id: String
     ) {
 
-        repository.remove(
+        DesktopRemovedEvent(
             id
         )
 
@@ -44,11 +79,19 @@ class SpatialEngine(
 
     }
 
-    fun getObjects(): List<DesktopObject> {
+    fun getAllObjects(): List<DesktopObject> {
 
         return repository.getAll()
 
     }
+
+fun containsObject(
+    id: String
+): Boolean {
+
+    return repository.find(id) != null
+
+}
 
     fun clear() {
 
