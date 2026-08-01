@@ -19,3 +19,8 @@ local.properties
 # OS files
 .DS_Store
 Thumbs.db
+
+# Development backups
+*.bak
+*.backup
+*.before-*
