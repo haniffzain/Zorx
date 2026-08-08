@@ -14,6 +14,24 @@ class AppManager(
     private val context: Context
 ) {
 
+    private val launchingPackages =
+        mutableSetOf<String>()
+
+    /*
+     * Temporary Luma task IDs.
+     *
+     * Android task IDs are not available to the normal
+     * launcher process on the current emulator.
+     *
+     * Negative IDs are reserved for Luma synthetic windows.
+     */
+    private var nextSyntheticTaskId = -1
+
+    private fun createSyntheticTaskId(): Int {
+
+        return nextSyntheticTaskId--
+    }
+
     companion object {
         private const val TAG = "AppManager"
 
@@ -64,6 +82,22 @@ class AppManager(
 
         val activityInfo =
             resolveInfo.activityInfo
+
+        val packageName =
+            activityInfo.packageName
+
+        synchronized(launchingPackages) {
+
+            if (!launchingPackages.add(packageName)) {
+
+                Log.w(
+                    TAG,
+                    "Ignoring duplicate launch request for $packageName"
+                )
+
+                return false
+            }
+        }
 
         val intent =
             Intent(Intent.ACTION_MAIN).apply {
@@ -128,55 +162,57 @@ class AppManager(
                 bundle
             )
 
-lumaWindowService.registerWindow(
-
-    LumaWindow(
-
-        taskId = -1,
-
-        packageName =
-            activityInfo.packageName,
-
-        title =
-    resolveInfo.loadLabel(
-        context.packageManager
-    ).toString(),
-    
-        bounds =
-            Rect(
-                300,
-                150,
-                1800,
-                1250
-            )
-
-    )
-
-)
-
             /*
              * TEMPORARY TEST:
              * Allow Android to create the freeform task,
              * then ask RavenWindowManager to resize it.
              */
-            handler.postDelayed(
-                {
-                    Log.i(
-                        TAG,
-                        "Requesting Raven resize for ${activityInfo.packageName}"
-                    )
+            /*
+             * Android task IDs are currently hidden from the
+             * normal RavenLauncher process.
+             *
+             * Create the Luma window immediately using a
+             * synthetic negative task ID.
+             *
+             * AndroidWindowBackend remains responsible for
+             * attempting real FREEFORM manipulation.
+             */
 
-                    androidWindowBackend.movePackageToFreeform(
+            val syntheticTaskId =
+                createSyntheticTaskId()
+
+            val lumaBounds =
+                Rect(
+                    300,
+                    150,
+                    1800,
+                    1250
+                )
+
+            Log.i(
+                TAG,
+                "Creating synthetic Luma task " +
+                    "$syntheticTaskId for ${activityInfo.packageName}"
+            )
+
+            lumaWindowService.registerWindow(
+
+                LumaWindow(
+
+                    taskId =
+                        syntheticTaskId,
+
+                    packageName =
                         activityInfo.packageName,
-                        Rect(
-                            500,
-                            250,
-                            1700,
-                            1050
-                        )
-                    )
-                },
-                1000
+
+                    title =
+                        resolveInfo.loadLabel(
+                            context.packageManager
+                        ).toString(),
+
+                    bounds =
+                        lumaBounds
+                )
             )
 
             activeAppManager.setActiveApp(
@@ -186,6 +222,10 @@ lumaWindowService.registerWindow(
             true
 
         } catch (exception: Exception) {
+
+            synchronized(launchingPackages) {
+                launchingPackages.remove(packageName)
+            }
 
             Log.e(
                 TAG,

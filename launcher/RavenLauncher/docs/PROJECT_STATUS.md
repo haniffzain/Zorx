@@ -1,37 +1,41 @@
-# LumaOS Project Status
+# Project Status
 
-Current Version
+Current milestone:
 
-Alpha 0.3
+Alpha 0.1
 
-Current Sprint
+---
 
-Sprint 05
+Completed
 
-Architecture
+- Runtime
 
-✔ Stable
+- Spatial Engine
 
-Desktop
+- Repository
 
-🚧 In Progress
+- Commands
 
-Widgets
+- Event Pipeline
 
-⏳ Planned
+- Desktop Renderer
 
-Notification Center
+- Desktop Compositor
 
-⏳ Planned
+---
 
-AI Integration
+In Progress
 
-⏳ Planned
+- Desktop Surface
 
-Latest Build
+- Desktop Scene
 
-PASS
+---
 
-Latest Commit
+Next
 
-6b1bd41
+- Hello LumaOS Window
+
+- Window Drag
+
+- Window Resize

@@ -4,40 +4,202 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
+import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 
 class StartMenuView(
     context: Context,
     private val onApplicationsClick: () -> Unit
-) : LinearLayout(context) {
+) : ScrollView(context) {
+
+    private val menuContainer =
+        LinearLayout(context)
 
     init {
-        orientation = VERTICAL
-        gravity = Gravity.TOP
 
-        val menuBackground = GradientDrawable().apply {
-            setColor(Color.rgb(25, 25, 30))
-            cornerRadius = 18f
-        }
+        isFillViewport = true
+
+        val menuBackground =
+            GradientDrawable().apply {
+                setColor(
+                    Color.rgb(
+                        25,
+                        25,
+                        30
+                    )
+                )
+
+                cornerRadius = 22f
+            }
 
         background = menuBackground
 
         setPadding(
-            30,
-            30,
-            30,
-            30
+            24,
+            24,
+            24,
+            24
         )
 
-        addMenuItem("🦅  Raven OS")
-        addMenuItem("📱  Applications") {
+        menuContainer.orientation =
+            LinearLayout.VERTICAL
+
+        menuContainer.gravity =
+            Gravity.TOP
+
+        addView(
+            menuContainer,
+            LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        // =========================
+        // HEADER
+        // =========================
+
+        val header =
+            TextView(context).apply {
+
+                text = "🦅  Raven OS"
+
+                textSize = 22f
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    12,
+                    4,
+                    12,
+                    10
+                )
+            }
+
+        menuContainer.addView(
+            header,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        // =========================
+        // SEARCH
+        // =========================
+
+        val search =
+            EditText(context).apply {
+
+                hint =
+                    "🔍  Search applications..."
+
+                textSize = 16f
+
+                setTextColor(
+                    Color.WHITE
+                )
+
+                setHintTextColor(
+                    Color.rgb(
+                        170,
+                        170,
+                        175
+                    )
+                )
+
+                setSingleLine(true)
+
+                setPadding(
+                    18,
+                    14,
+                    18,
+                    14
+                )
+
+                background =
+                    GradientDrawable().apply {
+
+                        setColor(
+                            Color.rgb(
+                                40,
+                                40,
+                                48
+                            )
+                        )
+
+                        cornerRadius = 14f
+                    }
+            }
+
+        menuContainer.addView(
+            search,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                58
+            )
+        )
+
+        // =========================
+        // APPLICATIONS
+        // =========================
+
+        addMenuItem(
+            "📱  Applications"
+        ) {
             onApplicationsClick()
         }
-        addMenuItem("📁  Files")
-        addMenuItem("⚙  Settings")
-        addMenuItem("🔍  Search")
-        addMenuItem("⏻  Power")
+
+        // =========================
+        // FILES
+        // =========================
+
+        addMenuItem(
+            "📁  Files"
+        )
+
+        // =========================
+        // SETTINGS
+        // =========================
+
+        addMenuItem(
+            "⚙  Settings"
+        )
+
+        // =========================
+        // SEARCH
+        // =========================
+
+        addMenuItem(
+            "🔍  Search"
+        )
+
+        // =========================
+        // SPACER
+        // =========================
+
+        menuContainer.addView(
+            TextView(context),
+            LinearLayout.LayoutParams(
+                1,
+                8
+            )
+        )
+
+        // =========================
+        // POWER
+        // =========================
+
+        addMenuItem(
+            "⏻  Power"
+        )
     }
 
     private fun addMenuItem(
@@ -45,33 +207,43 @@ class StartMenuView(
         onClick: (() -> Unit)? = null
     ) {
 
-        val item = TextView(context).apply {
-            text = title
-            textSize = 18f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER_VERTICAL
+        val item =
+            TextView(context).apply {
 
-            setPadding(
-                20,
-                20,
-                20,
-                20
-            )
+                text = title
 
-            if (onClick != null) {
-                isClickable = true
+                textSize = 18f
 
-                setOnClickListener {
-                    onClick()
+                setTextColor(
+                    Color.WHITE
+                )
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+
+                setPadding(
+                    18,
+                    8,
+                    18,
+                    8
+                )
+
+                isClickable =
+                    onClick != null
+
+                if (onClick != null) {
+
+                    setOnClickListener {
+                        onClick()
+                    }
                 }
             }
-        }
 
-        addView(
+        menuContainer.addView(
             item,
-            LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.WRAP_CONTENT
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                48
             )
         )
     }

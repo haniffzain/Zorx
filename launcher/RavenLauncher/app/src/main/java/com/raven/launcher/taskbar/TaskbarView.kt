@@ -111,32 +111,84 @@ class TaskbarView(
         refreshPinnedApps()
 
         // =========================
-        // SYSTEM CLOCK
-        // =========================
+// SYSTEM TRAY
+// =========================
 
-        clockView =
-            TextView(context)
+val systemTray =
+    LinearLayout(context).apply {
+        orientation = HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+    }
 
-        clockView.textSize = 16f
-        clockView.setTextColor(Color.WHITE)
+// WiFi
+val wifiView =
+    TextView(context).apply {
+        text = "◉"
+        textSize = 14f
+        setTextColor(Color.WHITE)
+        gravity = Gravity.CENTER
+        setPadding(12, 0, 12, 0)
+    }
 
-        clockView.gravity =
-            Gravity.CENTER
+// Volume
+val volumeView =
+    TextView(context).apply {
+        text = "🔊"
+        textSize = 14f
+        setTextColor(Color.WHITE)
+        gravity = Gravity.CENTER
+        setPadding(8, 0, 8, 0)
+    }
 
-        clockView.setPadding(
-            25,
-            0,
-            25,
-            0
-        )
+// Battery
+val batteryView =
+    TextView(context).apply {
+        text = "▣"
+        textSize = 14f
+        setTextColor(Color.WHITE)
+        gravity = Gravity.CENTER
+        setPadding(8, 0, 12, 0)
+    }
 
-        addView(
-            clockView,
-            LayoutParams(
-                LayoutParams.WRAP_CONTENT,
-                LayoutParams.MATCH_PARENT
-            )
-        )
+systemTray.addView(wifiView)
+systemTray.addView(volumeView)
+systemTray.addView(batteryView)
+
+addView(
+    systemTray,
+    LayoutParams(
+        LayoutParams.WRAP_CONTENT,
+        LayoutParams.MATCH_PARENT
+    )
+)
+
+// =========================
+// SYSTEM CLOCK
+// =========================
+
+clockView =
+    TextView(context)
+
+clockView.textSize = 16f
+clockView.setTextColor(Color.WHITE)
+
+clockView.gravity =
+    Gravity.CENTER
+
+clockView.setPadding(
+    15,
+    0,
+    25,
+    0
+)
+
+addView(
+    clockView,
+    LayoutParams(
+        LayoutParams.WRAP_CONTENT,
+        LayoutParams.MATCH_PARENT
+    )
+)
 
         updateClock()
 

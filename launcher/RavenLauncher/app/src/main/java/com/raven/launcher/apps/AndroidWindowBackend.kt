@@ -67,6 +67,26 @@ fun movePackageToFreeform(
         private const val WINDOWING_MODE_FREEFORM = 5
     }
 
+    fun findTaskId(
+        packageName: String
+    ): Int? {
+
+        val activityManager =
+            context.getSystemService(Context.ACTIVITY_SERVICE)
+                as ActivityManager
+
+        val tasks =
+            activityManager.getRunningTasks(100)
+
+        val task =
+            tasks.firstOrNull {
+                it.baseActivity?.packageName == packageName ||
+                it.topActivity?.packageName == packageName
+            }
+
+        return task?.id
+    }
+
     fun moveTaskToFreeform(
         taskId: Int,
         bounds: Rect

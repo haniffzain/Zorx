@@ -3,46 +3,201 @@ package com.raven.launcher.compositor
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
 import com.raven.launcher.spatial.DesktopObject
 
 /**
- * Paints a desktop object onto the screen.
+ * Paints a desktop object as a LumaOS window shell.
  */
 class WindowPainter {
 
-    private val paint =
-        Paint().apply {
+    private val windowPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(45, 47, 55)
+            style = Paint.Style.FILL
+        }
 
-            color =
-                Color.DKGRAY
+    private val titleBarPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(35, 37, 44)
+            style = Paint.Style.FILL
+        }
 
+    private val borderPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(90, 92, 102)
+            style = Paint.Style.STROKE
+            strokeWidth = 2f
+        }
+
+    private val titlePaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            textSize = 28f
+            isAntiAlias = true
+        }
+
+    private val buttonPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(70, 72, 80)
+            style = Paint.Style.FILL
+        }
+
+    private val buttonTextPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            textSize = 22f
+            isAntiAlias = true
         }
 
     fun paint(
-
         canvas: Canvas,
-
         desktopObject: DesktopObject
-
     ) {
 
         val b =
             desktopObject.bounds
 
+        val left =
+            b.x.toFloat()
+
+        val top =
+            b.y.toFloat()
+
+        val right =
+            (b.x + b.width).toFloat()
+
+        val bottom =
+            (b.y + b.height).toFloat()
+
+        val titleBarHeight =
+            56f
+
+        // =========================
+        // WINDOW BODY
+        // =========================
+
         canvas.drawRect(
-
-            b.x.toFloat(),
-
-            b.y.toFloat(),
-
-            (b.x + b.width).toFloat(),
-
-            (b.y + b.height).toFloat(),
-
-            paint
-
+            left,
+            top,
+            right,
+            bottom,
+            windowPaint
         )
 
-    }
+        // =========================
+        // TITLE BAR
+        // =========================
 
+        canvas.drawRect(
+            left,
+            top,
+            right,
+            top + titleBarHeight,
+            titleBarPaint
+        )
+
+        // =========================
+        // WINDOW BORDER
+        // =========================
+
+        canvas.drawRect(
+            RectF(
+                left,
+                top,
+                right,
+                bottom
+            ),
+            borderPaint
+        )
+
+        // =========================
+        // TITLE
+        // =========================
+
+        canvas.drawText(
+            desktopObject.title,
+            left + 20f,
+            top + 37f,
+            titlePaint
+        )
+
+        // =========================
+        // WINDOW BUTTONS
+        // =========================
+
+        val buttonY =
+            top + 28f
+
+        val closeX =
+            right - 28f
+
+        val maximizeX =
+            right - 68f
+
+        val minimizeX =
+            right - 108f
+
+        canvas.drawCircle(
+            minimizeX,
+            buttonY,
+            14f,
+            buttonPaint
+        )
+
+        canvas.drawCircle(
+            maximizeX,
+            buttonY,
+            14f,
+            buttonPaint
+        )
+
+        canvas.drawCircle(
+            closeX,
+            buttonY,
+            14f,
+            buttonPaint
+        )
+
+        canvas.drawText(
+            "−",
+            minimizeX - 7f,
+            buttonY + 7f,
+            buttonTextPaint
+        )
+
+        canvas.drawText(
+            "□",
+            maximizeX - 8f,
+            buttonY + 7f,
+            buttonTextPaint
+        )
+
+        canvas.drawText(
+            "×",
+            closeX - 7f,
+            buttonY + 7f,
+            buttonTextPaint
+        )
+
+        // =========================
+        // CONTENT LABEL
+        // =========================
+
+        val contentText =
+            "LumaOS Window"
+
+        val contentPaint =
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.LTGRAY
+                textSize = 22f
+            }
+
+        canvas.drawText(
+            contentText,
+            left + 24f,
+            top + titleBarHeight + 45f,
+            contentPaint
+        )
+    }
 }

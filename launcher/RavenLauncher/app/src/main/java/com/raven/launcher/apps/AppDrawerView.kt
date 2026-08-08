@@ -55,6 +55,18 @@ class AppDrawerView(
 
                 // Normal click = launch application
                 setOnClickListener {
+
+                    val appName =
+                        app.loadLabel(
+                            context.packageManager
+                        ).toString()
+
+                    android.util.Log.i(
+                        "AppDrawerView",
+                        "CLICK: $appName " +
+                            "package=${app.activityInfo.packageName}"
+                    )
+
                     appManager.launchApp(app)
                 }
 

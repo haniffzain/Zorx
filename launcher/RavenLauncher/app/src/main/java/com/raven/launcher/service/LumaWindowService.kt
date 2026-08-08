@@ -4,6 +4,7 @@ import com.raven.launcher.events.LumaEventBus
 import com.raven.launcher.events.WindowOpenedEvent
 import com.raven.launcher.window.LumaWindow
 import com.raven.launcher.window.LumaWindowManager
+import android.util.Log
 
 /**
  * Central service responsible for every window
@@ -13,6 +14,10 @@ import com.raven.launcher.window.LumaWindowManager
  * WindowManager.
  */
 class LumaWindowService {
+
+    companion object {
+        private const val TAG = "LumaWindowService"
+    }
 
     private val windowManager =
         LumaWindowManager

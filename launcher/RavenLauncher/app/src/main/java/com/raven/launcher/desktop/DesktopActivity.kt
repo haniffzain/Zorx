@@ -23,9 +23,21 @@ class DesktopActivity : AppCompatActivity() {
         val desktop =
             findViewById<FrameLayout>(R.id.raven_desktop)
 
+            val desktopSurface =
+    DesktopSurface(this)
+
+desktop.addView(
+    desktopSurface,
+    FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT
+    )
+)
+
         // =========================
         // APPLICATION DRAWER
         // =========================
+
 
 appDrawer = AppDrawerView(this) {
 
@@ -60,10 +72,19 @@ appDrawer = AppDrawerView(this) {
             openApplications()
         }
 
-        val startMenuParams = FrameLayout.LayoutParams(
-            500,
-            600
-        )
+        val density = resources.displayMetrics.density
+
+        val startMenuWidth =
+            (320 * density).toInt()
+
+        val startMenuHeight =
+            (430 * density).toInt()
+
+        val startMenuParams =
+            FrameLayout.LayoutParams(
+                startMenuWidth,
+                startMenuHeight
+            )
 
         startMenuParams.gravity =
             Gravity.BOTTOM or Gravity.START
