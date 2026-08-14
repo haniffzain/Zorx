@@ -26,12 +26,22 @@ class DesktopActivity : AppCompatActivity() {
             val desktopSurface =
     DesktopSurface(this)
 
-desktop.addView(
-    desktopSurface,
+val desktopSurfaceParams =
     FrameLayout.LayoutParams(
         FrameLayout.LayoutParams.MATCH_PARENT,
         FrameLayout.LayoutParams.MATCH_PARENT
     )
+
+desktopSurfaceParams.setMargins(
+    0,
+    0,
+    0,
+    80
+)
+
+desktop.addView(
+    desktopSurface,
+    desktopSurfaceParams
 )
 
         // =========================
