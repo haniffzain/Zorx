@@ -85,7 +85,15 @@ class WindowInteractionController(
             findTopMostObject(
                 x,
                 y
-            ) ?: return false
+            ) ?: run {
+
+                android.util.Log.d(
+                    "WindowInteractionController",
+                    "NO OBJECT at x=$x y=$y"
+                )
+
+                return false
+            }
 
         val bounds =
             objectToSelect.bounds

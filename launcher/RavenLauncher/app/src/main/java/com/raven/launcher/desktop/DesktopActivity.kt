@@ -107,7 +107,10 @@ appDrawer = AppDrawerView(this) {
         // TASKBAR
         // =========================
 
-        taskbar = TaskbarView(this) {
+        taskbar = TaskbarView(
+            this,
+            desktopSurface.spatialEngine
+        ) {
             toggleStartMenu()
         }
 

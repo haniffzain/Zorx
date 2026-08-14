@@ -18,6 +18,7 @@ import java.util.Locale
 
 class TaskbarView(
     context: Context,
+    private val spatialEngine: com.raven.launcher.spatial.SpatialEngine,
     private val onStartClick: () -> Unit
 ) : LinearLayout(context) {
 
@@ -36,9 +37,15 @@ class TaskbarView(
         ActiveAppManager(context)
 
         private val taskbarController =
-    TaskbarController(this)
+    TaskbarController(
+        this,
+        spatialEngine
+    )
 
     private val appArea =
+        LinearLayout(context)
+
+    private val runningArea =
         LinearLayout(context)
 
     private val clockUpdater =
@@ -108,7 +115,22 @@ class TaskbarView(
             )
         )
 
+        runningArea.orientation =
+            HORIZONTAL
+
+        runningArea.gravity =
+            Gravity.CENTER_VERTICAL
+
+        addView(
+            runningArea,
+            LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT
+            )
+        )
+
         refreshPinnedApps()
+        refreshRunningWindows()
 
         // =========================
 // SYSTEM TRAY
@@ -299,19 +321,30 @@ addView(
 
                 appContainer.setOnClickListener {
 
-                    val launched =
-                        appManager.launchApp(app)
+                    val packageName =
+                        app.activityInfo.packageName
 
-                    if (launched) {
+                    val handled =
+                        taskbarController.onAppClicked(
+                            packageName
+                        )
 
-                        /*
-                         * AppManager has already updated
-                         * ActiveAppManager at this point.
-                         *
-                         * Rebuild the pinned area so the
-                         * indicator moves to this app.
-                         */
-                        refreshPinnedApps()
+                    if (!handled) {
+
+                        val launched =
+                            appManager.launchApp(app)
+
+                        if (launched) {
+
+                            /*
+                             * AppManager has already updated
+                             * ActiveAppManager at this point.
+                             *
+                             * Rebuild the pinned area so the
+                             * indicator moves to this app.
+                             */
+                            refreshPinnedApps()
+                        }
                     }
                 }
 
@@ -323,6 +356,78 @@ addView(
                     )
                 )
             }
+        }
+    }
+
+    // =========================
+    // RUNNING WINDOWS
+    // =========================
+
+    fun refreshRunningWindows() {
+
+        runningArea.removeAllViews()
+
+        val runningWindows =
+            spatialEngine
+                .getAllObjects()
+                .filter { desktopObject ->
+
+                    desktopObject.id.startsWith(
+                        "window:"
+                    )
+                }
+                .sortedBy {
+                    it.zIndex
+                }
+
+        runningWindows.forEach { desktopObject ->
+
+            val button =
+                TextView(context)
+
+            button.text =
+                when (desktopObject.state) {
+
+                    com.raven.launcher.spatial.DesktopObjectState.MINIMIZED ->
+                        "▱ ${desktopObject.title}"
+
+                    com.raven.launcher.spatial.DesktopObjectState.MAXIMIZED ->
+                        "▣ ${desktopObject.title}"
+
+                    else ->
+                        "▰ ${desktopObject.title}"
+                }
+
+            button.textSize = 14f
+
+            button.setTextColor(
+                Color.WHITE
+            )
+
+            button.gravity =
+                Gravity.CENTER
+
+            button.setPadding(
+                14,
+                0,
+                14,
+                0
+            )
+
+            button.setOnClickListener {
+
+                taskbarController.onRunningWindowClicked(
+                    desktopObject.id
+                )
+            }
+
+            runningArea.addView(
+                button,
+                LayoutParams(
+                    150,
+                    LayoutParams.MATCH_PARENT
+                )
+            )
         }
     }
 
