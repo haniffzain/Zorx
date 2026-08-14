@@ -51,11 +51,6 @@ class DesktopRuntime : LumaEventListener {
         event: LumaEvent
     ) {
 
-        Log.i(
-            TAG,
-            "EVENT RECEIVED: ${event::class.simpleName}"
-        )
-
         when (event) {
 
             is WindowOpenedEvent -> {

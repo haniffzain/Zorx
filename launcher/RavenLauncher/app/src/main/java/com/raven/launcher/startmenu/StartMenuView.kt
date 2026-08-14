@@ -1,13 +1,19 @@
 package com.raven.launcher.startmenu
 
 import android.content.Context
-import android.graphics.Color
+import android.content.pm.ResolveInfo
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
+import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import com.raven.launcher.apps.AppManager
+import com.raven.launcher.apps.PinnedAppManager
+import com.raven.launcher.design.LumaColors
+import com.raven.launcher.design.LumaRadius
 
 class StartMenuView(
     context: Context,
@@ -17,30 +23,35 @@ class StartMenuView(
     private val menuContainer =
         LinearLayout(context)
 
+    private val appManager =
+        AppManager(context)
+
+    private val pinnedAppManager =
+        PinnedAppManager(context)
+
+    private val installedApps =
+        appManager.getInstalledApps()
+
     init {
 
         isFillViewport = true
 
-        val menuBackground =
+        background =
             GradientDrawable().apply {
+
                 setColor(
-                    Color.rgb(
-                        25,
-                        25,
-                        30
-                    )
+                    LumaColors.Surface
                 )
 
-                cornerRadius = 22f
+                cornerRadius =
+                    LumaRadius.Widget
             }
 
-        background = menuBackground
-
         setPadding(
-            24,
-            24,
-            24,
-            24
+            18,
+            18,
+            18,
+            18
         )
 
         menuContainer.orientation =
@@ -57,29 +68,38 @@ class StartMenuView(
             )
         )
 
-        // =========================
-        // HEADER
-        // =========================
+        buildHeader()
+
+        buildSearch()
+
+        buildPinnedApps()
+
+        buildMenuItems()
+
+        buildPower()
+    }
+
+    private fun buildHeader() {
 
         val header =
             TextView(context).apply {
 
-                text = "🦅  Raven OS"
+                text = "LumaOS"
 
-                textSize = 22f
+                textSize = 24f
 
                 setTextColor(
-                    Color.WHITE
+                    LumaColors.TextPrimary
                 )
 
                 gravity =
                     Gravity.CENTER_VERTICAL
 
                 setPadding(
-                    12,
+                    8,
                     4,
-                    12,
-                    10
+                    8,
+                    14
                 )
             }
 
@@ -90,52 +110,44 @@ class StartMenuView(
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
         )
+    }
 
-        // =========================
-        // SEARCH
-        // =========================
+    private fun buildSearch() {
 
         val search =
             EditText(context).apply {
 
                 hint =
-                    "🔍  Search applications..."
+                    "Search applications..."
 
-                textSize = 16f
+                textSize = 15f
 
                 setTextColor(
-                    Color.WHITE
+                    LumaColors.TextPrimary
                 )
 
                 setHintTextColor(
-                    Color.rgb(
-                        170,
-                        170,
-                        175
-                    )
+                    LumaColors.TextSecondary
                 )
 
                 setSingleLine(true)
 
                 setPadding(
-                    18,
-                    14,
-                    18,
-                    14
+                    16,
+                    10,
+                    16,
+                    10
                 )
 
                 background =
                     GradientDrawable().apply {
 
                         setColor(
-                            Color.rgb(
-                                40,
-                                40,
-                                48
-                            )
+                            LumaColors.Background
                         )
 
-                        cornerRadius = 14f
+                        cornerRadius =
+                            LumaRadius.Button
                     }
             }
 
@@ -143,95 +155,236 @@ class StartMenuView(
             search,
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                58
+                52
+            )
+        )
+    }
+
+    private fun buildPinnedApps() {
+
+        val title =
+            TextView(context).apply {
+
+                text = "Pinned"
+
+                textSize = 14f
+
+                setTextColor(
+                    LumaColors.TextSecondary
+                )
+
+                setPadding(
+                    8,
+                    18,
+                    8,
+                    8
+                )
+            }
+
+        menuContainer.addView(title)
+
+        val pinnedArea =
+            LinearLayout(context).apply {
+
+                orientation =
+                    LinearLayout.HORIZONTAL
+
+                gravity =
+                    Gravity.CENTER_VERTICAL
+            }
+
+        val pinnedIds =
+            pinnedAppManager
+                .getPinnedIds()
+
+        pinnedIds.forEach { appId ->
+
+            val packageName =
+                pinnedAppManager
+                    .getPackageName(appId)
+
+            val activityName =
+                pinnedAppManager
+                    .getActivityName(appId)
+
+            val app =
+                installedApps.find {
+
+                    it.activityInfo.packageName ==
+                        packageName &&
+                    it.activityInfo.name ==
+                        activityName
+                }
+
+            if (app != null) {
+
+                pinnedArea.addView(
+                    createPinnedApp(app),
+                    LinearLayout.LayoutParams(
+                        74,
+                        82
+                    )
+                )
+            }
+        }
+
+        menuContainer.addView(
+            pinnedArea,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                86
+            )
+        )
+    }
+
+    private fun createPinnedApp(
+        app: ResolveInfo
+    ): View {
+
+        val container =
+            LinearLayout(context).apply {
+
+                orientation =
+                    LinearLayout.VERTICAL
+
+                gravity =
+                    Gravity.CENTER
+
+                setPadding(
+                    4,
+                    4,
+                    4,
+                    4
+                )
+
+                background =
+                    GradientDrawable().apply {
+
+                        setColor(
+                            LumaColors.Background
+                        )
+
+                        cornerRadius =
+                            LumaRadius.Button
+                    }
+
+                setOnClickListener {
+
+                    appManager.launchApp(app)
+                }
+            }
+
+        val icon =
+            ImageView(context).apply {
+
+                setImageDrawable(
+                    app.loadIcon(
+                        context.packageManager
+                    )
+                )
+            }
+
+        container.addView(
+            icon,
+            LinearLayout.LayoutParams(
+                42,
+                42
             )
         )
 
-        // =========================
-        // APPLICATIONS
-        // =========================
+        val label =
+            TextView(context).apply {
+
+                text =
+                    app.loadLabel(
+                        context.packageManager
+                    )
+
+                textSize = 10f
+
+                setTextColor(
+                    LumaColors.TextPrimary
+                )
+
+                gravity =
+                    Gravity.CENTER
+
+                maxLines = 1
+            }
+
+        container.addView(
+            label,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                22
+            )
+        )
+
+        return container
+    }
+
+    private fun buildMenuItems() {
 
         addMenuItem(
-            "📱  Applications"
+            "Applications",
+            true
         ) {
             onApplicationsClick()
         }
 
-        // =========================
-        // FILES
-        // =========================
+        addMenuItem("Files")
 
-        addMenuItem(
-            "📁  Files"
-        )
+        addMenuItem("Settings")
 
-        // =========================
-        // SETTINGS
-        // =========================
-
-        addMenuItem(
-            "⚙  Settings"
-        )
-
-        // =========================
-        // SEARCH
-        // =========================
-
-        addMenuItem(
-            "🔍  Search"
-        )
-
-        // =========================
-        // SPACER
-        // =========================
-
-        menuContainer.addView(
-            TextView(context),
-            LinearLayout.LayoutParams(
-                1,
-                8
-            )
-        )
-
-        // =========================
-        // POWER
-        // =========================
-
-        addMenuItem(
-            "⏻  Power"
-        )
+        addMenuItem("Search")
     }
 
     private fun addMenuItem(
         title: String,
+        arrow: Boolean = false,
         onClick: (() -> Unit)? = null
     ) {
 
         val item =
             TextView(context).apply {
 
-                text = title
+                text =
+                    if (arrow) {
+                        "$title    ›"
+                    } else {
+                        title
+                    }
 
-                textSize = 18f
+                textSize = 16f
 
                 setTextColor(
-                    Color.WHITE
+                    LumaColors.TextPrimary
                 )
 
                 gravity =
                     Gravity.CENTER_VERTICAL
 
                 setPadding(
-                    18,
+                    14,
                     8,
-                    18,
+                    14,
                     8
                 )
 
-                isClickable =
-                    onClick != null
+                background =
+                    GradientDrawable().apply {
+
+                        setColor(
+                            LumaColors.Surface
+                        )
+
+                        cornerRadius =
+                            LumaRadius.Button
+                    }
 
                 if (onClick != null) {
+
+                    isClickable = true
 
                     setOnClickListener {
                         onClick()
@@ -239,12 +392,40 @@ class StartMenuView(
                 }
             }
 
-        menuContainer.addView(
-            item,
+        val params =
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 48
             )
+
+        params.setMargins(
+            0,
+            3,
+            0,
+            3
+        )
+
+        menuContainer.addView(
+            item,
+            params
+        )
+    }
+
+    private fun buildPower() {
+
+        val spacer =
+            View(context)
+
+        menuContainer.addView(
+            spacer,
+            LinearLayout.LayoutParams(
+                1,
+                10
+            )
+        )
+
+        addMenuItem(
+            "⏻  Power"
         )
     }
 }

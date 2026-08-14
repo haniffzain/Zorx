@@ -36,6 +36,18 @@ class SpatialEngine(
             repository.find(id)
                 ?: return
 
+        val oldBounds =
+            desktopObject.bounds
+
+        if (
+            oldBounds.x == newBounds.x &&
+            oldBounds.y == newBounds.y &&
+            oldBounds.width == newBounds.width &&
+            oldBounds.height == newBounds.height
+        ) {
+            return
+        }
+
         desktopObject.bounds =
             newBounds
 

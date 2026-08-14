@@ -29,7 +29,7 @@ class DesktopRenderController(
 
             is DesktopMovedEvent -> {
 
-                renderer.render()
+                // DesktopSurface owns visual redraw scheduling.
 
             }
 

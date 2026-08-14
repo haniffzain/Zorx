@@ -12,6 +12,8 @@ import android.widget.TextView
 import com.raven.launcher.apps.ActiveAppManager
 import com.raven.launcher.apps.AppManager
 import com.raven.launcher.apps.PinnedAppManager
+import com.raven.launcher.design.LumaColors
+import com.raven.launcher.design.LumaRadius
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -67,28 +69,64 @@ class TaskbarView(
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
 
-        setBackgroundColor(Color.BLACK)
+        background =
+            android.graphics.drawable.GradientDrawable().apply {
+
+                setColor(
+                    LumaColors.Surface
+                )
+
+                cornerRadius =
+                    LumaRadius.Taskbar
+            }
+
+        elevation = 12f
+
+        setPadding(
+            10,
+            6,
+            10,
+            6
+        )
 
         // =========================
         // START BUTTON
         // =========================
 
         val startButton =
-            TextView(context)
+            TextView(context).apply {
 
-        startButton.text = "◉ Luma"
-        startButton.textSize = 18f
-        startButton.setTextColor(Color.WHITE)
+                text = "◉  Luma"
 
-        startButton.gravity =
-            Gravity.CENTER_VERTICAL
+                textSize = 17f
 
-        startButton.setPadding(
-            30,
-            15,
-            30,
-            15
-        )
+                setTextColor(
+                    LumaColors.TextPrimary
+                )
+
+                gravity =
+                    Gravity.CENTER
+
+                setPadding(
+                    18,
+                    8,
+                    18,
+                    8
+                )
+
+                background =
+                    android.graphics.drawable.GradientDrawable().apply {
+
+                        setColor(
+                            LumaColors.Background
+                        )
+
+                        cornerRadius =
+                            LumaRadius.Button
+                    }
+
+                elevation = 4f
+            }
 
         startButton.setOnClickListener {
             onStartClick()
@@ -383,50 +421,103 @@ addView(
         runningWindows.forEach { desktopObject ->
 
             val button =
-                TextView(context)
+                TextView(context).apply {
 
-            button.text =
-                when (desktopObject.state) {
+                    text =
+                        when (
+                            desktopObject.state
+                        ) {
 
-                    com.raven.launcher.spatial.DesktopObjectState.MINIMIZED ->
-                        "▱ ${desktopObject.title}"
+                            com.raven.launcher.spatial.DesktopObjectState.MINIMIZED ->
+                                "▱  ${desktopObject.title}"
 
-                    com.raven.launcher.spatial.DesktopObjectState.MAXIMIZED ->
-                        "▣ ${desktopObject.title}"
+                            com.raven.launcher.spatial.DesktopObjectState.MAXIMIZED ->
+                                "▣  ${desktopObject.title}"
 
-                    else ->
-                        "▰ ${desktopObject.title}"
+                            else ->
+                                "▰  ${desktopObject.title}"
+                        }
+
+                    textSize = 14f
+
+                    setTextColor(
+                        LumaColors.TextPrimary
+                    )
+
+                    gravity =
+                        Gravity.CENTER_VERTICAL
+
+                    maxLines = 1
+
+                    ellipsize =
+                        android.text.TextUtils.TruncateAt.END
+
+                    setPadding(
+                        16,
+                        0,
+                        16,
+                        0
+                    )
+
+                    background =
+                        android.graphics.drawable.GradientDrawable().apply {
+
+                            val backgroundColor =
+                                when (
+                                    desktopObject.state
+                                ) {
+
+                                    com.raven.launcher.spatial.DesktopObjectState.FOCUSED ->
+                                        LumaColors.Primary
+
+                                    com.raven.launcher.spatial.DesktopObjectState.MINIMIZED ->
+                                        LumaColors.Background
+
+                                    else ->
+                                        LumaColors.Surface
+                                }
+
+                            setColor(
+                                backgroundColor
+                            )
+
+                            cornerRadius =
+                                LumaRadius.Button
+                        }
+
+                    alpha =
+                        if (
+                            desktopObject.state ==
+                                com.raven.launcher.spatial.DesktopObjectState.MINIMIZED
+                        ) {
+                            0.65f
+                        } else {
+                            1f
+                        }
+
+                    setOnClickListener {
+
+                        taskbarController
+                            .onRunningWindowClicked(
+                                desktopObject.id
+                            )
+                    }
                 }
-
-            button.textSize = 14f
-
-            button.setTextColor(
-                Color.WHITE
-            )
-
-            button.gravity =
-                Gravity.CENTER
-
-            button.setPadding(
-                14,
-                0,
-                14,
-                0
-            )
-
-            button.setOnClickListener {
-
-                taskbarController.onRunningWindowClicked(
-                    desktopObject.id
-                )
-            }
 
             runningArea.addView(
                 button,
                 LayoutParams(
-                    150,
+                    170,
                     LayoutParams.MATCH_PARENT
-                )
+                ).apply {
+
+                    setMargins(
+                        4,
+                        6,
+                        4,
+                        6
+                    )
+                }
             )
         }
     }

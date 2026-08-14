@@ -20,25 +20,50 @@ class DesktopCompositor(
         canvas: Canvas
     ) {
 
+        val clip =
+            canvas.clipBounds
+
         runtime
-    .spatialEngine
-    .getAllObjects()
-    .forEach { desktopObject ->
+            .spatialEngine
+            .getAllObjects()
+            .forEach { desktopObject ->
 
-        if (
-            desktopObject.state ==
-                com.raven.launcher.spatial.DesktopObjectState.MINIMIZED
-        ) {
-            return@forEach
-        }
+                if (
+                    desktopObject.state ==
+                        com.raven.launcher.spatial.DesktopObjectState.MINIMIZED
+                ) {
+                    return@forEach
+                }
 
-        windowPainter.paint(
-            canvas,
-            desktopObject
-        )
+                val bounds =
+                    desktopObject.bounds
 
-    }
+                val windowLeft =
+                    bounds.x
 
+                val windowTop =
+                    bounds.y
+
+                val windowRight =
+                    bounds.x + bounds.width
+
+                val windowBottom =
+                    bounds.y + bounds.height
+
+                if (
+                    windowRight <= clip.left ||
+                    windowLeft >= clip.right ||
+                    windowBottom <= clip.top ||
+                    windowTop >= clip.bottom
+                ) {
+                    return@forEach
+                }
+
+                windowPainter.paint(
+                    canvas,
+                    desktopObject
+                )
+            }
     }
 
 }

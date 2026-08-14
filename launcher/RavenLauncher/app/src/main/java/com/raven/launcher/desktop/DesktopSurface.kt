@@ -2,7 +2,7 @@ package com.raven.launcher.desktop
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import android.view.MotionEvent
@@ -11,6 +11,12 @@ import com.raven.launcher.events.LumaEventBus
 import com.raven.launcher.events.LumaEventListener
 import com.raven.launcher.runtime.DesktopRuntime
 import com.raven.launcher.interaction.WindowInteractionController
+import com.raven.launcher.events.desktop.DesktopAddedEvent
+import com.raven.launcher.events.desktop.DesktopFocusedEvent
+import com.raven.launcher.events.desktop.DesktopMovedEvent
+import com.raven.launcher.events.desktop.DesktopRemovedEvent
+import com.raven.launcher.events.desktop.DesktopStateChangedEvent
+import com.raven.launcher.spatial.SpatialBounds
 
 class DesktopSurface @JvmOverloads constructor(
     context: Context,
@@ -32,6 +38,45 @@ class DesktopSurface @JvmOverloads constructor(
             width to height
         }
 
+    private val lastRenderedBounds =
+        mutableMapOf<String, SpatialBounds>()
+
+    private val pendingDirtyRect =
+        Rect()
+
+    private fun scheduleDesktopRedraw(
+        left: Int,
+        top: Int,
+        right: Int,
+        bottom: Int
+    ) {
+
+        if (pendingDirtyRect.isEmpty) {
+
+            pendingDirtyRect.set(
+                left,
+                top,
+                right,
+                bottom
+            )
+
+        } else {
+
+            pendingDirtyRect.union(
+                left,
+                top,
+                right,
+                bottom
+            )
+        }
+
+        invalidate(
+            pendingDirtyRect
+        )
+
+        pendingDirtyRect.setEmpty()
+    }
+
 
     init {
 
@@ -43,13 +88,124 @@ class DesktopSurface @JvmOverloads constructor(
         event: LumaEvent
     ) {
 
-        postInvalidateOnAnimation()
+        when (event) {
+
+            is DesktopMovedEvent -> {
+
+                val objectId =
+                    event.desktopObject.id
+
+                val oldBounds =
+                    lastRenderedBounds[objectId]
+
+                val newBounds =
+                    event.desktopObject.bounds
+
+                if (oldBounds != null) {
+
+                    val dirtyLeft =
+                        minOf(
+                            oldBounds.x,
+                            newBounds.x
+                        )
+
+                    val dirtyTop =
+                        minOf(
+                            oldBounds.y,
+                            newBounds.y
+                        )
+
+                    val dirtyRight =
+                        maxOf(
+                            oldBounds.x + oldBounds.width,
+                            newBounds.x + newBounds.width
+                        )
+
+                    val dirtyBottom =
+                        maxOf(
+                            oldBounds.y + oldBounds.height,
+                            newBounds.y + newBounds.height
+                        )
+
+                    scheduleDesktopRedraw(
+                        dirtyLeft,
+                        dirtyTop,
+                        dirtyRight,
+                        dirtyBottom
+                    )
+
+                } else {
+
+                    scheduleDesktopRedraw(
+                        newBounds.x,
+                        newBounds.y,
+                        newBounds.x + newBounds.width,
+                        newBounds.y + newBounds.height
+                    )
+                }
+
+                lastRenderedBounds[objectId] =
+                    newBounds.copy()
+            }
+
+            is DesktopAddedEvent -> {
+
+                val bounds =
+                    event.desktopObject.bounds
+
+                lastRenderedBounds[
+                    event.desktopObject.id
+                ] = bounds.copy()
+
+                scheduleDesktopRedraw(
+                    bounds.x,
+                    bounds.y,
+                    bounds.x + bounds.width,
+                    bounds.y + bounds.height
+                )
+            }
+
+            is DesktopRemovedEvent -> {
+
+                lastRenderedBounds.remove(
+                    event.objectId
+                )
+
+                invalidate()
+            }
+
+            is DesktopFocusedEvent,
+            is DesktopStateChangedEvent -> {
+
+                scheduleDesktopRedraw(
+                    0,
+                    0,
+                    width,
+                    height
+                )
+            }
+
+        }
 
     }
 
     override fun onTouchEvent(
         event: MotionEvent
     ): Boolean {
+
+        if (
+            event.actionMasked ==
+                MotionEvent.ACTION_MOVE
+        ) {
+
+            return interactionController.onTouchEvent(
+                event
+            ) {
+                postOnAnimation {
+                    interactionController.processQueuedMove()
+                }
+            }
+        }
 
         if (interactionController.onTouchEvent(event)) {
             return true
@@ -65,11 +221,9 @@ class DesktopSurface @JvmOverloads constructor(
 
         super.onDraw(canvas)
 
-        canvas.drawColor(
-            Color.rgb(28, 30, 38)
+        scene.render(
+            canvas
         )
-
-        scene.render(canvas)
 
     }
 

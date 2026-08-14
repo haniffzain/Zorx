@@ -41,14 +41,59 @@ class WindowInteractionController(
 
     private var resizing = false
 
+    private var pendingMoveX: Float? = null
+    private var pendingMoveY: Float? = null
+
+    private var moveFrameScheduled = false
+
     private var resizeStartX = 0f
     private var resizeStartY = 0f
 
     private var resizeStartWidth = 0
     private var resizeStartHeight = 0
 
+    fun queueMove(
+        x: Float,
+        y: Float,
+        scheduleFrame: (() -> Unit)
+    ) {
+
+        pendingMoveX = x
+        pendingMoveY = y
+
+        if (moveFrameScheduled) {
+            return
+        }
+
+        moveFrameScheduled = true
+
+        scheduleFrame()
+    }
+
+    fun processQueuedMove() {
+
+        moveFrameScheduled = false
+
+        val x =
+            pendingMoveX
+                ?: return
+
+        val y =
+            pendingMoveY
+                ?: return
+
+        pendingMoveX = null
+        pendingMoveY = null
+
+        continueInteraction(
+            x,
+            y
+        )
+    }
+
     fun onTouchEvent(
-        event: MotionEvent
+        event: MotionEvent,
+        scheduleFrame: (() -> Unit)? = null
     ): Boolean {
 
         return when (event.actionMasked) {
@@ -63,14 +108,25 @@ class WindowInteractionController(
 
             MotionEvent.ACTION_MOVE -> {
 
-                continueInteraction(
+                val scheduler =
+                    scheduleFrame
+                        ?: return false
+
+                queueMove(
                     event.x,
-                    event.y
+                    event.y,
+                    scheduler
                 )
+
+                true
             }
 
             MotionEvent.ACTION_UP,
             MotionEvent.ACTION_CANCEL -> {
+
+                pendingMoveX = null
+                pendingMoveY = null
+                moveFrameScheduled = false
 
                 endInteraction()
 
@@ -397,6 +453,96 @@ class WindowInteractionController(
                 viewportWidth -
                 SNAP_THRESHOLD
 
+        val nearTop =
+            bounds.y <=
+                SNAP_THRESHOLD
+
+        val nearBottom =
+            bounds.y +
+                bounds.height >=
+                viewportHeight -
+                SNAP_THRESHOLD
+
+        val halfWidth =
+            viewportWidth / 2
+
+        val halfHeight =
+            viewportHeight / 2
+
+        /*
+         * -----------------------------------------------------
+         * QUARTER SNAP
+         * -----------------------------------------------------
+         *
+         * Corners have priority over left/right edge snap.
+         */
+
+        if (nearLeft && nearTop) {
+
+            spatialEngine.moveObject(
+                objectId,
+                SpatialBounds(
+                    x = 0,
+                    y = 0,
+                    width = halfWidth,
+                    height = halfHeight
+                )
+            )
+
+            return
+        }
+
+        if (nearRight && nearTop) {
+
+            spatialEngine.moveObject(
+                objectId,
+                SpatialBounds(
+                    x = halfWidth,
+                    y = 0,
+                    width = halfWidth,
+                    height = halfHeight
+                )
+            )
+
+            return
+        }
+
+        if (nearLeft && nearBottom) {
+
+            spatialEngine.moveObject(
+                objectId,
+                SpatialBounds(
+                    x = 0,
+                    y = halfHeight,
+                    width = halfWidth,
+                    height = halfHeight
+                )
+            )
+
+            return
+        }
+
+        if (nearRight && nearBottom) {
+
+            spatialEngine.moveObject(
+                objectId,
+                SpatialBounds(
+                    x = halfWidth,
+                    y = halfHeight,
+                    width = halfWidth,
+                    height = halfHeight
+                )
+            )
+
+            return
+        }
+
+        /*
+         * -----------------------------------------------------
+         * HALF SNAP
+         * -----------------------------------------------------
+         */
+
         if (nearLeft) {
 
             spatialEngine.moveObject(
@@ -404,7 +550,7 @@ class WindowInteractionController(
                 SpatialBounds(
                     x = 0,
                     y = 0,
-                    width = viewportWidth / 2,
+                    width = halfWidth,
                     height = viewportHeight
                 )
             )
@@ -417,9 +563,9 @@ class WindowInteractionController(
             spatialEngine.moveObject(
                 objectId,
                 SpatialBounds(
-                    x = viewportWidth / 2,
+                    x = halfWidth,
                     y = 0,
-                    width = viewportWidth / 2,
+                    width = halfWidth,
                     height = viewportHeight
                 )
             )

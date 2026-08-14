@@ -49,6 +49,15 @@ class WindowPainter {
             isAntiAlias = true
         }
 
+    private val contentPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.LTGRAY
+            textSize = 22f
+        }
+
+    private val windowRect =
+        RectF()
+
     fun paint(
         canvas: Canvas,
         desktopObject: DesktopObject
@@ -68,6 +77,19 @@ class WindowPainter {
 
         val bottom =
             (b.y + b.height).toFloat()
+
+        // Let Canvas reject windows outside the current clip.
+        if (
+            canvas.quickReject(
+                left,
+                top,
+                right,
+                bottom,
+                Canvas.EdgeType.AA
+            )
+        ) {
+            return
+        }
 
         val titleBarHeight =
             56f
@@ -118,13 +140,15 @@ class WindowPainter {
                 2f
             }
 
+        windowRect.set(
+            left,
+            top,
+            right,
+            bottom
+        )
+
         canvas.drawRect(
-            RectF(
-                left,
-                top,
-                right,
-                bottom
-            ),
+            windowRect,
             borderPaint
         )
 
@@ -203,12 +227,6 @@ class WindowPainter {
 
         val contentText =
             "LumaOS Window"
-
-        val contentPaint =
-            Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = Color.LTGRAY
-                textSize = 22f
-            }
 
         canvas.drawText(
             contentText,
