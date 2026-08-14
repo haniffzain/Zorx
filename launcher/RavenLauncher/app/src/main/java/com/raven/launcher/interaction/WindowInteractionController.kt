@@ -18,6 +18,7 @@ import kotlin.math.max
  * - Minimize
  * - Maximize / restore
  * - Close
+ * - Left/right edge snapping
  */
 class WindowInteractionController(
     private val spatialEngine: SpatialEngine,
@@ -29,6 +30,8 @@ class WindowInteractionController(
         private const val TITLE_BAR_HEIGHT = 56
         private const val CONTROL_WIDTH = 40
         private const val RESIZE_HANDLE_SIZE = 40
+
+        private const val SNAP_THRESHOLD = 64
     }
 
     private var draggedObjectId: String? = null
@@ -51,6 +54,7 @@ class WindowInteractionController(
         return when (event.actionMasked) {
 
             MotionEvent.ACTION_DOWN -> {
+
                 beginInteraction(
                     event.x,
                     event.y
@@ -58,6 +62,7 @@ class WindowInteractionController(
             }
 
             MotionEvent.ACTION_MOVE -> {
+
                 continueInteraction(
                     event.x,
                     event.y
@@ -251,6 +256,7 @@ class WindowInteractionController(
         /*
          * Content click = focus only.
          */
+
         return true
     }
 
@@ -342,9 +348,82 @@ class WindowInteractionController(
 
     private fun endInteraction() {
 
+        val objectId =
+            draggedObjectId
+
+        if (
+            objectId != null &&
+            !resizing
+        ) {
+
+            applyEdgeSnap(
+                objectId
+            )
+        }
+
         draggedObjectId = null
 
         resizing = false
+    }
+
+    private fun applyEdgeSnap(
+        objectId: String
+    ) {
+
+        val desktopObject =
+            spatialEngine.findObject(
+                objectId
+            ) ?: return
+
+        val viewport =
+            viewportSizeProvider()
+
+        val viewportWidth =
+            viewport.first
+
+        val viewportHeight =
+            viewport.second
+
+        val bounds =
+            desktopObject.bounds
+
+        val nearLeft =
+            bounds.x <=
+                SNAP_THRESHOLD
+
+        val nearRight =
+            bounds.x +
+                bounds.width >=
+                viewportWidth -
+                SNAP_THRESHOLD
+
+        if (nearLeft) {
+
+            spatialEngine.moveObject(
+                objectId,
+                SpatialBounds(
+                    x = 0,
+                    y = 0,
+                    width = viewportWidth / 2,
+                    height = viewportHeight
+                )
+            )
+
+            return
+        }
+
+        if (nearRight) {
+
+            spatialEngine.moveObject(
+                objectId,
+                SpatialBounds(
+                    x = viewportWidth / 2,
+                    y = 0,
+                    width = viewportWidth / 2,
+                    height = viewportHeight
+                )
+            )
+        }
     }
 
     private fun findTopMostObject(
