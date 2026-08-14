@@ -2,7 +2,7 @@ package com.raven.launcher.spatial
 
 /**
  * Represents the current lifecycle state
- * of a desktop object.
+ * of a Luma desktop object.
  */
 enum class DesktopObjectState {
 
@@ -12,8 +12,9 @@ enum class DesktopObjectState {
 
     MINIMIZED,
 
+    MAXIMIZED,
+
     HIDDEN,
 
     LOCKED
-
 }

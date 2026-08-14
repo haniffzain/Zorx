@@ -25,6 +25,13 @@ class DesktopCompositor(
     .getAllObjects()
     .forEach { desktopObject ->
 
+        if (
+            desktopObject.state ==
+                com.raven.launcher.spatial.DesktopObjectState.MINIMIZED
+        ) {
+            return@forEach
+        }
+
         windowPainter.paint(
             canvas,
             desktopObject

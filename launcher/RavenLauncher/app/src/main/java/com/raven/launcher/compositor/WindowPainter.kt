@@ -25,7 +25,6 @@ class WindowPainter {
 
     private val borderPaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(90, 92, 102)
             style = Paint.Style.STROKE
             strokeWidth = 2f
         }
@@ -100,6 +99,24 @@ class WindowPainter {
         // =========================
         // WINDOW BORDER
         // =========================
+
+        borderPaint.color =
+            if (desktopObject.state ==
+                com.raven.launcher.spatial.DesktopObjectState.FOCUSED
+            ) {
+                Color.rgb(130, 110, 255)
+            } else {
+                Color.rgb(90, 92, 102)
+            }
+
+        borderPaint.strokeWidth =
+            if (desktopObject.state ==
+                com.raven.launcher.spatial.DesktopObjectState.FOCUSED
+            ) {
+                4f
+            } else {
+                2f
+            }
 
         canvas.drawRect(
             RectF(

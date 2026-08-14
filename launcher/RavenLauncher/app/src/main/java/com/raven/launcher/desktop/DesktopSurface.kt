@@ -5,10 +5,12 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
+import android.view.MotionEvent
 import com.raven.launcher.events.LumaEvent
 import com.raven.launcher.events.LumaEventBus
 import com.raven.launcher.events.LumaEventListener
 import com.raven.launcher.runtime.DesktopRuntime
+import com.raven.launcher.interaction.WindowInteractionController
 
 class DesktopSurface @JvmOverloads constructor(
     context: Context,
@@ -18,8 +20,18 @@ class DesktopSurface @JvmOverloads constructor(
     private val runtime =
         DesktopRuntime()
 
+    val spatialEngine
+        get() = runtime.spatialEngine
+
     private val scene =
         DesktopScene(runtime)
+    private val interactionController =
+        WindowInteractionController(
+            runtime.spatialEngine
+        ) {
+            width to height
+        }
+
 
     init {
 
@@ -32,6 +44,18 @@ class DesktopSurface @JvmOverloads constructor(
     ) {
 
         postInvalidateOnAnimation()
+
+    }
+
+    override fun onTouchEvent(
+        event: MotionEvent
+    ): Boolean {
+
+        if (interactionController.onTouchEvent(event)) {
+            return true
+        }
+
+        return super.onTouchEvent(event)
 
     }
 
