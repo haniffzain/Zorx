@@ -5,80 +5,184 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import com.raven.launcher.spatial.DesktopObject
+import com.raven.launcher.spatial.DesktopObjectState
 
 /**
- * Paints a desktop object as a LumaOS window shell.
+ * LumaOS Window Painter
+ *
+ * Visual shell for desktop windows.
+ *
+ * Design language:
+ * - Dark spatial surface
+ * - Rounded geometry
+ * - Minimal controls
+ * - Cyan / violet focus accent
+ * - Soft depth without expensive blur
  */
 class WindowPainter {
 
+    // =========================================================
+    // GEOMETRY
+    // =========================================================
+
+    private val windowRadius = 18f
+    private val titleBarHeight = 58f
+    private val buttonRadius = 7f
+
+    // =========================================================
+    // WINDOW
+    // =========================================================
+
     private val windowPaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(45, 47, 55)
+            color = Color.rgb(27, 29, 36)
             style = Paint.Style.FILL
         }
 
-    private val titleBarPaint =
+    private val windowInnerPaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(35, 37, 44)
+            color = Color.rgb(31, 33, 41)
             style = Paint.Style.FILL
         }
+
+    // =========================================================
+    // DEPTH
+    // =========================================================
+
+    private val shadowPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.argb(
+                70,
+                0,
+                0,
+                0
+            )
+
+            style = Paint.Style.FILL
+        }
+
+    // =========================================================
+    // TITLE BAR
+    // =========================================================
+
+    private val titleBarPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(24, 26, 33)
+            style = Paint.Style.FILL
+        }
+
+    private val focusedTitleBarPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(29, 31, 40)
+            style = Paint.Style.FILL
+        }
+
+    // =========================================================
+    // BORDER
+    // =========================================================
 
     private val borderPaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
-            strokeWidth = 2f
         }
+
+    // =========================================================
+    // TITLE
+    // =========================================================
 
     private val titlePaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
-            textSize = 28f
-            isAntiAlias = true
-        }
-
-    private val buttonPaint =
-        Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.rgb(70, 72, 80)
-            style = Paint.Style.FILL
-        }
-
-    private val buttonTextPaint =
-        Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
+            color = Color.rgb(238, 241, 247)
             textSize = 22f
             isAntiAlias = true
         }
+
+    // =========================================================
+    // CONTENT
+    // =========================================================
 
     private val contentPaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.LTGRAY
-            textSize = 22f
+            color = Color.rgb(178, 182, 193)
+            textSize = 17f
+            isAntiAlias = true
         }
+
+    // =========================================================
+    // WINDOW CONTROLS
+    // =========================================================
+
+    private val controlPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.FILL
+        }
+
+    private val controlGlyphPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.rgb(220, 224, 232)
+            style = Paint.Style.STROKE
+            strokeWidth = 1.7f
+            strokeCap = Paint.Cap.ROUND
+            strokeJoin = Paint.Join.ROUND
+        }
+
+    // =========================================================
+    // ACCENT
+    // =========================================================
+
+    private val accentPaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.FILL
+        }
+
+    // =========================================================
+    // RECTANGLES
+    // =========================================================
+
+    private val shadowRect =
+        RectF()
 
     private val windowRect =
         RectF()
+
+    private val titleRect =
+        RectF()
+
+    // =========================================================
+    // PAINT
+    // =========================================================
 
     fun paint(
         canvas: Canvas,
         desktopObject: DesktopObject
     ) {
 
-        val b =
+        val bounds =
             desktopObject.bounds
 
         val left =
-            b.x.toFloat()
+            bounds.x.toFloat()
 
         val top =
-            b.y.toFloat()
+            bounds.y.toFloat()
 
         val right =
-            (b.x + b.width).toFloat()
+            (bounds.x + bounds.width).toFloat()
 
         val bottom =
-            (b.y + b.height).toFloat()
+            (bounds.y + bounds.height).toFloat()
 
-        // Let Canvas reject windows outside the current clip.
+        if (
+            right <= left ||
+            bottom <= top
+        ) {
+            return
+        }
+
+        // =====================================================
+        // CLIP CHECK
+        // =====================================================
+
         if (
             canvas.quickReject(
                 left,
@@ -91,55 +195,6 @@ class WindowPainter {
             return
         }
 
-        val titleBarHeight =
-            56f
-
-        // =========================
-        // WINDOW BODY
-        // =========================
-
-        canvas.drawRect(
-            left,
-            top,
-            right,
-            bottom,
-            windowPaint
-        )
-
-        // =========================
-        // TITLE BAR
-        // =========================
-
-        canvas.drawRect(
-            left,
-            top,
-            right,
-            top + titleBarHeight,
-            titleBarPaint
-        )
-
-        // =========================
-        // WINDOW BORDER
-        // =========================
-
-        borderPaint.color =
-            if (desktopObject.state ==
-                com.raven.launcher.spatial.DesktopObjectState.FOCUSED
-            ) {
-                Color.rgb(130, 110, 255)
-            } else {
-                Color.rgb(90, 92, 102)
-            }
-
-        borderPaint.strokeWidth =
-            if (desktopObject.state ==
-                com.raven.launcher.spatial.DesktopObjectState.FOCUSED
-            ) {
-                4f
-            } else {
-                2f
-            }
-
         windowRect.set(
             left,
             top,
@@ -147,92 +202,488 @@ class WindowPainter {
             bottom
         )
 
-        canvas.drawRect(
-            windowRect,
-            borderPaint
+        // =====================================================
+        // STATE
+        // =====================================================
+
+        val focused =
+            desktopObject.state ==
+                DesktopObjectState.FOCUSED
+
+        val minimized =
+            desktopObject.state ==
+                DesktopObjectState.MINIMIZED
+
+        // =====================================================
+        // DEPTH
+        // =====================================================
+
+        val shadowOffset = 8f
+
+        shadowRect.set(
+            left + 2f,
+            top + shadowOffset,
+            right + 2f,
+            bottom + shadowOffset
         )
 
-        // =========================
+        shadowPaint.alpha =
+            if (focused) {
+                90
+            } else {
+                55
+            }
+
+        canvas.drawRoundRect(
+            shadowRect,
+            windowRadius,
+            windowRadius,
+            shadowPaint
+        )
+
+        // =====================================================
+        // WINDOW BODY
+        // =====================================================
+
+        windowPaint.color =
+            if (focused) {
+                Color.rgb(28, 30, 39)
+            } else {
+                Color.rgb(25, 27, 34)
+            }
+
+        windowPaint.alpha =
+            if (minimized) {
+                185
+            } else {
+                255
+            }
+
+        canvas.drawRoundRect(
+            windowRect,
+            windowRadius,
+            windowRadius,
+            windowPaint
+        )
+
+        windowPaint.alpha = 255
+
+        // =====================================================
+        // INNER SURFACE
+        // =====================================================
+
+        val innerRect =
+            RectF(
+                left + 1.5f,
+                top + 1.5f,
+                right - 1.5f,
+                bottom - 1.5f
+            )
+
+        windowInnerPaint.alpha =
+            if (minimized) {
+                130
+            } else {
+                255
+            }
+
+        canvas.drawRoundRect(
+            innerRect,
+            windowRadius - 1.5f,
+            windowRadius - 1.5f,
+            windowInnerPaint
+        )
+
+        windowInnerPaint.alpha = 255
+
+        // =====================================================
+        // TITLE BAR
+        // =====================================================
+
+        titleRect.set(
+            left + 1.5f,
+            top + 1.5f,
+            right - 1.5f,
+            minOf(
+                bottom - 1.5f,
+                top + titleBarHeight
+            )
+        )
+
+        titleBarPaint.alpha =
+            if (minimized) {
+                150
+            } else {
+                255
+            }
+
+        titleBarPaint.color =
+            if (focused) {
+                Color.rgb(30, 32, 41)
+            } else {
+                Color.rgb(23, 25, 32)
+            }
+
+        canvas.drawRoundRect(
+            titleRect,
+            windowRadius - 1.5f,
+            windowRadius - 1.5f,
+            titleBarPaint
+        )
+
+        titleBarPaint.alpha = 255
+
+        // =====================================================
+        // TITLE BAR DIVIDER
+        // =====================================================
+
+        val dividerPaint =
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color =
+                    if (focused) {
+                        Color.argb(
+                            70,
+                            92,
+                            225,
+                            230
+                        )
+                    } else {
+                        Color.argb(
+                            40,
+                            255,
+                            255,
+                            255
+                        )
+                    }
+
+                style = Paint.Style.FILL
+            }
+
+        canvas.drawRect(
+            left + 18f,
+            top + titleBarHeight - 1f,
+            right - 18f,
+            top + titleBarHeight,
+            dividerPaint
+        )
+
+        // =====================================================
+        // FOCUS ACCENT
+        // =====================================================
+
+        if (focused) {
+
+            accentPaint.color =
+                Color.rgb(
+                    70,
+                    214,
+                    220
+                )
+
+            canvas.drawRoundRect(
+                left + 14f,
+                top + 8f,
+                left + 18f,
+                top + 34f,
+                2f,
+                2f,
+                accentPaint
+            )
+        }
+
+        // =====================================================
         // TITLE
-        // =========================
+        // =====================================================
+
+        titlePaint.alpha =
+            if (minimized) {
+                150
+            } else {
+                255
+            }
+
+        val titleX =
+            if (focused) {
+                left + 30f
+            } else {
+                left + 22f
+            }
+
+        val titleY =
+            top + 36f
 
         canvas.drawText(
             desktopObject.title,
-            left + 20f,
-            top + 37f,
+            titleX,
+            titleY,
             titlePaint
         )
 
-        // =========================
-        // WINDOW BUTTONS
-        // =========================
+        titlePaint.alpha = 255
 
-        val buttonY =
-            top + 28f
+        // =====================================================
+        // WINDOW CONTROLS
+        // =====================================================
+
+        val controlsY =
+            top + 29f
 
         val closeX =
-            right - 28f
+            right - 27f
 
         val maximizeX =
-            right - 68f
+            right - 55f
 
         val minimizeX =
-            right - 108f
+            right - 83f
 
-        canvas.drawCircle(
+        drawControl(
+            canvas,
             minimizeX,
-            buttonY,
-            14f,
-            buttonPaint
+            controlsY,
+            Control.MINIMIZE,
+            focused
         )
 
-        canvas.drawCircle(
+        drawControl(
+            canvas,
             maximizeX,
-            buttonY,
-            14f,
-            buttonPaint
+            controlsY,
+            Control.MAXIMIZE,
+            focused
         )
+
+        drawControl(
+            canvas,
+            closeX,
+            controlsY,
+            Control.CLOSE,
+            focused
+        )
+
+        // =====================================================
+        // CONTENT
+        // =====================================================
+
+        if (!minimized) {
+
+            contentPaint.alpha =
+                if (focused) {
+                    230
+                } else {
+                    175
+                }
+
+            canvas.drawText(
+                "LumaOS Window",
+                left + 26f,
+                top + titleBarHeight + 42f,
+                contentPaint
+            )
+
+            contentPaint.alpha = 255
+
+            // subtle content indicator
+            val indicatorPaint =
+                Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color =
+                        if (focused) {
+                            Color.argb(
+                                120,
+                                70,
+                                214,
+                                220
+                            )
+                        } else {
+                            Color.argb(
+                                55,
+                                180,
+                                185,
+                                195
+                            )
+                        }
+
+                    style = Paint.Style.FILL
+                }
+
+            canvas.drawRoundRect(
+                left + 26f,
+                top + titleBarHeight + 58f,
+                left + 90f,
+                top + titleBarHeight + 62f,
+                2f,
+                2f,
+                indicatorPaint
+            )
+        }
+
+        // =====================================================
+        // BORDER
+        // =====================================================
+
+        borderPaint.color =
+            if (focused) {
+                Color.rgb(
+                    75,
+                    205,
+                    214
+                )
+            } else {
+                Color.rgb(
+                    72,
+                    75,
+                    86
+                )
+            }
+
+        borderPaint.alpha =
+            if (focused) {
+                220
+            } else {
+                150
+            }
+
+        borderPaint.strokeWidth =
+            if (focused) {
+                1.8f
+            } else {
+                1.2f
+            }
+
+        canvas.drawRoundRect(
+            windowRect,
+            windowRadius,
+            windowRadius,
+            borderPaint
+        )
+
+        borderPaint.alpha = 255
+    }
+
+    // =========================================================
+    // WINDOW CONTROL
+    // =========================================================
+
+    private fun drawControl(
+        canvas: Canvas,
+        x: Float,
+        y: Float,
+        control: Control,
+        focused: Boolean
+    ) {
+
+        controlPaint.color =
+            when (control) {
+
+                Control.CLOSE ->
+                    if (focused) {
+                        Color.rgb(
+                            75,
+                            47,
+                            57
+                        )
+                    } else {
+                        Color.rgb(
+                            52,
+                            53,
+                            61
+                        )
+                    }
+
+                else ->
+                    if (focused) {
+                        Color.rgb(
+                            48,
+                            51,
+                            61
+                        )
+                    } else {
+                        Color.rgb(
+                            45,
+                            47,
+                            55
+                        )
+                    }
+            }
 
         canvas.drawCircle(
-            closeX,
-            buttonY,
-            14f,
-            buttonPaint
+            x,
+            y,
+            buttonRadius,
+            controlPaint
         )
 
-        canvas.drawText(
-            "−",
-            minimizeX - 7f,
-            buttonY + 7f,
-            buttonTextPaint
-        )
+        controlGlyphPaint.color =
+            when (control) {
 
-        canvas.drawText(
-            "□",
-            maximizeX - 8f,
-            buttonY + 7f,
-            buttonTextPaint
-        )
+                Control.CLOSE ->
+                    Color.rgb(
+                        235,
+                        170,
+                        180
+                    )
 
-        canvas.drawText(
-            "×",
-            closeX - 7f,
-            buttonY + 7f,
-            buttonTextPaint
-        )
+                else ->
+                    Color.rgb(
+                        185,
+                        190,
+                        201
+                    )
+            }
 
-        // =========================
-        // CONTENT LABEL
-        // =========================
+        when (control) {
 
-        val contentText =
-            "LumaOS Window"
+            Control.MINIMIZE -> {
 
-        canvas.drawText(
-            contentText,
-            left + 24f,
-            top + titleBarHeight + 45f,
-            contentPaint
-        )
+                canvas.drawLine(
+                    x - 3.5f,
+                    y,
+                    x + 3.5f,
+                    y,
+                    controlGlyphPaint
+                )
+            }
+
+            Control.MAXIMIZE -> {
+
+                canvas.drawRect(
+                    x - 3.5f,
+                    y - 3.5f,
+                    x + 3.5f,
+                    y + 3.5f,
+                    controlGlyphPaint
+                )
+            }
+
+            Control.CLOSE -> {
+
+                canvas.drawLine(
+                    x - 3f,
+                    y - 3f,
+                    x + 3f,
+                    y + 3f,
+                    controlGlyphPaint
+                )
+
+                canvas.drawLine(
+                    x + 3f,
+                    y - 3f,
+                    x - 3f,
+                    y + 3f,
+                    controlGlyphPaint
+                )
+            }
+        }
+    }
+
+    // =========================================================
+    // CONTROL TYPE
+    // =========================================================
+
+    private enum class Control {
+
+        MINIMIZE,
+        MAXIMIZE,
+        CLOSE
     }
 }

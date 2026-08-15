@@ -1,0 +1,31 @@
+# ADR-0001
+
+Title:
+
+Spatial Engine owns all desktop objects.
+
+---
+
+Status
+
+Accepted
+
+---
+
+Decision
+
+All desktop objects are managed through SpatialEngine.
+
+---
+
+Reason
+
+Provide a single source of truth.
+
+---
+
+Consequences
+
+UI never modifies objects directly.
+
+All changes must go through SpatialEngine.

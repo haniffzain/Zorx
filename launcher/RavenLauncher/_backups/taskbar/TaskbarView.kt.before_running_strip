@@ -30,9 +30,7 @@ class TaskbarView(
 
     private val spatialEngine: SpatialEngine,
 
-    private val onStartClicked: () -> Unit,
-
-    private val onRunningWindowClicked: (String) -> Unit
+    private val onStartClicked: () -> Unit
 
 ) : LinearLayout(context) {
 
@@ -49,29 +47,6 @@ class TaskbarView(
                 4,
                 0,
                 4,
-                0
-            )
-        }
-
-    /*
-     * LumaOS running-window strip.
-     *
-     * Kept separate from appContainer so refreshPinnedApps()
-     * cannot accidentally remove running-window buttons.
-     */
-    private val runningContainer =
-        LinearLayout(context).apply {
-
-            orientation =
-                HORIZONTAL
-
-            gravity =
-                Gravity.CENTER_VERTICAL
-
-            setPadding(
-                6,
-                0,
-                6,
                 0
             )
         }
@@ -248,18 +223,6 @@ class TaskbarView(
         )
 
         // =====================================================
-        // RUNNING WINDOWS
-        // =====================================================
-
-        addView(
-            runningContainer,
-            LayoutParams(
-                LayoutParams.WRAP_CONTENT,
-                LayoutParams.MATCH_PARENT
-            )
-        )
-
-        // =====================================================
         // STATUS AREA
         // =====================================================
 
@@ -299,12 +262,6 @@ class TaskbarView(
         addApplicationButton(
             ">"
         )
-
-        /*
-         * Keep the running-window strip synchronized
-         * whenever the pinned section is rebuilt.
-         */
-        refreshRunningWindows()
     }
 
     private fun addApplicationButton(
@@ -376,191 +333,10 @@ class TaskbarView(
      */
     fun refreshRunningWindows() {
 
-        /*
-         * Rebuild the running-window strip from
-         * the shared Luma SpatialEngine.
-         *
-         * Minimized windows remain here so they can
-         * be restored from the taskbar.
-         */
+        // Future Luma Shell running-window rendering
+        // will be implemented here.
 
-        runningContainer.removeAllViews()
-
-        val runningWindows =
-            spatialEngine
-                .getAllObjects()
-                .sortedByDescending {
-
-                    it.zIndex
-                }
-
-        runningWindows.forEach { desktopObject ->
-
-            val isMinimized =
-                desktopObject.state ==
-                    com.raven.launcher.spatial.DesktopObjectState.MINIMIZED
-
-            val isFocused =
-                desktopObject.state ==
-                    com.raven.launcher.spatial.DesktopObjectState.FOCUSED
-
-            val button =
-                TextView(context).apply {
-
-                    /*
-                     * LumaOS window indicator.
-                     */
-
-                    text =
-                        when {
-
-                            isMinimized ->
-                                "▱  ${desktopObject.title}"
-
-                            isFocused ->
-                                "◆  ${desktopObject.title}"
-
-                            else ->
-                                "◇  ${desktopObject.title}"
-                        }
-
-                    textSize =
-                        13f
-
-                    setTextColor(
-                        if (isFocused) {
-                            LumaColors.TextPrimary
-                        } else {
-                            LumaColors.TextSecondary
-                        }
-                    )
-
-                    gravity =
-                        Gravity.CENTER
-
-                    maxLines =
-                        1
-
-                    ellipsize =
-                        android.text.TextUtils.TruncateAt.END
-
-                    setPadding(
-                        14,
-                        0,
-                        14,
-                        0
-                    )
-
-                    background =
-                        GradientDrawable().apply {
-
-                            when {
-
-                                isFocused -> {
-
-                                    setColor(
-                                        Color.argb(
-                                            155,
-                                            35,
-                                            150,
-                                            160
-                                        )
-                                    )
-
-                                    setStroke(
-                                        1,
-                                        Color.argb(
-                                            210,
-                                            70,
-                                            215,
-                                            220
-                                        )
-                                    )
-                                }
-
-                                isMinimized -> {
-
-                                    setColor(
-                                        Color.argb(
-                                            105,
-                                            20,
-                                            22,
-                                            27
-                                        )
-                                    )
-
-                                    setStroke(
-                                        1,
-                                        Color.argb(
-                                            85,
-                                            130,
-                                            140,
-                                            155
-                                        )
-                                    )
-                                }
-
-                                else -> {
-
-                                    setColor(
-                                        Color.argb(
-                                            100,
-                                            38,
-                                            40,
-                                            47
-                                        )
-                                    )
-
-                                    setStroke(
-                                        1,
-                                        Color.argb(
-                                            55,
-                                            255,
-                                            255,
-                                            255
-                                        )
-                                    )
-                                }
-                            }
-
-                            cornerRadius =
-                                LumaRadius.Button
-                        }
-
-                    alpha =
-                        if (isMinimized) {
-                            0.78f
-                        } else {
-                            1f
-                        }
-
-                    setOnClickListener {
-
-                        onRunningWindowClicked(
-                            desktopObject.id
-                        )
-                    }
-                }
-
-            runningContainer.addView(
-                button,
-                LayoutParams(
-                    170,
-                    LayoutParams.MATCH_PARENT
-                ).apply {
-
-                    setMargins(
-                        3,
-                        6,
-                        3,
-                        6
-                    )
-                }
-            )
-        }
-
-        runningContainer.requestLayout()
-        runningContainer.invalidate()
+        invalidate()
     }
 
 
