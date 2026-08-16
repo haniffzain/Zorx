@@ -1,33 +1,59 @@
 # LumaOS Development UI Notes
 
-## 15 August 2026
+## 16 August 2026 — Verified implementation update
 
-This document records UI work and design decisions on the `development` branch separately from low-level Android platform checkpoints.
+This document records UI implementation and design decisions on the `development` branch separately from low-level Android platform checkpoints.
 
 ## Desktop Menu
 
-The LumaOS desktop requires a dedicated menu/application-launcher experience rather than relying on a conventional Android home-screen interaction model.
+The development branch now contains a concrete `StartMenuView` implementation rather than only a design concept.
 
-### Direction
+### Verified implementation
 
-- Menu interaction should fit the desktop workspace rather than behave like a phone launcher.
-- Application discovery and launching should remain accessible from the taskbar/desktop environment.
-- Menu visuals should follow the LumaOS design system and remain consistent with window chrome, taskbar and workspace surfaces.
-- The menu is a UI workstream and must not be marked as fully implemented until the corresponding source/resources are verified.
+- LumaOS start/menu surface is implemented as a `ScrollView`-based desktop UI component.
+- Menu header displays `LumaOS`.
+- Application search field is present.
+- Pinned applications are loaded through `PinnedAppManager`.
+- Installed applications are resolved through `AppManager`.
+- Pinned application icons can launch their associated applications.
+- Menu items currently include Applications, Files, Settings and Search.
+- The Applications entry supports an application-list callback.
+- Menu styling uses the existing `LumaColors` and `LumaRadius` design resources.
+
+This is a **verified menu foundation**, not a claim that the complete desktop menu is finished. Search behavior, full application browsing, menu state management and final desktop integration remain development work.
+
+## Window UI
+
+The development branch also contains a `WindowPainter` implementation for the LumaOS window shell.
+
+### Verified implementation
+
+- Desktop objects are painted as window shells.
+- Window body and title bar are rendered.
+- Focused windows receive distinct border treatment.
+- Window titles are rendered.
+- Minimize, maximize and close controls are rendered.
+- A basic content label is rendered.
+- Rendering uses clipping/rejection through `Canvas.quickReject` for off-screen windows.
+
+This provides a concrete visual window-shell foundation. It does not yet prove that all window controls are fully wired to task-manager operations.
 
 ## Typography and Font
 
 Typography is treated as a first-class part of the LumaOS design system.
 
-### Recorded work
+### Verified
 
-- Font changes discussed during the 15 August design session are recorded as UI/design work.
-- Final font selection, weights, sizes, fallback behavior and Android resource integration remain implementation tasks until verified in source/resources.
-- Typography should remain consistent across menu, taskbar, window title bars, dialogs, settings and future desktop services.
+The current UI code contains explicit text sizing for menu and window elements, including menu headers, search text, pinned-app labels, menu items and window title/content text.
+
+### Not yet verified
+
+- A final custom LumaOS font resource has not been established in the verified source examined during this update.
+- Final font family selection, weights, fallback behavior and centralized typography tokens remain implementation tasks.
+
+Therefore the project should distinguish **current typography implementation** from the **future LumaOS font system**.
 
 ## Relationship to Desktop Windowing
-
-The UI work sits above the verified native Android capabilities:
 
 ```text
 Android 15 / AOSP
@@ -36,33 +62,39 @@ Native Recents + privileged task management
         ↓
 Native Freeform tasks
         ↓
-Luma Window Manager
+Luma Window / Desktop Objects
         ↓
-Taskbar / Menu / Window Chrome
+Window Shell + Taskbar + Start Menu
         ↓
 Typography + Design System
 ```
 
-## Current Status
+## Current UI Status
 
-### Verified platform work
+### Verified platform/UI foundation
 
 - Native Recents provider
 - Recents overlay integration
 - Native freeform launch
 - Native task-management permissions
 - Android 15 / API 35 target
+- Taskbar running-window restore fix
+- Start menu foundation
+- Window shell painter foundation
 
 ### Active UI work
 
-- Desktop menu
-- Typography/font system
-- Window movement UI
-- Window resize UI
-- Window chrome
-- Taskbar window-state integration
+- Complete desktop menu behavior
+- Application search/filter behavior
+- Full application drawer integration
+- Window movement interaction
+- Window resize interaction
+- Window focus and z-order integration
+- Maximize / restore / minimize behavior wiring
+- Taskbar window-state synchronization beyond restore
 - Snap layout UI
+- Final typography/font system
 
 ## Rule
 
-Design ideas are recorded here as requirements or direction until implementation is verified. This prevents the project documentation from confusing a UI decision with completed code.
+A UI item is marked **verified** only when the corresponding implementation is present in the `development` branch. Design ideas remain separate from implementation status until source/resource evidence exists.
