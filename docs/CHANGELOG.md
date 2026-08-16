@@ -21,21 +21,24 @@
 - The Android `taskId`-based resize path through `IActivityTaskManager.resizeTask(...)` has been identified and tested as the working direction for native task resizing.
 - A taskbar running-window restore issue was fixed in commit `86a28d1`.
 - The taskbar restore fix is treated as a focused behavior fix; the complete taskbar/window-state system is still under development.
+- A concrete `StartMenuView` implementation is present, including header, search field, pinned applications and menu entries.
+- A concrete `WindowPainter` implementation is present for the desktop window shell, including title bar, focus border, title and window controls.
+- Current menu/window typography uses explicit Android text sizing; a final custom LumaOS font resource is not yet verified.
 
-### UI / Design work recorded
+### UI / Design work
 
-- Desktop menu/application-menu interaction is now part of the documented UI direction.
-- Typography and font changes are recorded as part of the LumaOS design system work.
-- These UI/design items remain separate from verified platform capabilities until corresponding implementation is confirmed in source/resources.
+- Desktop menu/application-menu work has progressed from design direction to a verified implementation foundation.
+- Typography/font work has progressed to explicit UI text sizing, while the final font system remains planned.
+- Menu, taskbar, window chrome and typography continue to be treated as one coherent desktop UI layer.
 
 ## Upcoming
 
-- Window Resize UI integration
-- Window Drag
-- Window Focus
-- Maximize / Restore / Minimize behavior completion
-- Taskbar window-state synchronization beyond the verified restore fix
-- Final desktop menu implementation
-- Final typography/font system
-- Snap Layout
-- Multi Desktop
+- Complete desktop menu behavior and application search/filter.
+- Full application drawer integration.
+- Window movement and resize UI integration.
+- Window focus and z-order integration.
+- Maximize / restore / minimize behavior wiring.
+- Taskbar window-state synchronization beyond the verified restore fix.
+- Snap Layout.
+- Final typography tokens and custom font resource strategy.
+- Multi Desktop.
