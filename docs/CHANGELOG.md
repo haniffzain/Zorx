@@ -19,6 +19,8 @@
 - Native Android applications can be launched in FREEFORM windowing mode.
 - Android 15 / API 35 is the active target.
 - The Android `taskId`-based resize path through `IActivityTaskManager.resizeTask(...)` has been identified and tested as the working direction for native task resizing.
+- A taskbar running-window restore issue was fixed in commit `86a28d1`.
+- The taskbar restore fix is treated as a focused behavior fix; the complete taskbar/window-state system is still under development.
 
 ### UI / Design work recorded
 
@@ -31,9 +33,9 @@
 - Window Resize UI integration
 - Window Drag
 - Window Focus
-- Snap Layout
-- Maximize / Restore / Minimize
-- Taskbar window-state synchronization
+- Maximize / Restore / Minimize behavior completion
+- Taskbar window-state synchronization beyond the verified restore fix
 - Final desktop menu implementation
 - Final typography/font system
+- Snap Layout
 - Multi Desktop
