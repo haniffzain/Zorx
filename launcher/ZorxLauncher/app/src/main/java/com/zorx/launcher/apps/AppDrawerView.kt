@@ -92,50 +92,7 @@ class AppDrawerView(
         renderApps(apps)
     }
 
-    fun isTouchOnAppItem(
-        rawX: Float,
-        rawY: Float
-    ): Boolean {
 
-        val location =
-            IntArray(2)
-
-        for (
-            index in 0 until grid.childCount
-        ) {
-
-            val child =
-                grid.getChildAt(index)
-
-            child.getLocationOnScreen(
-                location
-            )
-
-            val left =
-                location[0].toFloat()
-
-            val top =
-                location[1].toFloat()
-
-            val right =
-                left + child.width
-
-            val bottom =
-                top + child.height
-
-            if (
-                rawX >= left &&
-                rawX <= right &&
-                rawY >= top &&
-                rawY <= bottom
-            ) {
-
-                return true
-            }
-        }
-
-        return false
-    }
 
     private fun renderApps(
         apps: List<ResolveInfo>

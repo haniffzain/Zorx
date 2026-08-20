@@ -20,33 +20,7 @@ class DesktopActivity : AppCompatActivity() {
     private lateinit var taskbar: TaskbarView
     private lateinit var taskbarController: TaskbarController
 
-    override fun dispatchTouchEvent(
-        event: MotionEvent
-    ): Boolean {
 
-        if (
-            ::appDrawer.isInitialized &&
-            appDrawer.visibility == View.VISIBLE &&
-            event.actionMasked == MotionEvent.ACTION_DOWN
-        ) {
-
-            val clickedOnAppItem =
-                appDrawer.isTouchOnAppItem(
-                    event.rawX,
-                    event.rawY
-                )
-
-            if (!clickedOnAppItem) {
-
-                appDrawer.visibility =
-                    View.GONE
-            }
-        }
-
-        return super.dispatchTouchEvent(
-            event
-        )
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -85,6 +59,7 @@ class DesktopActivity : AppCompatActivity() {
             ) {
 
                 dismissAppDrawer()
+                dismissStartMenu()
             }
 
             false
@@ -234,6 +209,7 @@ class DesktopActivity : AppCompatActivity() {
             ) {
 
                 dismissAppDrawer()
+                dismissStartMenu()
             }
 
             false
@@ -259,6 +235,18 @@ class DesktopActivity : AppCompatActivity() {
     // START MENU
     // =========================================================
 
+
+    private fun dismissStartMenu() {
+
+        if (
+            ::startMenu.isInitialized &&
+            startMenu.visibility == View.VISIBLE
+        ) {
+
+            startMenu.visibility =
+                View.GONE
+        }
+    }
 
     private fun dismissAppDrawer() {
 
