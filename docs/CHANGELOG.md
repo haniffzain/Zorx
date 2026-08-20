@@ -23,7 +23,7 @@
 - The taskbar restore fix is treated as a focused behavior fix; the complete taskbar/window-state system is still under development.
 - A concrete `StartMenuView` implementation is present, including header, search field, pinned applications and menu entries.
 - A concrete `WindowPainter` implementation is present for the desktop window shell, including title bar, focus border, title and window controls.
-- Current menu/window typography uses explicit Android text sizing; a final custom LumaOS font resource is not yet verified.
+- Current menu/window typography uses explicit Android text sizing; a final custom Zorx font resource is not yet verified.
 
 ### UI / Design work
 

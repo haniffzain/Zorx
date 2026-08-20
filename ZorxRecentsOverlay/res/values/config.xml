@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="config_recentsComponentName">
+        com.zorx.launcher/com.zorx.launcher.recents.RecentsActivity
+    </string>
+
+</resources>

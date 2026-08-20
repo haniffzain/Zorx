@@ -1,4 +1,4 @@
-# LumaOS Development UI Notes
+# Zorx Development UI Notes
 
 ## 16 August 2026 — Verified implementation update
 
@@ -10,21 +10,21 @@ The development branch now contains a concrete `StartMenuView` implementation ra
 
 ### Verified implementation
 
-- LumaOS start/menu surface is implemented as a `ScrollView`-based desktop UI component.
-- Menu header displays `LumaOS`.
+- Zorx start/menu surface is implemented as a `ScrollView`-based desktop UI component.
+- Menu header displays `Zorx`.
 - Application search field is present.
 - Pinned applications are loaded through `PinnedAppManager`.
 - Installed applications are resolved through `AppManager`.
 - Pinned application icons can launch their associated applications.
 - Menu items currently include Applications, Files, Settings and Search.
 - The Applications entry supports an application-list callback.
-- Menu styling uses the existing `LumaColors` and `LumaRadius` design resources.
+- Menu styling uses the existing `ZorxColors` and `ZorxRadius` design resources.
 
 This is a **verified menu foundation**, not a claim that the complete desktop menu is finished. Search behavior, full application browsing, menu state management and final desktop integration remain development work.
 
 ## Window UI
 
-The development branch also contains a `WindowPainter` implementation for the LumaOS window shell.
+The development branch also contains a `WindowPainter` implementation for the Zorx window shell.
 
 ### Verified implementation
 
@@ -40,7 +40,7 @@ This provides a concrete visual window-shell foundation. It does not yet prove t
 
 ## Typography and Font
 
-Typography is treated as a first-class part of the LumaOS design system.
+Typography is treated as a first-class part of the Zorx design system.
 
 ### Verified
 
@@ -48,10 +48,10 @@ The current UI code contains explicit text sizing for menu and window elements, 
 
 ### Not yet verified
 
-- A final custom LumaOS font resource has not been established in the verified source examined during this update.
+- A final custom Zorx font resource has not been established in the verified source examined during this update.
 - Final font family selection, weights, fallback behavior and centralized typography tokens remain implementation tasks.
 
-Therefore the project should distinguish **current typography implementation** from the **future LumaOS font system**.
+Therefore the project should distinguish **current typography implementation** from the **future Zorx font system**.
 
 ## Relationship to Desktop Windowing
 
@@ -62,7 +62,7 @@ Native Recents + privileged task management
         ↓
 Native Freeform tasks
         ↓
-Luma Window / Desktop Objects
+Zorx Window / Desktop Objects
         ↓
 Window Shell + Taskbar + Start Menu
         ↓

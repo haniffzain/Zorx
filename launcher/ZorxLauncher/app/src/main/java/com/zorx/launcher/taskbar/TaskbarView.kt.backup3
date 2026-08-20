@@ -1,0 +1,459 @@
+package com.zorx.launcher.taskbar
+
+import android.content.Context
+import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
+import android.view.Gravity
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.zorx.launcher.apps.ActiveAppManager
+import com.zorx.launcher.apps.AppManager
+import com.zorx.launcher.apps.PinnedAppManager
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+class TaskbarView(
+    context: Context,
+    private val spatialEngine: com.zorx.launcher.spatial.SpatialEngine,
+    private val onStartClick: () -> Unit
+) : LinearLayout(context) {
+
+    private val clockView: TextView
+
+    private val handler =
+        Handler(Looper.getMainLooper())
+
+    private val appManager =
+        AppManager(context)
+
+    private val pinnedAppManager =
+        PinnedAppManager(context)
+
+    private val activeAppManager =
+        ActiveAppManager(context)
+
+        private val taskbarController =
+    TaskbarController(
+        this,
+        spatialEngine
+    )
+
+    private val appArea =
+        LinearLayout(context)
+
+    private val runningArea =
+        LinearLayout(context)
+
+    private val clockUpdater =
+        object : Runnable {
+
+            override fun run() {
+
+                updateClock()
+
+                handler.postDelayed(
+                    this,
+                    1000
+                )
+            }
+        }
+
+    init {
+
+        orientation = HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+
+        setBackgroundColor(Color.BLACK)
+
+        // =========================
+        // START BUTTON
+        // =========================
+
+        val startButton =
+            TextView(context)
+
+        startButton.text = "◉ Zorx"
+        startButton.textSize = 18f
+        startButton.setTextColor(Color.WHITE)
+
+        startButton.gravity =
+            Gravity.CENTER_VERTICAL
+
+        startButton.setPadding(
+            30,
+            15,
+            30,
+            15
+        )
+
+        startButton.setOnClickListener {
+            onStartClick()
+        }
+
+        addView(startButton)
+
+        // =========================
+        // PINNED APPLICATION AREA
+        // =========================
+
+        appArea.orientation =
+            HORIZONTAL
+
+        appArea.gravity =
+            Gravity.CENTER_VERTICAL
+
+        addView(
+            appArea,
+            LayoutParams(
+                0,
+                LayoutParams.MATCH_PARENT,
+                1f
+            )
+        )
+
+        runningArea.orientation =
+            HORIZONTAL
+
+        runningArea.gravity =
+            Gravity.CENTER_VERTICAL
+
+        addView(
+            runningArea,
+            LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.MATCH_PARENT
+            )
+        )
+
+        refreshPinnedApps()
+        refreshRunningWindows()
+
+        // =========================
+// SYSTEM TRAY
+// =========================
+
+val systemTray =
+    LinearLayout(context).apply {
+        orientation = HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+    }
+
+// WiFi
+val wifiView =
+    TextView(context).apply {
+        text = "◉"
+        textSize = 14f
+        setTextColor(Color.WHITE)
+        gravity = Gravity.CENTER
+        setPadding(12, 0, 12, 0)
+    }
+
+// Volume
+val volumeView =
+    TextView(context).apply {
+        text = "🔊"
+        textSize = 14f
+        setTextColor(Color.WHITE)
+        gravity = Gravity.CENTER
+        setPadding(8, 0, 8, 0)
+    }
+
+// Battery
+val batteryView =
+    TextView(context).apply {
+        text = "▣"
+        textSize = 14f
+        setTextColor(Color.WHITE)
+        gravity = Gravity.CENTER
+        setPadding(8, 0, 12, 0)
+    }
+
+systemTray.addView(wifiView)
+systemTray.addView(volumeView)
+systemTray.addView(batteryView)
+
+addView(
+    systemTray,
+    LayoutParams(
+        LayoutParams.WRAP_CONTENT,
+        LayoutParams.MATCH_PARENT
+    )
+)
+
+// =========================
+// SYSTEM CLOCK
+// =========================
+
+clockView =
+    TextView(context)
+
+clockView.textSize = 16f
+clockView.setTextColor(Color.WHITE)
+
+clockView.gravity =
+    Gravity.CENTER
+
+clockView.setPadding(
+    15,
+    0,
+    25,
+    0
+)
+
+addView(
+    clockView,
+    LayoutParams(
+        LayoutParams.WRAP_CONTENT,
+        LayoutParams.MATCH_PARENT
+    )
+)
+
+        updateClock()
+
+        handler.post(clockUpdater)
+    }
+
+    // =========================
+    // PINNED APPS
+    // =========================
+
+    fun refreshPinnedApps() {
+
+        appArea.removeAllViews()
+
+        val installedApps =
+            appManager.getInstalledApps()
+
+        val pinnedIds =
+            pinnedAppManager.getPinnedIds()
+
+        pinnedIds.forEach { pinnedId ->
+
+            val packageName =
+                pinnedAppManager.getPackageName(
+                    pinnedId
+                )
+
+            val activityName =
+                pinnedAppManager.getActivityName(
+                    pinnedId
+                )
+
+            val app =
+                installedApps.find {
+
+                    it.activityInfo.packageName ==
+                        packageName &&
+                    it.activityInfo.name ==
+                        activityName
+                }
+
+            if (app != null) {
+
+                // Container holds icon + active indicator
+                val appContainer =
+                    LinearLayout(context).apply {
+
+                        orientation = VERTICAL
+                        gravity = Gravity.CENTER
+                    }
+
+                val icon =
+                    ImageView(context)
+
+                icon.setImageDrawable(
+                    app.loadIcon(
+                        context.packageManager
+                    )
+                )
+
+                icon.contentDescription =
+                    app.loadLabel(
+                        context.packageManager
+                    ).toString()
+
+                icon.setPadding(
+                    12,
+                    8,
+                    12,
+                    8
+                )
+
+                val indicator =
+                    View(context)
+
+                indicator.setBackgroundColor(
+                    Color.rgb(
+                        106,
+                        90,
+                        205
+                    )
+                )
+
+                indicator.visibility =
+                    if (
+                        activeAppManager.isActive(app)
+                    ) {
+                        View.VISIBLE
+                    } else {
+                        View.INVISIBLE
+                    }
+
+                appContainer.addView(
+                    icon,
+                    LinearLayout.LayoutParams(
+                        64,
+                        58
+                    )
+                )
+
+                appContainer.addView(
+                    indicator,
+                    LinearLayout.LayoutParams(
+                        32,
+                        4
+                    )
+                )
+
+                appContainer.setOnClickListener {
+
+                    val packageName =
+                        app.activityInfo.packageName
+
+                    val handled =
+                        taskbarController.onAppClicked(
+                            packageName
+                        )
+
+                    if (!handled) {
+
+                        val launched =
+                            appManager.launchApp(app)
+
+                        if (launched) {
+
+                            /*
+                             * AppManager has already updated
+                             * ActiveAppManager at this point.
+                             *
+                             * Rebuild the pinned area so the
+                             * indicator moves to this app.
+                             */
+                            refreshPinnedApps()
+                        }
+                    }
+                }
+
+                appArea.addView(
+                    appContainer,
+                    LayoutParams(
+                        70,
+                        70
+                    )
+                )
+            }
+        }
+    }
+
+    // =========================
+    // RUNNING WINDOWS
+    // =========================
+
+    fun refreshRunningWindows() {
+
+        runningArea.removeAllViews()
+
+        val runningWindows =
+            spatialEngine
+                .getAllObjects()
+                .filter { desktopObject ->
+
+                    desktopObject.id.startsWith(
+                        "window:"
+                    )
+                }
+                .sortedBy {
+                    it.zIndex
+                }
+
+        runningWindows.forEach { desktopObject ->
+
+            val button =
+                TextView(context)
+
+            button.text =
+                when (desktopObject.state) {
+
+                    com.zorx.launcher.spatial.DesktopObjectState.MINIMIZED ->
+                        "▱ ${desktopObject.title}"
+
+                    com.zorx.launcher.spatial.DesktopObjectState.MAXIMIZED ->
+                        "▣ ${desktopObject.title}"
+
+                    else ->
+                        "▰ ${desktopObject.title}"
+                }
+
+            button.textSize = 14f
+
+            button.setTextColor(
+                Color.WHITE
+            )
+
+            button.gravity =
+                Gravity.CENTER
+
+            button.setPadding(
+                14,
+                0,
+                14,
+                0
+            )
+
+            button.setOnClickListener {
+
+                taskbarController.onRunningWindowClicked(
+                    desktopObject.id
+                )
+            }
+
+            runningArea.addView(
+                button,
+                LayoutParams(
+                    150,
+                    LayoutParams.MATCH_PARENT
+                )
+            )
+        }
+    }
+
+    // =========================
+    // CLOCK
+    // =========================
+
+    private fun updateClock() {
+
+        val formatter =
+            SimpleDateFormat(
+                "HH:mm",
+                Locale.getDefault()
+            )
+
+        clockView.text =
+            formatter.format(Date())
+    }
+
+    override fun onDetachedFromWindow() {
+
+        super.onDetachedFromWindow()
+
+        handler.removeCallbacks(
+            clockUpdater
+        )
+          taskbarController.destroy()
+    }
+}

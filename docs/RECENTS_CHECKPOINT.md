@@ -1,30 +1,30 @@
-# RavenOS Recents & Freeform Integration Checkpoint
+# ZorxOS Recents & Freeform Integration Checkpoint
 
 ## Platform
 
 - Android 15
 - API Level 35
 - Build type: userdebug
-- Raven package: com.raven.launcher
-- Raven appId observed: 10210
+- Zorx package: com.zorx.launcher
+- Zorx appId observed: 10210
 - Development branch: development
 
-## Raven Recents Integration
+## Zorx Recents Integration
 
-RavenOS successfully replaces the default Android Recents component with:
+ZorxOS successfully replaces the default Android Recents component with:
 
-com.raven.launcher/com.raven.launcher.recents.RecentsActivity
+com.zorx.launcher/com.zorx.launcher.recents.RecentsActivity
 
 Runtime verification:
 
 mRecentsUid=10210
-mRecentsComponent=ComponentInfo{com.raven.launcher/com.raven.launcher.recents.RecentsActivity}
+mRecentsComponent=ComponentInfo{com.zorx.launcher/com.zorx.launcher.recents.RecentsActivity}
 
-## Raven Recents Overlay
+## Zorx Recents Overlay
 
 Overlay package:
 
-com.raven.overlay.recents
+com.zorx.overlay.recents
 
 The overlay overrides:
 
@@ -32,13 +32,13 @@ android:string/config_recentsComponentName
 
 Runtime value:
 
-com.raven.launcher/com.raven.launcher.recents.RecentsActivity
+com.zorx.launcher/com.zorx.launcher.recents.RecentsActivity
 
-The Raven overlay successfully takes precedence over PixelConfigOverlayCommon.
+The Zorx overlay successfully takes precedence over PixelConfigOverlayCommon.
 
 ## Privileged Permissions
 
-RavenLauncher successfully receives:
+ZorxLauncher successfully receives:
 
 android.permission.REAL_GET_TASKS: granted=true
 android.permission.START_TASKS_FROM_RECENTS: granted=true
@@ -46,11 +46,11 @@ android.permission.MANAGE_ACTIVITY_TASKS: granted=true
 
 MANAGE_ACTIVITY_TASKS uses the signature|recents protection level.
 
-Making RavenLauncher the active Android Recents implementation allows Raven to receive this permission.
+Making ZorxLauncher the active Android Recents implementation allows Zorx to receive this permission.
 
 ## Original Freeform Failure
 
-RavenWindowManager previously reached WindowContainerTransaction.applyTransaction()
+ZorxWindowManager previously reached WindowContainerTransaction.applyTransaction()
 but Android rejected the transaction with:
 
 SecurityException:
@@ -60,16 +60,16 @@ The required MANAGE_ACTIVITY_TASKS permission is now granted.
 
 ## Verified Architecture
 
-RavenRecentsOverlay
+ZorxRecentsOverlay
         |
         v
 config_recentsComponentName
         |
         v
-Raven RecentsActivity
+Zorx RecentsActivity
         |
         v
-mRecentsUid = Raven UID (10210)
+mRecentsUid = Zorx UID (10210)
         |
         v
 MANAGE_ACTIVITY_TASKS = granted
@@ -79,14 +79,14 @@ WindowContainerTransaction access
 
 ## Next Development Step
 
-Retest RavenWindowManager.moveTaskToFreeform().
+Retest ZorxWindowManager.moveTaskToFreeform().
 
 Verify:
 
 1. WindowContainerTransaction.applyTransaction() succeeds.
 2. MANAGE_ACTIVITY_TASKS SecurityException is gone.
 3. Target task changes to FREEFORM windowing mode.
-4. Raven-defined task bounds are applied.
+4. Zorx-defined task bounds are applied.
 5. Multiple Android applications can operate as independent desktop windows.
 6. Window focus, resize, move, minimize, maximize and close behavior can then be implemented.
 
@@ -94,4 +94,4 @@ Verify:
 
 Previous implementation checkpoint:
 
-80e55fd - Add Raven recents integration and freeform window support
+80e55fd - Add Zorx recents integration and freeform window support

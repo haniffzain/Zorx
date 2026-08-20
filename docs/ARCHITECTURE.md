@@ -1,4 +1,4 @@
-# LumaOS Architecture
+# Zorx Architecture
 
 DesktopActivity
         │
@@ -15,7 +15,7 @@ DesktopActivity
  AppManager
         │
         ▼
- LumaWindowManager
+ ZorxWindowManager
         │
         ▼
  Android ActivityTaskManager

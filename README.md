@@ -1,8 +1,8 @@
-# LumaOS
+# Zorx
 
-LumaOS is a modern desktop environment for Android built directly on AOSP.
+Zorx is a modern desktop environment for Android built directly on AOSP.
 
-Unlike traditional Android launchers, LumaOS provides a desktop experience with native freeform windows, multitasking, taskbar integration, native Recents integration and a modular path toward desktop-class services.
+Unlike traditional Android launchers, Zorx provides a desktop experience with native freeform windows, multitasking, taskbar integration, native Recents integration and a modular path toward desktop-class services.
 
 ---
 
@@ -22,8 +22,8 @@ Verified on the `development` branch:
 
 ### UI / Design Direction
 
-- Desktop menu / application menu interaction is part of the LumaOS desktop UI direction.
-- Typography and font changes are treated as part of the LumaOS design system.
+- Desktop menu / application menu interaction is part of the Zorx desktop UI direction.
+- Typography and font changes are treated as part of the Zorx design system.
 - Menu and typography work should be documented separately from platform capabilities so visual design decisions are not confused with implemented system functions.
 
 ---
@@ -47,7 +47,7 @@ Desktop UI and Launcher
 docs/
 Architecture, checkpoints and project documentation
 
-RavenRecentsOverlay/
+ZorxRecentsOverlay/
 Android Recents overlay integration
 
 branding/
@@ -91,7 +91,7 @@ Project screenshots
 
 ### Recents
 
-LumaOS currently uses its own Recents activity as the Android Recents provider on the development branch. The Recents overlay changes the system `config_recentsComponentName` to the Luma/Raven launcher implementation. Required privileged task-management permissions have been verified. See [`docs/RECENTS_CHECKPOINT.md`](docs/RECENTS_CHECKPOINT.md).
+Zorx currently uses its own Recents activity as the Android Recents provider on the development branch. The Recents overlay changes the system `config_recentsComponentName` to the Zorx/Zorx launcher implementation. Required privileged task-management permissions have been verified. See [`docs/RECENTS_CHECKPOINT.md`](docs/RECENTS_CHECKPOINT.md).
 
 ### Freeform Windows
 
@@ -171,4 +171,4 @@ Documentation should describe verified implementation, active experiments and UI
 Author
 
 Mohd Haniff
-LumaOS Project
+Zorx Project

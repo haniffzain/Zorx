@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string name="config_recentsComponentName">
-        com.raven.launcher/com.raven.launcher.recents.RecentsActivity
-    </string>
-
-</resources>

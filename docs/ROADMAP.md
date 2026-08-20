@@ -1,4 +1,4 @@
-# LumaOS Development Roadmap
+# Zorx Development Roadmap
 
 Version 0.5
 ✔ Desktop

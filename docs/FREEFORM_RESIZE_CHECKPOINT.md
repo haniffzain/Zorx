@@ -1,13 +1,13 @@
-# RavenOS Freeform Resize Checkpoint
+# ZorxOS Freeform Resize Checkpoint
 
 ## Status
 
-Raven Launcher is successfully registered as the Android Recents provider.
+Zorx Launcher is successfully registered as the Android Recents provider.
 
 Verified:
 
-- Raven Recents UID is active.
-- Raven RecentsActivity is the configured recents component.
+- Zorx Recents UID is active.
+- Zorx RecentsActivity is the configured recents component.
 - START_TASKS_FROM_RECENTS granted.
 - MANAGE_ACTIVITY_TASKS granted.
 - REAL_GET_TASKS granted.
@@ -59,11 +59,11 @@ The third parameter is treated as flags.
 
 ## Current Architecture
 
-Raven Launcher
+Zorx Launcher
     |
     +-- launches Android applications directly in FREEFORM mode
     |
-    +-- Raven Recents provider
+    +-- Zorx Recents provider
     |
     +-- privileged task-management permissions
     |
@@ -75,7 +75,7 @@ Raven Launcher
 
 ## Next Development Step
 
-Implement RavenWindowManager task movement/resizing using the Android
+Implement ZorxWindowManager task movement/resizing using the Android
 ActivityTaskManager / IActivityTaskManager resizeTask path.
 
 Target features:

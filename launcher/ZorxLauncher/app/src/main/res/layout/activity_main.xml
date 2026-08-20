@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:background="#050505">
+
+
+    <!-- Desktop Area -->
+
+    <TextView
+
+        android:id="@+id/zorx_title"
+
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+
+        android:text="🦅 Zorx OS"
+
+        android:textSize="32sp"
+
+        android:textColor="#FFFFFF"
+
+        android:layout_gravity="center"/>
+
+
+    <!-- Taskbar Placeholder -->
+
+    <LinearLayout
+
+        android:id="@+id/taskbar"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="60dp"
+
+        android:layout_gravity="bottom"
+
+        android:orientation="horizontal"
+
+        android:gravity="center_vertical"
+
+        android:padding="10dp"
+
+        android:background="#202020">
+
+
+        <TextView
+
+            android:id="@+id/start_button"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:text="🦅 START"
+
+            android:textColor="#FFFFFF"
+
+            android:textSize="18sp"/>
+
+
+    </LinearLayout>
+
+
+</FrameLayout>
