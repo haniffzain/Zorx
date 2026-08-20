@@ -66,20 +66,49 @@ class ZorxSettingsActivity : AppCompatActivity() {
             addView(label("Orientation: ${orientationName(displays.firstOrNull()?.rotation ?: 0)}"))
         })
         content.addView(card("Shell metrics") {
-            addSlider("Titlebar height", 23, 72, shell.titlebarHeightDp.toInt()) { shell = shell.copy(titlebarHeightDp = it.toFloat()) }
-            addSlider("Taskbar height", 23, 96, shell.taskbarHeightDp.toInt()) { shell = shell.copy(taskbarHeightDp = it.toFloat()) }
-            addSlider("Taskbar width", 50, 100, (shell.taskbarWidthFraction * 100).toInt()) { shell = shell.copy(taskbarWidthFraction = it / 100f) }
-            addSlider("Start Menu height", 360, 760, shell.startMenuHeightDp.toInt()) { shell = shell.copy(startMenuHeightDp = it.toFloat()) }
-            addSlider("App Drawer height", 50, 100, (shell.appDrawerHeightFraction * 100).toInt()) { shell = shell.copy(appDrawerHeightFraction = it / 100f) }
-            addSlider("General UI scale", 75, 150, (shell.generalUiScale * 100).toInt()) { shell = shell.copy(generalUiScale = it / 100f) }
+            addSlider("Titlebar height", 23, 72, shell.titlebarHeightDp.toInt()) {
+                shell = shell.copy(titlebarHeightDp = it.toFloat()); publishLiveSettings()
+            }
+            addSlider("Taskbar height", 23, 96, shell.taskbarHeightDp.toInt()) {
+                shell = shell.copy(taskbarHeightDp = it.toFloat()); publishLiveSettings()
+            }
+            addSlider("Taskbar width", 50, 100, (shell.taskbarWidthFraction * 100).toInt()) {
+                shell = shell.copy(taskbarWidthFraction = it / 100f); publishLiveSettings()
+            }
+            addSlider("Start Menu height", 360, 760, shell.startMenuHeightDp.toInt()) {
+                shell = shell.copy(startMenuHeightDp = it.toFloat()); publishLiveSettings()
+            }
+            addSlider("App Drawer height", 50, 100, (shell.appDrawerHeightFraction * 100).toInt()) {
+                shell = shell.copy(appDrawerHeightFraction = it / 100f); publishLiveSettings()
+            }
+            addSlider("General UI scale", 75, 150, (shell.generalUiScale * 100).toInt()) {
+                shell = shell.copy(generalUiScale = it / 100f); publishLiveSettings()
+            }
         })
         content.addView(card("Shell shape") {
             addSpinner("Taskbar", ShellShape.values().map { it.name }, appearance.taskbarShape.ordinal) {
-                appearance = appearance.copy(taskbarShape = ShellShape.values()[it])
+                appearance = appearance.copy(taskbarShape = ShellShape.values()[it]); publishLiveSettings()
             }
-            addCornerSpinner("Menu", appearance.menuCornerStyle) { appearance = appearance.copy(menuCornerStyle = it) }
-            addCornerSpinner("Window", appearance.windowCornerStyle) { appearance = appearance.copy(windowCornerStyle = it) }
-            addCornerSpinner("Widget card", appearance.widgetCornerStyle) { appearance = appearance.copy(widgetCornerStyle = it) }
+            addCornerSpinner("Menu", appearance.menuCornerStyle) {
+                appearance = appearance.copy(menuCornerStyle = it); publishLiveSettings()
+            }
+            addCornerSpinner("Window", appearance.windowCornerStyle) {
+                appearance = appearance.copy(windowCornerStyle = it); publishLiveSettings()
+            }
+            addCornerSpinner("Widget card", appearance.widgetCornerStyle) {
+                appearance = appearance.copy(widgetCornerStyle = it); publishLiveSettings()
+            }
+        })
+        content.addView(Button(this).apply {
+            text = "Reset appearance to defaults"
+            setOnClickListener {
+                ZorxShellSettingsStore.resetAppearance(context)
+                shell = ZorxShellSettingsStore.readShell(context)
+                appearance = ZorxShellSettingsStore.readAppearance(context)
+                render()
+                configureFloatingWindow()
+                Toast.makeText(context, "Appearance defaults restored", Toast.LENGTH_SHORT).show()
+            }
         })
         content.addView(Button(this).apply {
             text = "Apply and Exit"
@@ -160,7 +189,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
         titlebar.addView(
             TextView(this).apply {
                 text = "Display + Appearance"
-                textSize = 11f
+                textSize = 13f
                 setTextColor(ZorxColors.TextPrimary)
                 gravity = Gravity.CENTER_VERTICAL
             },
@@ -179,7 +208,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
             TextView(this).apply {
                 text = glyph
                 contentDescription = description
-                textSize = 11f
+                textSize = 13f
                 gravity = Gravity.CENTER
                 setTextColor(ZorxColors.TextPrimary)
                 background =
@@ -379,7 +408,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
         background = GradientDrawable().apply {
             setColor(ZorxColors.Surface); setStroke(dp(1), ZorxColors.Border); cornerRadius = dp(20).toFloat()
         }
-        addView(TextView(context).apply { text = title; textSize = 11f; setTextColor(ZorxColors.TextPrimary) })
+        addView(TextView(context).apply { text = title; textSize = 13f; setTextColor(ZorxColors.TextPrimary) })
         block()
     }.also { it.layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, dp(14)) } }
 
@@ -390,7 +419,9 @@ class ZorxSettingsActivity : AppCompatActivity() {
             this.max = max - min; progress = value - min
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(s: SeekBar?, p: Int, fromUser: Boolean) {
-                    val v = min + p; valueLabel.text = "$name: $v"; changed(v)
+                    val v = min + p
+                    valueLabel.text = "$name: $v"
+                    if (fromUser) changed(v)
                 }
                 override fun onStartTrackingTouch(s: SeekBar?) {}
                 override fun onStopTrackingTouch(s: SeekBar?) {}
@@ -414,8 +445,11 @@ class ZorxSettingsActivity : AppCompatActivity() {
     }
 
     private fun label(value: String) = TextView(this).apply {
-        text = value; textSize = 11f; setTextColor(ZorxColors.TextSecondary); setPadding(0, dp(10), 0, dp(4))
+        text = value; textSize = 13f; setTextColor(ZorxColors.TextSecondary); setPadding(0, dp(10), 0, dp(4))
     }
+    private fun publishLiveSettings() =
+        ZorxShellSettingsStore.save(this, shell, appearance)
+
     private fun orientationName(rotation: Int) = when (rotation) { 1 -> "90°"; 2 -> "180°"; 3 -> "270°"; else -> "0°" }
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 }

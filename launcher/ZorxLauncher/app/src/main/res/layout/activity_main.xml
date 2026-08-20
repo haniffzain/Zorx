@@ -20,7 +20,7 @@
 
         android:text="🦅 Zorx OS"
 
-        android:textSize="32sp"
+        android:textSize="13sp"
 
         android:textColor="#FFFFFF"
 
@@ -60,7 +60,7 @@
 
             android:textColor="#FFFFFF"
 
-            android:textSize="18sp"/>
+            android:textSize="13sp"/>
 
 
     </LinearLayout>

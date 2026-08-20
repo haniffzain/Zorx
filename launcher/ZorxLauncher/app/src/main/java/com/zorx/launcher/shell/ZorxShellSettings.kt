@@ -1,11 +1,11 @@
 package com.zorx.launcher.shell
 
-enum class ShellShape { PILL, ROUNDED_RECTANGLE, SQUARE }
-enum class CornerStyle { LARGE, MEDIUM, SMALL, SQUARE }
+enum class ShellShape { PILL, ROUNDED, SQUARE }
+enum class CornerStyle { ROUNDED, SQUARE }
 
 data class ZorxShellSettings(
-    val titlebarHeightDp: Float = 23f,
-    val taskbarHeightDp: Float = 23f,
+    val titlebarHeightDp: Float = 32f,
+    val taskbarHeightDp: Float = 44f,
     val taskbarWidthFraction: Float = 0.92f,
     val startMenuHeightDp: Float = 500f,
     val appDrawerHeightFraction: Float = 1f,
@@ -14,9 +14,9 @@ data class ZorxShellSettings(
 
 data class ZorxAppearanceSettings(
     val taskbarShape: ShellShape = ShellShape.PILL,
-    val menuCornerStyle: CornerStyle = CornerStyle.LARGE,
-    val windowCornerStyle: CornerStyle = CornerStyle.MEDIUM,
-    val widgetCornerStyle: CornerStyle = CornerStyle.LARGE
+    val menuCornerStyle: CornerStyle = CornerStyle.ROUNDED,
+    val windowCornerStyle: CornerStyle = CornerStyle.ROUNDED,
+    val widgetCornerStyle: CornerStyle = CornerStyle.ROUNDED
 )
 
 data class ZorxShellMetrics(

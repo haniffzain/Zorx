@@ -194,7 +194,7 @@ class TaskbarView(
                 text =
                     "✦  Zorx"
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -363,7 +363,7 @@ class TaskbarView(
                 text =
                     symbol
 
-                textSize = 11f
+                textSize = 13f
 
                 gravity =
                     Gravity.CENTER
@@ -469,7 +469,7 @@ class TaskbarView(
                                 "◇  ${desktopObject.title}"
                         }
 
-                    textSize = 11f
+                    textSize = 13f
 
                     setTextColor(
                         if (isFocused) {
@@ -611,7 +611,7 @@ class TaskbarView(
             runningContainer.addView(
                 TextView(context).apply {
                     text = "▱  Display Settings"
-                    textSize = 11f
+                    textSize = 13f
                     setTextColor(ZorxColors.TextSecondary)
                     gravity = Gravity.CENTER
                     maxLines = 1
@@ -698,7 +698,7 @@ class TaskbarView(
                 text =
                     textValue
 
-                textSize = 11f
+                textSize = 13f
 
                 gravity =
                     Gravity.CENTER

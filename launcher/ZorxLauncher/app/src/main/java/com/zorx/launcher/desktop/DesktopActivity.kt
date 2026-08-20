@@ -319,6 +319,7 @@ class DesktopActivity : AppCompatActivity() {
                     gravity = Gravity.BOTTOM
                     setMargins(0, 0, 0, metrics.appDrawerBottomInsetPx)
                 }
+            appDrawer.applyShellRadius(metrics.menuRadiusPx)
         }
 
         if (::desktopSurface.isInitialized) {
@@ -377,7 +378,7 @@ class DesktopActivity : AppCompatActivity() {
             menu.addView(
                 TextView(this).apply {
                     text = label
-                    textSize = 11f
+                    textSize = 13f
                     setTextColor(ZorxColors.TextPrimary)
                     gravity = Gravity.CENTER_VERTICAL
                     setPadding(

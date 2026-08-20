@@ -157,7 +157,7 @@ class StartMenuView(
                 text =
                     "✦"
 
-                textSize = 11f
+                textSize = 13f
 
                 gravity =
                     Gravity.CENTER
@@ -206,7 +206,7 @@ class StartMenuView(
                 text =
                     "Zorx"
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -219,7 +219,7 @@ class StartMenuView(
                 text =
                     "Your desktop, your space"
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -252,7 +252,7 @@ class StartMenuView(
                 text =
                     "●"
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.Success
@@ -314,7 +314,7 @@ class StartMenuView(
                 text =
                     "⌕"
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -338,7 +338,7 @@ class StartMenuView(
                 hint =
                     "Search applications..."
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -397,7 +397,7 @@ class StartMenuView(
                 text =
                     "⌘"
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -503,7 +503,7 @@ class StartMenuView(
                     text =
                         "No pinned applications yet"
 
-                    textSize = 11f
+                    textSize = 13f
 
                     setTextColor(
                         ZorxColors.TextSecondary
@@ -597,7 +597,7 @@ class StartMenuView(
                         context.packageManager
                     )
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -750,7 +750,7 @@ class StartMenuView(
                 text =
                     iconText
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.Accent
@@ -774,7 +774,7 @@ class StartMenuView(
                 text =
                     title
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -874,7 +874,7 @@ class StartMenuView(
                 text =
                     "Zorx Shell"
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -896,7 +896,7 @@ class StartMenuView(
                 text =
                     "⏻  Power"
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -950,7 +950,7 @@ class StartMenuView(
                 text =
                     title
 
-                textSize = 11f
+                textSize = 13f
 
                 setTextColor(
                     ZorxColors.TextSecondary

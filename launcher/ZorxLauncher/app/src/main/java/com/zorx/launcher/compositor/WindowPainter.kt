@@ -103,7 +103,7 @@ class WindowPainter(
     private val titlePaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.rgb(238, 241, 247)
-            textSize = 11f
+            textSize = 13f
             isAntiAlias = true
         }
 
@@ -114,7 +114,7 @@ class WindowPainter(
     private val contentPaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.rgb(178, 182, 193)
-            textSize = 11f
+            textSize = 13f
             isAntiAlias = true
         }
 

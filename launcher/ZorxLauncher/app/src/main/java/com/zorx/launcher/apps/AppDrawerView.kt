@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.ResolveInfo
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.MotionEvent
 import android.widget.GridLayout
@@ -19,6 +20,16 @@ class AppDrawerView(
     private val onAppLaunched: () -> Unit = {},
     private val onDismiss: () -> Unit = {}
 ) : ScrollView(context) {
+
+    fun applyShellRadius(radiusPx: Float) {
+        background = GradientDrawable().apply {
+            setColor(Color.rgb(20, 22, 28))
+            setStroke(1, Color.argb(75, 255, 255, 255))
+            cornerRadius = radiusPx
+        }
+        clipToOutline = radiusPx > 0f
+        invalidate()
+    }
 
     private var backgroundDownX = 0f
     private var backgroundDownY = 0f
@@ -47,13 +58,7 @@ class AppDrawerView(
 
     init {
 
-        setBackgroundColor(
-            Color.rgb(
-                20,
-                22,
-                28
-            )
-        )
+        applyShellRadius(0f)
 
         addView(grid)
 
@@ -112,7 +117,7 @@ class AppDrawerView(
                         Color.WHITE
                     )
 
-                    textSize = 11f
+                    textSize = 13f
 
                     setPadding(
                         30,
@@ -235,7 +240,7 @@ class AppDrawerView(
                         Color.WHITE
                     )
 
-                    textSize = 11f
+                    textSize = 13f
 
                     gravity =
                         Gravity.CENTER
