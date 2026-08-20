@@ -10,6 +10,9 @@ import android.widget.TextView
 import com.zorx.launcher.design.ZorxColors
 import com.zorx.launcher.design.ZorxRadius
 import com.zorx.launcher.spatial.SpatialEngine
+import com.zorx.launcher.settings.ZorxSettingsActivity
+import com.zorx.launcher.shell.ShellPanelState
+import com.zorx.launcher.shell.ZorxShellPanelManager
 
 /**
  * Zorx floating taskbar.
@@ -35,6 +38,46 @@ class TaskbarView(
     private val onRunningWindowClicked: (String) -> Unit
 
 ) : LinearLayout(context) {
+
+    private val shellPanelListener = {
+        post {
+            refreshRunningWindows()
+        }
+        Unit
+    }
+
+    fun applyShellRadius(
+        radiusPx: Float
+    ) {
+
+        background =
+            GradientDrawable().apply {
+
+                setColor(
+                    Color.argb(
+                        238,
+                        26,
+                        28,
+                        32
+                    )
+                )
+
+                setStroke(
+                    1,
+                    Color.argb(
+                        90,
+                        255,
+                        255,
+                        255
+                    )
+                )
+
+                cornerRadius =
+                    radiusPx
+            }
+
+        invalidate()
+    }
 
     private val appContainer =
         LinearLayout(context).apply {
@@ -95,6 +138,10 @@ class TaskbarView(
 
     init {
 
+        ZorxShellPanelManager.addListener(
+            shellPanelListener
+        )
+
         orientation =
             HORIZONTAL
 
@@ -147,8 +194,7 @@ class TaskbarView(
                 text =
                     "✦  Zorx"
 
-                textSize =
-                    15f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -317,8 +363,7 @@ class TaskbarView(
                 text =
                     symbol
 
-                textSize =
-                    19f
+                textSize = 11f
 
                 gravity =
                     Gravity.CENTER
@@ -424,8 +469,7 @@ class TaskbarView(
                                 "◇  ${desktopObject.title}"
                         }
 
-                    textSize =
-                        13f
+                    textSize = 11f
 
                     setTextColor(
                         if (isFocused) {
@@ -559,8 +603,67 @@ class TaskbarView(
             )
         }
 
+        if (
+            ZorxShellPanelManager.displaySettingsState ==
+                ShellPanelState.MINIMIZED
+        ) {
+
+            runningContainer.addView(
+                TextView(context).apply {
+                    text = "▱  Display Settings"
+                    textSize = 11f
+                    setTextColor(ZorxColors.TextSecondary)
+                    gravity = Gravity.CENTER
+                    maxLines = 1
+                    setPadding(14, 0, 14, 0)
+                    background =
+                        GradientDrawable().apply {
+                            setColor(
+                                Color.argb(
+                                    105,
+                                    20,
+                                    22,
+                                    27
+                                )
+                            )
+                            setStroke(
+                                1,
+                                Color.argb(
+                                    85,
+                                    130,
+                                    140,
+                                    155
+                                )
+                            )
+                            cornerRadius =
+                                ZorxRadius.Button
+                        }
+                    setOnClickListener {
+                        context.startActivity(
+                            ZorxSettingsActivity.intent(
+                                context,
+                                ZorxSettingsActivity.SECTION_DISPLAY
+                            )
+                        )
+                    }
+                },
+                LayoutParams(
+                    170,
+                    LayoutParams.MATCH_PARENT
+                ).apply {
+                    setMargins(3, 6, 3, 6)
+                }
+            )
+        }
+
         runningContainer.requestLayout()
         runningContainer.invalidate()
+    }
+
+    fun destroy() {
+        ZorxShellPanelManager.removeListener(
+            shellPanelListener
+        )
     }
 
 
@@ -595,8 +698,7 @@ class TaskbarView(
                 text =
                     textValue
 
-                textSize =
-                    13f
+                textSize = 11f
 
                 gravity =
                     Gravity.CENTER

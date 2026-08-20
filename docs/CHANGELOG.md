@@ -1,5 +1,16 @@
 # Changelog
 
+## 20 August 2026 — development at b14b199
+
+- Verified desktop runtime/compositor, focus, drag, bottom-right resize, snap,
+  spatial minimize/maximize/restore and taskbar restore.
+- Verified coalesced native bounds forwarding for DesktopMovedEvent.
+- Verified stable Start Menu/App Drawer dismissal and successful assembleDebug.
+- Pending: native close, maximize/restore sync, authoritative task identity,
+  external reconciliation, multi-instance support, z-index rendering and tests.
+- Build warning: Android Gradle Plugin 8.5.0 is tested through compileSdk 34 while
+  the project uses compileSdk 35.
+
 ## 0.5
 
 - Native launcher

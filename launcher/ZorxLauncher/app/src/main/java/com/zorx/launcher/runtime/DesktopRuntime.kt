@@ -17,7 +17,7 @@ import android.content.Context
  * desktop events into spatial objects.
  */
 class DesktopRuntime(
-    context: Context
+    val context: Context
 ) : ZorxEventListener {
 
     companion object {

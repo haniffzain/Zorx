@@ -1,5 +1,15 @@
 # Zorx Development UI Notes
 
+## 20 August 2026 — b14b199 verification
+
+Verified: title-bar drag, bottom-right resize, focus, spatial minimize,
+maximize/restore, edge/corner snap, taskbar activation, Start Menu search handoff,
+App Drawer filtering and stable outside-touch dismissal.
+
+Partial: drag/resize/snap move events reach native bounds after task promotion.
+Maximize/restore do not currently trigger native bounds synchronization; close is
+spatial-only; render z-index and taskbar focus refresh require correction.
+
 ## 16 August 2026 — Verified implementation update
 
 This document records UI implementation and design decisions on the `development` branch separately from low-level Android platform checkpoints.

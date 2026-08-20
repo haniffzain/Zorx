@@ -4,8 +4,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Typeface
 import com.zorx.launcher.spatial.DesktopObject
 import com.zorx.launcher.spatial.DesktopObjectState
+import com.zorx.launcher.shell.ZorxShellMetrics
 
 /**
  * Zorx Window Painter
@@ -19,15 +21,23 @@ import com.zorx.launcher.spatial.DesktopObjectState
  * - Cyan / violet focus accent
  * - Soft depth without expensive blur
  */
-class WindowPainter {
+class WindowPainter(
+    private val metricsProvider:
+        (() -> ZorxShellMetrics)? = null,
+    private val typefaceProvider:
+        (() -> Typeface?)? = null
+) {
 
     // =========================================================
     // GEOMETRY
     // =========================================================
 
-    private val windowRadius = 18f
-    private val titleBarHeight = 58f
-    private val buttonRadius = 7f
+    private val windowRadius: Float
+        get() = metricsProvider?.invoke()?.windowRadiusPx ?: 18f
+
+    private val titleBarHeight: Float
+        get() = metricsProvider?.invoke()?.titlebarHeightPx ?: 58f
+    private val buttonRadius = 8.5f
 
     // =========================================================
     // WINDOW
@@ -93,7 +103,7 @@ class WindowPainter {
     private val titlePaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.rgb(238, 241, 247)
-            textSize = 22f
+            textSize = 11f
             isAntiAlias = true
         }
 
@@ -104,7 +114,7 @@ class WindowPainter {
     private val contentPaint =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.rgb(178, 182, 193)
-            textSize = 17f
+            textSize = 11f
             isAntiAlias = true
         }
 
@@ -156,6 +166,12 @@ class WindowPainter {
         canvas: Canvas,
         desktopObject: DesktopObject
     ) {
+
+        typefaceProvider?.invoke()?.let {
+            titlePaint.typeface = it
+            contentPaint.typeface = it
+            controlGlyphPaint.typeface = it
+        }
 
         val bounds =
             desktopObject.bounds
@@ -382,9 +398,15 @@ class WindowPainter {
 
             canvas.drawRoundRect(
                 left + 14f,
-                top + 8f,
+                top + minOf(
+                    8f,
+                    titleBarHeight * 0.25f
+                ),
                 left + 18f,
-                top + 34f,
+                top + maxOf(
+                    titleBarHeight - 6f,
+                    titleBarHeight * 0.75f
+                ),
                 2f,
                 2f,
                 accentPaint
@@ -410,7 +432,12 @@ class WindowPainter {
             }
 
         val titleY =
-            top + 36f
+            top +
+                titleBarHeight / 2f -
+                (
+                    titlePaint.fontMetrics.ascent +
+                        titlePaint.fontMetrics.descent
+                ) / 2f
 
         canvas.drawText(
             desktopObject.title,
@@ -426,16 +453,16 @@ class WindowPainter {
         // =====================================================
 
         val controlsY =
-            top + 29f
+            top + titleBarHeight / 2f
 
         val closeX =
-            right - 27f
+            right - 24f
 
         val maximizeX =
-            right - 55f
+            right - 54f
 
         val minimizeX =
-            right - 83f
+            right - 84f
 
         drawControl(
             canvas,
@@ -636,9 +663,9 @@ class WindowPainter {
             Control.MINIMIZE -> {
 
                 canvas.drawLine(
-                    x - 3.5f,
+                    x - 4.5f,
                     y,
-                    x + 3.5f,
+                    x + 4.5f,
                     y,
                     controlGlyphPaint
                 )
@@ -647,10 +674,10 @@ class WindowPainter {
             Control.MAXIMIZE -> {
 
                 canvas.drawRect(
-                    x - 3.5f,
-                    y - 3.5f,
-                    x + 3.5f,
-                    y + 3.5f,
+                    x - 4.5f,
+                    y - 4.5f,
+                    x + 4.5f,
+                    y + 4.5f,
                     controlGlyphPaint
                 )
             }
@@ -658,18 +685,18 @@ class WindowPainter {
             Control.CLOSE -> {
 
                 canvas.drawLine(
-                    x - 3f,
-                    y - 3f,
-                    x + 3f,
-                    y + 3f,
+                    x - 4f,
+                    y - 4f,
+                    x + 4f,
+                    y + 4f,
                     controlGlyphPaint
                 )
 
                 canvas.drawLine(
-                    x + 3f,
-                    y - 3f,
-                    x - 3f,
-                    y + 3f,
+                    x + 4f,
+                    y - 4f,
+                    x - 4f,
+                    y + 4f,
                     controlGlyphPaint
                 )
             }

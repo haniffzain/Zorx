@@ -1,5 +1,11 @@
 # ZorxOS Recents & Freeform Integration Checkpoint
 
+## 20 August 2026 follow-up
+
+The taskId resize path is now invoked by AndroidWindowBackend and coalesced move
+bounds are forwarded after task promotion. Native close, maximize/restore sync,
+external task reconciliation and multi-instance identity remain pending.
+
 ## Platform
 
 - Android 15

@@ -1,5 +1,7 @@
 # Zorx
 
+> Development status verified at b14b199 on 20 August 2026.
+
 Zorx is a modern desktop environment for Android built directly on AOSP.
 
 Unlike traditional Android launchers, Zorx provides a desktop experience with native freeform windows, multitasking, taskbar integration, native Recents integration and a modular path toward desktop-class services.

@@ -2,6 +2,9 @@ package com.zorx.launcher.compositor
 
 import android.graphics.Canvas
 import com.zorx.launcher.runtime.DesktopRuntime
+import com.zorx.launcher.shell.ZorxShellSettingsStore
+import androidx.core.content.res.ResourcesCompat
+import com.zorx.launcher.R
 
 /**
  * Combines every desktop object into
@@ -12,7 +15,23 @@ class DesktopCompositor(
     private val runtime: DesktopRuntime,
 
     private val windowPainter: WindowPainter =
-        WindowPainter()
+        WindowPainter(
+            {
+                val metrics =
+                    runtime.context.resources.displayMetrics
+                ZorxShellSettingsStore.resolve(
+                    runtime.context,
+                    metrics.widthPixels,
+                    metrics.heightPixels
+                )
+            },
+            {
+                ResourcesCompat.getFont(
+                    runtime.context,
+                    R.font.jetbrains_mono_regular
+                )
+            }
+        )
 
 ) {
 

@@ -1,31 +1,17 @@
-# ADR-0001
+# Architecture Decision Records
 
-Title:
+## ADR-0001: SpatialEngine owns desktop presentation state
 
-Spatial Engine owns all desktop objects.
+Status: Accepted, clarified.
 
----
+SpatialEngine owns desktop bounds, state, focus and z-index. WindowRegistry owns
+Android task identity. SpatialEngine is therefore the presentation source of truth,
+not the complete native lifecycle source of truth.
 
-Status
+## ADR-0002: Unify native lifecycle through task identity
 
-Accepted
+Status: Proposed.
 
----
-
-Decision
-
-All desktop objects are managed through SpatialEngine.
-
----
-
-Reason
-
-Provide a single source of truth.
-
----
-
-Consequences
-
-UI never modifies objects directly.
-
-All changes must go through SpatialEngine.
+Use native task ID as authoritative identity after promotion and maintain an explicit
+mapping during synthetic launch. Package names are metadata, not unique identity.
+All bounds operations share one path; close and external removal clean up both models.

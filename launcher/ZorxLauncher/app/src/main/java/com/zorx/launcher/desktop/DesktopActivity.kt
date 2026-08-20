@@ -6,12 +6,20 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.TextView
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import androidx.appcompat.app.AppCompatActivity
 import com.zorx.launcher.R
 import com.zorx.launcher.apps.AppDrawerView
 import com.zorx.launcher.startmenu.StartMenuView
 import com.zorx.launcher.taskbar.TaskbarController
 import com.zorx.launcher.taskbar.TaskbarView
+import com.zorx.launcher.design.ZorxColors
+import com.zorx.launcher.settings.ZorxSettingsActivity
+import com.zorx.launcher.shell.ZorxShellSettingsStore
 
 class DesktopActivity : AppCompatActivity() {
 
@@ -19,6 +27,15 @@ class DesktopActivity : AppCompatActivity() {
     private lateinit var appDrawer: AppDrawerView
     private lateinit var taskbar: TaskbarView
     private lateinit var taskbarController: TaskbarController
+    private lateinit var desktopRoot: FrameLayout
+    private lateinit var desktopSurface: DesktopSurface
+    private var desktopContextMenu: PopupWindow? = null
+
+    private val shellSettingsListener = {
+        runOnUiThread {
+            applyShellMetrics()
+        }
+    }
 
 
 
@@ -33,12 +50,18 @@ class DesktopActivity : AppCompatActivity() {
         val desktop =
             findViewById<FrameLayout>(R.id.zorx_desktop)
 
+        desktopRoot =
+            desktop
+
         // =====================================================
         // DESKTOP SURFACE
         // =====================================================
 
         val desktopSurface =
             DesktopSurface(this)
+
+        this.desktopSurface =
+            desktopSurface
 
         val desktopSurfaceParams =
             FrameLayout.LayoutParams(
@@ -63,6 +86,12 @@ class DesktopActivity : AppCompatActivity() {
             }
 
             false
+        }
+
+        desktopSurface.onEmptyDesktopSecondaryClick = { x, y ->
+            dismissAppDrawer()
+            dismissStartMenu()
+            showDesktopContextMenu(x, y)
         }
 
         // =====================================================
@@ -214,6 +243,207 @@ class DesktopActivity : AppCompatActivity() {
 
             false
         }
+
+        ZorxShellSettingsStore.addListener(
+            shellSettingsListener
+        )
+
+        desktop.post {
+            applyShellMetrics()
+        }
+    }
+
+    private fun applyShellMetrics() {
+
+        if (
+            !::desktopRoot.isInitialized ||
+            desktopRoot.width <= 0 ||
+            desktopRoot.height <= 0
+        ) {
+            return
+        }
+
+        val metrics =
+            ZorxShellSettingsStore.resolve(
+                this,
+                desktopRoot.width,
+                desktopRoot.height
+            )
+
+        if (::taskbar.isInitialized) {
+            val compactPadding =
+                if (metrics.taskbarHeightPx < 40) {
+                    0
+                } else {
+                    (6 * resources.displayMetrics.density).toInt()
+                }
+
+            taskbar.setPadding(
+                (12 * resources.displayMetrics.density).toInt(),
+                compactPadding,
+                (12 * resources.displayMetrics.density).toInt(),
+                compactPadding
+            )
+
+            taskbar.layoutParams =
+                (taskbar.layoutParams as FrameLayout.LayoutParams).apply {
+                    width = metrics.taskbarWidthPx
+                    height = metrics.taskbarHeightPx
+                    gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                    setMargins(0, 0, 0, metrics.taskbarBottomMarginPx)
+                }
+            taskbar.applyShellRadius(metrics.taskbarRadiusPx)
+        }
+
+        if (::startMenu.isInitialized) {
+            startMenu.layoutParams =
+                (startMenu.layoutParams as FrameLayout.LayoutParams).apply {
+                    width = metrics.startMenuWidthPx
+                    height = metrics.startMenuHeightPx
+                    gravity = Gravity.BOTTOM or Gravity.START
+                    setMargins(
+                        (24 * resources.displayMetrics.density).toInt(),
+                        0,
+                        0,
+                        metrics.startMenuBottomMarginPx
+                    )
+                }
+            startMenu.applyShellRadius(metrics.menuRadiusPx)
+        }
+
+        if (::appDrawer.isInitialized) {
+            appDrawer.layoutParams =
+                (appDrawer.layoutParams as FrameLayout.LayoutParams).apply {
+                    width = FrameLayout.LayoutParams.MATCH_PARENT
+                    height = metrics.appDrawerHeightPx
+                    gravity = Gravity.BOTTOM
+                    setMargins(0, 0, 0, metrics.appDrawerBottomInsetPx)
+                }
+        }
+
+        if (::desktopSurface.isInitialized) {
+            desktopSurface.invalidate()
+        }
+    }
+
+    private fun showDesktopContextMenu(
+        x: Float,
+        y: Float
+    ) {
+
+        desktopContextMenu?.dismiss()
+
+        val density =
+            resources.displayMetrics.density
+
+        val menu =
+            LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(
+                    (10 * density).toInt(),
+                    (10 * density).toInt(),
+                    (10 * density).toInt(),
+                    (10 * density).toInt()
+                )
+                background =
+                    GradientDrawable().apply {
+                        setColor(ZorxColors.Surface)
+                        setStroke(1, ZorxColors.Border)
+                        cornerRadius =
+                            (18 * density)
+                    }
+            }
+
+        val popup =
+            PopupWindow(
+                menu,
+                (260 * density).toInt(),
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                true
+            ).apply {
+                isOutsideTouchable = true
+                elevation = 14 * density
+                setBackgroundDrawable(
+                    GradientDrawable().apply {
+                        setColor(Color.TRANSPARENT)
+                    }
+                )
+            }
+
+        fun addAction(
+            label: String,
+            action: () -> Unit = {}
+        ) {
+            menu.addView(
+                TextView(this).apply {
+                    text = label
+                    textSize = 11f
+                    setTextColor(ZorxColors.TextPrimary)
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(
+                        (16 * density).toInt(),
+                        (12 * density).toInt(),
+                        (16 * density).toInt(),
+                        (12 * density).toInt()
+                    )
+                    setOnClickListener {
+                        popup.dismiss()
+                        action()
+                    }
+                },
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            )
+        }
+
+        addAction("View")
+        addAction("Refresh") {
+            desktopSurface.invalidate()
+        }
+        addAction("Widgets")
+        addAction("Display Settings") {
+            startActivity(
+                ZorxSettingsActivity.intent(
+                    this,
+                    ZorxSettingsActivity.SECTION_DISPLAY
+                )
+            )
+        }
+        addAction("Personalization") {
+            startActivity(
+                ZorxSettingsActivity.intent(
+                    this,
+                    ZorxSettingsActivity.SECTION_APPEARANCE
+                )
+            )
+        }
+
+        desktopContextMenu =
+            popup
+
+        val popupWidth =
+            (260 * density).toInt()
+
+        val safeX =
+            x.toInt().coerceIn(
+                0,
+                (desktopRoot.width - popupWidth).coerceAtLeast(0)
+            )
+
+        val safeY =
+            y.toInt().coerceAtMost(
+                (desktopRoot.height - (300 * density).toInt())
+                    .coerceAtLeast(0)
+            )
+
+        popup.showAtLocation(
+            desktopRoot,
+            Gravity.TOP or Gravity.START,
+            safeX,
+            safeY
+        )
     }
 
     // =========================================================
@@ -309,8 +539,18 @@ class DesktopActivity : AppCompatActivity() {
 
     override fun onDestroy() {
 
+        ZorxShellSettingsStore.removeListener(
+            shellSettingsListener
+        )
+
+        desktopContextMenu?.dismiss()
+
         if (::taskbarController.isInitialized) {
             taskbarController.destroy()
+        }
+
+        if (::taskbar.isInitialized) {
+            taskbar.destroy()
         }
 
         super.onDestroy()

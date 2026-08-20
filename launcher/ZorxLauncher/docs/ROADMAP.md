@@ -1,51 +1,24 @@
-# Zorx Roadmap
+# ZorxLauncher Roadmap
 
-## Alpha 0.1
+## Verified foundation
 
-- [x] Runtime
-- [x] Spatial Engine
-- [x] Repository
-- [x] Event Bus
-- [x] Render Controller
-- [ ] Desktop Surface
-- [ ] Hello Zorx Window
+- Runtime, spatial engine, repository and event bus.
+- Desktop surface, scene, compositor and window painter.
+- Freeform launch, synthetic registration and native promotion attempt.
+- Focus, drag, bottom-right resize, minimize, maximize/restore and snap UI.
+- Taskbar running-window controls, Start Menu and App Drawer integration.
 
----
+## Active milestone
 
-## Alpha 0.2
+- Unify native and spatial lifecycle using task identity.
+- Synchronize maximize/restore and close with native tasks.
+- Reconcile externally removed tasks.
+- Correct render z-order and taskbar focus refresh.
+- Add unit and integration coverage.
 
-- Window Drag
+## Later
 
-- Window Resize
-
-- Snap
-
-- Multiple Windows
-
----
-
-## Alpha 0.3
-
-- Workspace
-
-- Desktop Icons
-
-- Wallpaper
-
----
-
-## Beta
-
-- Widgets
-
-- Notifications
-
-- AI Assistant
-
-- File Manager
-
----
-
-## Version 1.0
-
-- Stable desktop platform
+- Full-edge resize and work-area constraints.
+- Snap layout UI and multi-window workflows.
+- Desktop grid, widgets, icons and persistence.
+- Virtual desktops and multi-monitor support.

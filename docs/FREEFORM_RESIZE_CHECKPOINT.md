@@ -1,5 +1,11 @@
 # ZorxOS Freeform Resize Checkpoint
 
+## 20 August 2026 implementation update
+
+At b14b199, AndroidWindowBackend implements the taskId resize path and
+NativeTaskSynchronizer coalesces drag/resize/snap move events at 32 ms.
+Package-based lookup, maximize/restore sync, native close and reconciliation remain.
+
 ## Status
 
 Zorx Launcher is successfully registered as the Android Recents provider.

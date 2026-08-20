@@ -356,6 +356,26 @@ class SpatialEngine(
         return repository.getAll()
     }
 
+    fun findTopmostAt(
+        x: Float,
+        y: Float
+    ): DesktopObject? {
+
+        return repository
+            .getAll()
+            .asSequence()
+            .filter {
+                it.state != DesktopObjectState.MINIMIZED &&
+                    x >= it.bounds.x &&
+                    x <= it.bounds.x + it.bounds.width &&
+                    y >= it.bounds.y &&
+                    y <= it.bounds.y + it.bounds.height
+            }
+            .maxByOrNull {
+                it.zIndex
+            }
+    }
+
     fun containsObject(
         id: String
     ): Boolean {

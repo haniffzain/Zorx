@@ -1,5 +1,11 @@
 # Android 15 Reverse Engineering Notes
 
+## 20 August 2026 implementation status
+
+The reflected IActivityTaskManager.resizeTask path is implemented. It still depends
+on privileged deployment, hidden APIs and task visibility. Synthetic fallback,
+native close, external reconciliation and maximize/restore sync remain.
+
 Confirmed
 
 ActivityOptions

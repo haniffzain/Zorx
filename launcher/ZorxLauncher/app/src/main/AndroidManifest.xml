@@ -22,6 +22,12 @@
     android:exported="false" />
 
 <activity
+    android:name=".settings.ZorxSettingsActivity"
+    android:theme="@style/Theme.ZorxLauncher.FloatingSettings"
+    android:screenOrientation="landscape"
+    android:exported="false" />
+
+<activity
     android:name=".recents.RecentsActivity"
     android:theme="@style/Theme.ZorxLauncher"
     android:exported="true"

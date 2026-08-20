@@ -1,74 +1,23 @@
 # Zorx Master Architecture
 
-## Vision
+Zorx is an Android desktop platform built around native applications, a desktop
+spatial model and a task-aware shell.
 
-Zorx is designed as a desktop platform rather than a launcher.
+## Layers
 
----
+- UI: DesktopActivity, StartMenuView, AppDrawerView and TaskbarView.
+- Desktop: DesktopSurface, DesktopScene and WindowInteractionController.
+- Runtime: DesktopRuntime and NativeTaskSynchronizer.
+- Spatial: SpatialEngine and DesktopObjectRepository.
+- Rendering: DesktopCompositor and WindowPainter.
+- Window model: ZorxWindowManager and WindowRegistry.
+- Android platform: AppManager, AndroidWindowBackend and ActivityTaskManager.
 
-# High Level Architecture
+Commands enter through controllers and mutate SpatialEngine. Events drive redraw,
+taskbar refresh and native bounds synchronization. App launch enters through
+AppManager and ZorxWindowService; WindowOpenedEvent bridges the task registry into
+the spatial desktop.
 
-Zorx
-
-├── Core
-
-├── Runtime
-
-├── Desktop
-
-├── Rendering
-
-└── Android Platform
-
----
-
-## Core
-
-Responsible for:
-
-- Spatial Engine
-- Event Bus
-- Commands
-- Repository
-
----
-
-## Runtime
-
-Responsible for:
-
-- Desktop Runtime
-- Session
-- Future Services
-
----
-
-## Desktop
-
-Responsible for:
-
-- Desktop Surface
-- Desktop Scene
-- Taskbar
-- Start Menu
-- Widgets
-
----
-
-## Rendering
-
-Responsible for:
-
-- Desktop Compositor
-- Window Painter
-- Future GPU renderer
-
----
-
-## Platform
-
-Responsible for:
-
-- Android integration
-- Window backend
-- Activity lifecycle
+Native task state and spatial state are separate and only partially synchronized.
+The next milestone defines task-based identity and one lifecycle contract without
+changing stable Start Menu or App Drawer dismissal behavior.

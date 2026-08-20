@@ -22,13 +22,16 @@ import kotlin.math.max
  */
 class WindowInteractionController(
     private val spatialEngine: SpatialEngine,
-    private val viewportSizeProvider: () -> Pair<Int, Int>
+    private val viewportSizeProvider: () -> Pair<Int, Int>,
+    private val titlebarHeightProvider: () -> Int = {
+        TITLE_BAR_HEIGHT
+    }
 ) {
 
     companion object {
 
         private const val TITLE_BAR_HEIGHT = 56
-        private const val CONTROL_WIDTH = 40
+        private const val CONTROL_WIDTH = 44
         private const val RESIZE_HANDLE_SIZE = 40
 
         private const val SNAP_THRESHOLD = 64
@@ -153,7 +156,8 @@ class WindowInteractionController(
 
         val inTitleBar =
             y >= bounds.y &&
-            y <= bounds.y + TITLE_BAR_HEIGHT
+            y <= bounds.y +
+                titlebarHeightProvider()
 
         /*
          * -----------------------------------------------------

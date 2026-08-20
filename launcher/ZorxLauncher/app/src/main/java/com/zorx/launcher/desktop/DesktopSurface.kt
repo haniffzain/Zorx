@@ -17,11 +17,15 @@ import com.zorx.launcher.events.desktop.DesktopMovedEvent
 import com.zorx.launcher.events.desktop.DesktopRemovedEvent
 import com.zorx.launcher.events.desktop.DesktopStateChangedEvent
 import com.zorx.launcher.spatial.SpatialBounds
+import com.zorx.launcher.shell.ZorxShellSettingsStore
 
 class DesktopSurface @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : View(context, attrs), ZorxEventListener {
+
+    var onEmptyDesktopSecondaryClick:
+        ((Float, Float) -> Unit)? = null
 
     private val runtime =
         DesktopRuntime(context)
@@ -33,10 +37,18 @@ class DesktopSurface @JvmOverloads constructor(
         DesktopScene(runtime)
     private val interactionController =
         WindowInteractionController(
-            runtime.spatialEngine
-        ) {
-            width to height
-        }
+            runtime.spatialEngine,
+            {
+                width to height
+            },
+            {
+                ZorxShellSettingsStore.resolve(
+                    context,
+                    width.coerceAtLeast(1),
+                    height.coerceAtLeast(1)
+                ).titlebarHitHeightPx
+            }
+        )
 
     private val lastRenderedBounds =
         mutableMapOf<String, SpatialBounds>()
@@ -192,6 +204,30 @@ class DesktopSurface @JvmOverloads constructor(
     override fun onTouchEvent(
         event: MotionEvent
     ): Boolean {
+
+        val secondaryClick =
+            event.actionMasked == MotionEvent.ACTION_DOWN &&
+                (
+                    event.buttonState and MotionEvent.BUTTON_SECONDARY != 0 ||
+                        event.actionButton == MotionEvent.BUTTON_SECONDARY
+                )
+
+        if (secondaryClick) {
+
+            if (
+                spatialEngine.findTopmostAt(
+                    event.x,
+                    event.y
+                ) == null
+            ) {
+                onEmptyDesktopSecondaryClick?.invoke(
+                    event.x,
+                    event.y
+                )
+            }
+
+            return true
+        }
 
         if (
             event.actionMasked ==

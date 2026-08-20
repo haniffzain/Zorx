@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.ResolveInfo
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import android.provider.Settings
 import android.view.Gravity
 import android.view.inputmethod.EditorInfo
 import android.view.View
@@ -18,11 +17,42 @@ import com.zorx.launcher.apps.AppManager
 import com.zorx.launcher.apps.PinnedAppManager
 import com.zorx.launcher.design.ZorxColors
 import com.zorx.launcher.design.ZorxRadius
+import com.zorx.launcher.settings.ZorxSettingsActivity
 
 class StartMenuView(
     context: Context,
     private val onApplicationsClick: (String) -> Unit
 ) : ScrollView(context) {
+
+    fun applyShellRadius(
+        radiusPx: Float
+    ) {
+
+        background =
+            GradientDrawable().apply {
+                setColor(
+                    Color.argb(
+                        246,
+                        24,
+                        26,
+                        31
+                    )
+                )
+                setStroke(
+                    dp(1),
+                    Color.argb(
+                        75,
+                        255,
+                        255,
+                        255
+                    )
+                )
+                cornerRadius =
+                    radiusPx
+            }
+
+        invalidate()
+    }
 
     private val appManager =
         AppManager(context)
@@ -127,8 +157,7 @@ class StartMenuView(
                 text =
                     "✦"
 
-                textSize =
-                    24f
+                textSize = 11f
 
                 gravity =
                     Gravity.CENTER
@@ -177,8 +206,7 @@ class StartMenuView(
                 text =
                     "Zorx"
 
-                textSize =
-                    21f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -191,8 +219,7 @@ class StartMenuView(
                 text =
                     "Your desktop, your space"
 
-                textSize =
-                    11f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -225,8 +252,7 @@ class StartMenuView(
                 text =
                     "●"
 
-                textSize =
-                    10f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.Success
@@ -288,8 +314,7 @@ class StartMenuView(
                 text =
                     "⌕"
 
-                textSize =
-                    22f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -313,8 +338,7 @@ class StartMenuView(
                 hint =
                     "Search applications..."
 
-                textSize =
-                    14f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -373,8 +397,7 @@ class StartMenuView(
                 text =
                     "⌘"
 
-                textSize =
-                    13f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -480,8 +503,7 @@ class StartMenuView(
                     text =
                         "No pinned applications yet"
 
-                    textSize =
-                        12f
+                    textSize = 11f
 
                     setTextColor(
                         ZorxColors.TextSecondary
@@ -575,8 +597,7 @@ class StartMenuView(
                         context.packageManager
                     )
 
-                textSize =
-                    9f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -729,8 +750,7 @@ class StartMenuView(
                 text =
                     iconText
 
-                textSize =
-                    20f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.Accent
@@ -754,8 +774,7 @@ class StartMenuView(
                 text =
                     title
 
-                textSize =
-                    13f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -855,8 +874,7 @@ class StartMenuView(
                 text =
                     "Zorx Shell"
 
-                textSize =
-                    11f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -878,8 +896,7 @@ class StartMenuView(
                 text =
                     "⏻  Power"
 
-                textSize =
-                    12f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -933,8 +950,7 @@ class StartMenuView(
                 text =
                     title
 
-                textSize =
-                    10f
+                textSize = 11f
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -966,8 +982,8 @@ class StartMenuView(
         try {
 
             context.startActivity(
-                Intent(
-                    Settings.ACTION_SETTINGS
+                ZorxSettingsActivity.intent(
+                    context
                 ).apply {
                     addFlags(
                         Intent.FLAG_ACTIVITY_NEW_TASK

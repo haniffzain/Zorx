@@ -112,8 +112,7 @@ class AppDrawerView(
                         Color.WHITE
                     )
 
-                    textSize =
-                        16f
+                    textSize = 11f
 
                     setPadding(
                         30,
@@ -236,8 +235,7 @@ class AppDrawerView(
                         Color.WHITE
                     )
 
-                    textSize =
-                        14f
+                    textSize = 11f
 
                     gravity =
                         Gravity.CENTER
