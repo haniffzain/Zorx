@@ -53,12 +53,18 @@ class DesktopActivity : AppCompatActivity() {
         // =====================================================
 
         appDrawer =
-            AppDrawerView(this) {
-
-                if (::taskbar.isInitialized) {
-                    taskbar.refreshPinnedApps()
+            AppDrawerView(
+                context = this,
+                onPinnedAppsChanged = {
+                    if (::taskbar.isInitialized) {
+                        taskbar.refreshPinnedApps()
+                    }
+                },
+                onAppLaunched = {
+                    appDrawer.visibility =
+                        View.GONE
                 }
-            }
+            )
 
         val appDrawerParams =
             FrameLayout.LayoutParams(
@@ -86,8 +92,8 @@ class DesktopActivity : AppCompatActivity() {
         // =====================================================
 
         startMenu =
-            StartMenuView(this) {
-                openApplications()
+            StartMenuView(this) { query ->
+                openApplications(query)
             }
 
         val density =
@@ -215,10 +221,12 @@ class DesktopActivity : AppCompatActivity() {
     // APPLICATIONS
     // =========================================================
 
-    private fun openApplications() {
+    private fun openApplications(query: String = "") {
 
         startMenu.visibility =
             View.GONE
+
+        appDrawer.setQuery(query)
 
         appDrawer.visibility =
             if (appDrawer.visibility == View.VISIBLE) {

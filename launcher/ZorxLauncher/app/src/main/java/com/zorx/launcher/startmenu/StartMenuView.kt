@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.provider.Settings
 import android.view.Gravity
+import android.view.inputmethod.EditorInfo
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
@@ -20,7 +21,7 @@ import com.zorx.launcher.design.ZorxRadius
 
 class StartMenuView(
     context: Context,
-    private val onApplicationsClick: () -> Unit
+    private val onApplicationsClick: (String) -> Unit
 ) : ScrollView(context) {
 
     private val appManager =
@@ -336,6 +337,25 @@ class StartMenuView(
                 )
 
                 isSingleLine = true
+
+                imeOptions =
+                    EditorInfo.IME_ACTION_SEARCH
+
+                setOnEditorActionListener { _, actionId, _ ->
+
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+
+                        onApplicationsClick(
+                            text.toString().trim()
+                        )
+
+                        true
+
+                    } else {
+
+                        false
+                    }
+                }
             }
 
         searchContainer.addView(
@@ -602,7 +622,7 @@ class StartMenuView(
                 "◈",
                 "Applications"
             ) {
-                onApplicationsClick()
+                onApplicationsClick("")
             },
             actionParams()
         )
@@ -654,7 +674,7 @@ class StartMenuView(
                 "⌕",
                 "Search"
             ) {
-                onApplicationsClick()
+                onApplicationsClick("")
             },
             actionParams()
         )
