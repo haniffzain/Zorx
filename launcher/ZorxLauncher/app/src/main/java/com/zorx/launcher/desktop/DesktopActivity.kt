@@ -2,6 +2,7 @@ package com.zorx.launcher.desktop
 
 import android.os.Bundle
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.widget.FrameLayout
@@ -18,6 +19,34 @@ class DesktopActivity : AppCompatActivity() {
     private lateinit var appDrawer: AppDrawerView
     private lateinit var taskbar: TaskbarView
     private lateinit var taskbarController: TaskbarController
+
+    override fun dispatchTouchEvent(
+        event: MotionEvent
+    ): Boolean {
+
+        if (
+            ::appDrawer.isInitialized &&
+            appDrawer.visibility == View.VISIBLE &&
+            event.actionMasked == MotionEvent.ACTION_DOWN
+        ) {
+
+            val clickedOnAppItem =
+                appDrawer.isTouchOnAppItem(
+                    event.rawX,
+                    event.rawY
+                )
+
+            if (!clickedOnAppItem) {
+
+                appDrawer.visibility =
+                    View.GONE
+            }
+        }
+
+        return super.dispatchTouchEvent(
+            event
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -48,6 +77,19 @@ class DesktopActivity : AppCompatActivity() {
             desktopSurfaceParams
         )
 
+        desktopSurface.setOnTouchListener { _, event ->
+
+            if (
+                event.actionMasked ==
+                    MotionEvent.ACTION_DOWN
+            ) {
+
+                dismissAppDrawer()
+            }
+
+            false
+        }
+
         // =====================================================
         // APPLICATION DRAWER
         // =====================================================
@@ -61,6 +103,10 @@ class DesktopActivity : AppCompatActivity() {
                     }
                 },
                 onAppLaunched = {
+                    appDrawer.visibility =
+                        View.GONE
+                },
+                onDismiss = {
                     appDrawer.visibility =
                         View.GONE
                 }
@@ -179,6 +225,19 @@ class DesktopActivity : AppCompatActivity() {
             taskbar,
             taskbarParams
         )
+
+        taskbar.setOnTouchListener { _, event ->
+
+            if (
+                event.actionMasked ==
+                    MotionEvent.ACTION_DOWN
+            ) {
+
+                dismissAppDrawer()
+            }
+
+            false
+        }
     }
 
     // =========================================================
@@ -199,6 +258,19 @@ class DesktopActivity : AppCompatActivity() {
     // =========================================================
     // START MENU
     // =========================================================
+
+
+    private fun dismissAppDrawer() {
+
+        if (
+            ::appDrawer.isInitialized &&
+            appDrawer.visibility == View.VISIBLE
+        ) {
+
+            appDrawer.visibility =
+                View.GONE
+        }
+    }
 
     private fun toggleStartMenu() {
 

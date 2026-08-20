@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.ResolveInfo
 import android.graphics.Color
 import android.view.Gravity
+import android.view.MotionEvent
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -15,8 +16,12 @@ import android.widget.Toast
 class AppDrawerView(
     context: Context,
     private val onPinnedAppsChanged: () -> Unit = {},
-    private val onAppLaunched: () -> Unit = {}
+    private val onAppLaunched: () -> Unit = {},
+    private val onDismiss: () -> Unit = {}
 ) : ScrollView(context) {
+
+    private var backgroundDownX = 0f
+    private var backgroundDownY = 0f
 
     private val appManager =
         AppManager(context)
@@ -85,6 +90,51 @@ class AppDrawerView(
             }
 
         renderApps(apps)
+    }
+
+    fun isTouchOnAppItem(
+        rawX: Float,
+        rawY: Float
+    ): Boolean {
+
+        val location =
+            IntArray(2)
+
+        for (
+            index in 0 until grid.childCount
+        ) {
+
+            val child =
+                grid.getChildAt(index)
+
+            child.getLocationOnScreen(
+                location
+            )
+
+            val left =
+                location[0].toFloat()
+
+            val top =
+                location[1].toFloat()
+
+            val right =
+                left + child.width
+
+            val bottom =
+                top + child.height
+
+            if (
+                rawX >= left &&
+                rawX <= right &&
+                rawY >= top &&
+                rawY <= bottom
+            ) {
+
+                return true
+            }
+        }
+
+        return false
     }
 
     private fun renderApps(
@@ -272,4 +322,47 @@ class AppDrawerView(
             )
         }
     }
+
+    override fun onTouchEvent(
+        event: MotionEvent
+    ): Boolean {
+
+        when (event.actionMasked) {
+
+            MotionEvent.ACTION_DOWN -> {
+
+                backgroundDownX =
+                    event.x
+
+                backgroundDownY =
+                    event.y
+            }
+
+            MotionEvent.ACTION_UP -> {
+
+                val movedX =
+                    kotlin.math.abs(
+                        event.x - backgroundDownX
+                    )
+
+                val movedY =
+                    kotlin.math.abs(
+                        event.y - backgroundDownY
+                    )
+
+                if (
+                    movedX < 12f &&
+                    movedY < 12f
+                ) {
+
+                    onDismiss()
+
+                    return true
+                }
+            }
+        }
+
+        return super.onTouchEvent(event)
+    }
+
 }

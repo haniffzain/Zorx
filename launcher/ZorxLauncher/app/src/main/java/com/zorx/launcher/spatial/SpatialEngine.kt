@@ -81,6 +81,21 @@ class SpatialEngine(
             repository.find(id)
                 ?: return false
 
+        /*
+         * A minimized window must never become visible
+         * merely because another desktop interaction
+         * attempts to focus it.
+         *
+         * Restoration must happen explicitly through
+         * restoreFromMinimized().
+         */
+        if (
+            target.state ==
+                DesktopObjectState.MINIMIZED
+        ) {
+            return false
+        }
+
         val highestZ =
             repository
                 .getAll()

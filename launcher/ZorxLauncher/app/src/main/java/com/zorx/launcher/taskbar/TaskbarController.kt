@@ -119,19 +119,35 @@ class TaskbarController(
             )
                 ?: return false
 
-        if (
-            desktopObject.state ==
-                DesktopObjectState.MINIMIZED
+        when (
+            desktopObject.state
         ) {
 
-            spatialEngine.restoreFromMinimized(
-                desktopObject.id
-            )
-        }
+            DesktopObjectState.MINIMIZED -> {
 
-        spatialEngine.focusObject(
-            desktopObject.id
-        )
+                spatialEngine.restoreFromMinimized(
+                    desktopObject.id
+                )
+
+                spatialEngine.focusObject(
+                    desktopObject.id
+                )
+            }
+
+            DesktopObjectState.FOCUSED -> {
+
+                spatialEngine.minimizeObject(
+                    desktopObject.id
+                )
+            }
+
+            else -> {
+
+                spatialEngine.focusObject(
+                    desktopObject.id
+                )
+            }
+        }
 
         return true
     }
