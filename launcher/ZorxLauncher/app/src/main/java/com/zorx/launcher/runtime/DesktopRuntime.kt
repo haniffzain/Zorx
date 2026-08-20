@@ -8,6 +8,7 @@ import com.zorx.launcher.spatial.DesktopObject
 import com.zorx.launcher.spatial.SpatialEngine
 import com.zorx.launcher.spatial.SpatialBounds
 import android.util.Log
+import android.content.Context
 
 /**
  * Central runtime for the Zorx desktop.
@@ -15,7 +16,9 @@ import android.util.Log
  * Owns the spatial desktop runtime and converts
  * desktop events into spatial objects.
  */
-class DesktopRuntime : ZorxEventListener {
+class DesktopRuntime(
+    context: Context
+) : ZorxEventListener {
 
     companion object {
         private const val TAG = "DesktopRuntime"
@@ -23,6 +26,11 @@ class DesktopRuntime : ZorxEventListener {
 
     val spatialEngine =
         SpatialEngine()
+
+    private val nativeTaskSynchronizer =
+        NativeTaskSynchronizer(
+            context
+        )
 
     init {
 
@@ -85,6 +93,13 @@ class DesktopRuntime : ZorxEventListener {
                         )
                     )
                 }
+            }
+
+            is com.zorx.launcher.events.desktop.DesktopMovedEvent -> {
+
+                nativeTaskSynchronizer.syncBounds(
+                    event.desktopObject
+                )
             }
         }
     }

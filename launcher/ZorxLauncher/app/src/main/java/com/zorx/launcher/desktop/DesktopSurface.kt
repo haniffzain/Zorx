@@ -24,7 +24,7 @@ class DesktopSurface @JvmOverloads constructor(
 ) : View(context, attrs), ZorxEventListener {
 
     private val runtime =
-        DesktopRuntime()
+        DesktopRuntime(context)
 
     val spatialEngine
         get() = runtime.spatialEngine

@@ -39,6 +39,45 @@ object WindowRegistry {
         }
     }
 
+    fun findWindowForPackage(
+        packageName: String
+    ): ZorxWindow? {
+
+        return windows.lastOrNull {
+            it.packageName == packageName
+        }
+    }
+
+    fun replaceTaskId(
+        oldTaskId: Int,
+        newTaskId: Int
+    ): Boolean {
+
+        val index =
+            windows.indexOfFirst {
+                it.taskId == oldTaskId
+            }
+
+        if (index < 0) {
+            return false
+        }
+
+        val existing =
+            windows.removeAt(index)
+
+        windows.removeAll {
+            it.taskId == newTaskId
+        }
+
+        windows.add(
+            existing.copy(
+                taskId = newTaskId
+            )
+        )
+
+        return true
+    }
+
     fun getAllWindows(): List<ZorxWindow> {
 
         return windows.toList()

@@ -53,6 +53,27 @@ class ZorxWindowService {
         return windowManager.getWindows()
     }
 
+    fun promoteTaskId(
+        syntheticTaskId: Int,
+        nativeTaskId: Int
+    ): Boolean {
+
+        val promoted =
+            windowManager.replaceTaskId(
+                syntheticTaskId,
+                nativeTaskId
+            )
+
+        if (promoted) {
+            Log.i(
+                TAG,
+                "Promoted task $syntheticTaskId to Android task $nativeTaskId"
+            )
+        }
+
+        return promoted
+    }
+
     fun clear() {
 
         windowManager.clear()

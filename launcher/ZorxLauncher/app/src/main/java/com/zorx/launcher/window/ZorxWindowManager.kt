@@ -35,6 +35,26 @@ object ZorxWindowManager {
         return registry.getAllWindows()
     }
 
+    fun getWindowForPackage(
+        packageName: String
+    ): ZorxWindow? {
+
+        return registry.findWindowForPackage(
+            packageName
+        )
+    }
+
+    fun replaceTaskId(
+        oldTaskId: Int,
+        newTaskId: Int
+    ): Boolean {
+
+        return registry.replaceTaskId(
+            oldTaskId,
+            newTaskId
+        )
+    }
+
     fun clear() {
 
         registry.clear()

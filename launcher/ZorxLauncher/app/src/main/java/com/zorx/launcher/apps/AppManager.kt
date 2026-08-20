@@ -219,6 +219,11 @@ class AppManager(
                 resolveInfo
             )
 
+            promoteNativeTask(
+                packageName,
+                syntheticTaskId
+            )
+
             true
 
         } catch (exception: Exception) {
@@ -236,5 +241,55 @@ class AppManager(
 
             false
         }
+    }
+
+    private fun promoteNativeTask(
+        packageName: String,
+        syntheticTaskId: Int,
+        attempt: Int = 0
+    ) {
+
+        handler.postDelayed({
+
+            val nativeTaskId =
+                androidWindowBackend.findTaskId(
+                    packageName
+                )
+
+            if (nativeTaskId != null) {
+
+                zorxWindowService.promoteTaskId(
+                    syntheticTaskId,
+                    nativeTaskId
+                )
+
+                synchronized(launchingPackages) {
+                    launchingPackages.remove(packageName)
+                }
+
+                return@postDelayed
+            }
+
+            if (attempt < 4) {
+
+                promoteNativeTask(
+                    packageName,
+                    syntheticTaskId,
+                    attempt + 1
+                )
+
+            } else {
+
+                Log.w(
+                    TAG,
+                    "Android task was not visible for $packageName; " +
+                        "keeping synthetic task $syntheticTaskId"
+                )
+
+                synchronized(launchingPackages) {
+                    launchingPackages.remove(packageName)
+                }
+            }
+        }, 400L)
     }
 }
