@@ -23,6 +23,7 @@ import com.zorx.launcher.widgets.WidgetHost
 import com.zorx.launcher.widgets.ZorxWidgetLayoutStore
 import com.zorx.launcher.widgets.ZorxWidgetRegistry
 import com.zorx.launcher.workspace.ZorxWorkspaceManager
+import com.zorx.launcher.display.ZorxDisplayManager
 import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ZorxShellSettingsStore
@@ -448,6 +449,20 @@ class DesktopActivity : AppCompatActivity() {
         ZorxWorkspaceManager.workspaces().forEach { workspace -> addAction("Workspace → ${workspace.order}${if(ZorxWorkspaceManager.active(this)==workspace.id) " (Active)" else ""}") { ZorxWorkspaceManager.switchWorkspace(this,workspace.id) } }
         addAction("Workspace → Next") { ZorxWorkspaceManager.nextWorkspace(this) }
         addAction("Workspace → Previous") { ZorxWorkspaceManager.previousWorkspace(this) }
+        desktopSurface.spatialEngine.getAllObjects().maxByOrNull { it.zIndex }?.let { focused ->
+            ZorxWorkspaceManager.workspaces().forEach { workspace ->
+                addAction("Window → Move to Workspace ${workspace.order}") {
+                    desktopSurface.moveWindowToWorkspace(focused.id, workspace.id)
+                    desktopSurface.invalidate()
+                }
+            }
+            ZorxDisplayManager(this).topology(ZorxShellSettingsStore.readDisplay(this).displayScale).displays.forEach { display ->
+                addAction("Window → Move to ${display.name}") {
+                    desktopSurface.moveWindowToDisplay(focused.id, display.id)
+                    desktopSurface.invalidate()
+                }
+            }
+        }
         addAction("Display Settings") {
             startActivity(
                 ZorxSettingsActivity.intent(

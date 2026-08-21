@@ -1,6 +1,6 @@
 # Project Status
 
-Verified on development after Phase 4F on 21 August 2026.
+Verified on development after Phase 6C on 21 August 2026.
 
 ## Build
 
@@ -27,6 +27,7 @@ Verified on development after Phase 4F on 21 August 2026.
 - Phase 5E: Weather and Media provider abstractions plus persistent per-instance Notes widget configuration. Weather/media providers remain unconfigured until platform integration.
 - Phase 6A: four persistent virtual workspaces with logical window membership and compositor visibility. Widgets remain global in this foundation phase; runtime visual testing is deferred until Phase 6E.
 - Phase 6B: persistent multi-monitor topology data model with per-display scale, work area, logical primary and widget display migration. Waydroid currently exposes one display; host arrangement and cross-display movement remain future work.
+- Phase 6C: persistent window location model (workspace, display, logical bounds, state and z-order), workspace/display move actions and centralized logical-to-native coordinate conversion. Logical moves preserve task identity and use the existing native bounds bridge when more than one native display is available.
 
 ## Partial
 
@@ -37,4 +38,11 @@ Verified on development after Phase 4F on 21 August 2026.
 
 ## Current milestone
 
-Widget Engine foundation and edit mode are build-verified. Runtime visual testing is intentionally deferred until after Phase 6.
+Phase 6C is build-verified. Runtime visual testing, including real multi-display task movement, is intentionally deferred until Phase 6E.
+
+## Phase 6C coordinate and platform notes
+
+- `SpatialEngine` continues to own the single in-memory window object and native Android task identity.
+- `ZorxWindowLocationManager` persists a display-local logical rectangle; `ZorxDisplayCoordinates` is the only Phase 6C boundary that converts it to native physical task pixels.
+- Moving a maximized window targets the new display work area. Minimized windows retain their mapping without forced restore.
+- Current Waydroid exposure is normally one Android display. In that configuration, a move-to-display updates only the logical Zorx mapping; it does not fabricate a host-level native move. Workspace moves are immediately reflected by compositor visibility.

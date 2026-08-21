@@ -18,6 +18,8 @@ import com.zorx.launcher.events.desktop.DesktopRemovedEvent
 import com.zorx.launcher.events.desktop.DesktopStateChangedEvent
 import com.zorx.launcher.spatial.SpatialBounds
 import com.zorx.launcher.shell.ZorxShellSettingsStore
+import com.zorx.launcher.workspace.ZorxWorkspaceId
+import com.zorx.launcher.display.ZorxDisplayId
 
 class DesktopSurface @JvmOverloads constructor(
     context: Context,
@@ -32,6 +34,12 @@ class DesktopSurface @JvmOverloads constructor(
 
     val spatialEngine
         get() = runtime.spatialEngine
+
+    fun moveWindowToWorkspace(windowId: String, workspaceId: ZorxWorkspaceId) =
+        runtime.moveWindowToWorkspace(windowId, workspaceId)
+
+    fun moveWindowToDisplay(windowId: String, displayId: ZorxDisplayId) =
+        runtime.moveWindowToDisplay(windowId, displayId)
 
     private val scene =
         DesktopScene(runtime)

@@ -12,6 +12,7 @@
 
 - Virtual workspace foundation: logical workspace membership, visibility and workspace switching.
 - Multi-monitor topology foundation: logical display arrangement, per-display scale and work areas.
+- Phase 6C complete: persistent window workspace/display membership, logical bounds conversion, work-area clamping and desktop context actions for moving the highest-z window.
 
 - Unify native and spatial lifecycle using task identity.
 - Synchronize maximize/restore and close with native tasks.
@@ -24,4 +25,4 @@
 - Full-edge resize and work-area constraints.
 - Snap layout UI and multi-window workflows.
 - Desktop grid, widgets, icons and persistence.
-- Virtual desktops and multi-monitor support.
+- Runtime validation of cross-display native task movement after Phase 6E.

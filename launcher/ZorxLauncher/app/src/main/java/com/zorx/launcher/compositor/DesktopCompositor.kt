@@ -7,6 +7,8 @@ import androidx.core.content.res.ResourcesCompat
 import com.zorx.launcher.R
 import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.workspace.ZorxWorkspaceManager
+import com.zorx.launcher.display.ZorxDisplayManager
+import com.zorx.launcher.windowing.ZorxWindowLocationManager
 
 /**
  * Combines every desktop object into
@@ -66,6 +68,7 @@ class DesktopCompositor(
             .forEach { desktopObject ->
 
                 ZorxWorkspaceManager.assignIfAbsent(runtime.context, desktopObject.id)
+                ZorxWindowLocationManager.ensure(runtime.context, desktopObject, ZorxDisplayManager(runtime.context).topology(ZorxShellSettingsStore.readDisplay(runtime.context).displayScale))
                 if (ZorxWorkspaceManager.workspaceFor(runtime.context, desktopObject.id) != ZorxWorkspaceManager.active(runtime.context)) return@forEach
 
                 if (

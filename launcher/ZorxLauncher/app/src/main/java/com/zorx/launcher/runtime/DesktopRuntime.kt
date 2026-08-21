@@ -10,6 +10,11 @@ import com.zorx.launcher.spatial.SpatialBounds
 import android.util.Log
 import android.content.Context
 import com.zorx.launcher.workspace.ZorxWorkspaceManager
+import com.zorx.launcher.workspace.ZorxWorkspaceId
+import com.zorx.launcher.display.ZorxDisplayId
+import com.zorx.launcher.display.ZorxDisplayManager
+import com.zorx.launcher.windowing.ZorxWindowLocationManager
+import com.zorx.launcher.shell.ZorxShellSettingsStore
 
 /**
  * Central runtime for the Zorx desktop.
@@ -95,6 +100,9 @@ class DesktopRuntime(
                                 )
                         )
                     )
+                    spatialEngine.findObject(objectId)?.let { created ->
+                        ZorxWindowLocationManager.ensure(context, created, displayTopology())
+                    }
                 }
             }
 
@@ -106,6 +114,26 @@ class DesktopRuntime(
             }
         }
     }
+
+    fun moveWindowToWorkspace(windowId: String, workspaceId: ZorxWorkspaceId) {
+        val window = spatialEngine.findObject(windowId) ?: return
+        ZorxWindowLocationManager.moveToWorkspace(context, window, workspaceId, displayTopology())
+    }
+
+    fun moveWindowToDisplay(windowId: String, displayId: ZorxDisplayId) {
+        val window = spatialEngine.findObject(windowId) ?: return
+        val topology = displayTopology()
+        val nativeBounds = ZorxWindowLocationManager.moveToDisplay(context, window, displayId, topology) ?: return
+        // Waydroid commonly exposes one native display. The normal SpatialEngine path
+        // keeps its task synchronization bridge authoritative when a move is possible.
+        if (topology.displays.size > 1 && window.state != com.zorx.launcher.spatial.DesktopObjectState.MINIMIZED) {
+            spatialEngine.moveObject(windowId, nativeBounds)
+        }
+    }
+
+    private fun displayTopology() = ZorxDisplayManager(context).topology(
+        ZorxShellSettingsStore.readDisplay(context).displayScale
+    )
 
     fun destroy() {
 
