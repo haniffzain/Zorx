@@ -22,6 +22,7 @@ Verified on development after Phase 4F on 21 August 2026.
 - Phase 4F: persistent live Theme Engine with ZorxColors compatibility tokens and initial presets.
 - Phase 5A: persistent Widget Engine foundation and theme-aware Clock widget.
 - Phase 5B: Widget Edit Mode with logical grid drag/snap and persistent layout lock.
+- Phase 5C: selected-widget toolbar, logical resize, duplicate/remove and collision-safe placement.
 
 ## Partial
 

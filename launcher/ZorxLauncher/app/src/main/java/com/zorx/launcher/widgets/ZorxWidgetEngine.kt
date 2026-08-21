@@ -16,7 +16,9 @@ object ZorxWidgetLayoutStore {
     fun removeLastClock(context:Context) { val all=read(context); val index=all.indexOfLast { it.widgetType==WidgetType.CLOCK }; if(index>=0) save(context,all.filterIndexed { i,_ -> i!=index }) }
     fun replace(context:Context, next:ZorxWidgetInstance) = save(context,read(context).map { if(it.instanceId==next.instanceId) next else it })
     fun remove(context:Context, id:String) = save(context,read(context).filterNot { it.instanceId==id })
-    fun duplicate(context:Context, source:ZorxWidgetInstance):ZorxWidgetInstance { val copy=source.copy(instanceId="${source.widgetType.name.lowercase()}-${System.currentTimeMillis()}",gridX=(source.gridX+1)%4,gridY=source.gridY+if(source.gridX>=3)1 else 0); save(context,read(context)+copy); return copy }
+    fun overlaps(candidate:ZorxWidgetInstance, others:List<ZorxWidgetInstance>) = others.any { it.instanceId!=candidate.instanceId && it.visible && candidate.gridX < it.gridX+it.gridWidth && candidate.gridX+candidate.gridWidth > it.gridX && candidate.gridY < it.gridY+it.gridHeight && candidate.gridY+candidate.gridHeight > it.gridY }
+    fun valid(candidate:ZorxWidgetInstance, others:List<ZorxWidgetInstance>, columns:Int=4, rows:Int=8) = candidate.gridX>=0 && candidate.gridY>=0 && candidate.gridX+candidate.gridWidth<=columns && candidate.gridY+candidate.gridHeight<=rows && !overlaps(candidate,others)
+    fun duplicate(context:Context, source:ZorxWidgetInstance):ZorxWidgetInstance? { val all=read(context); val slot=(0 until 32).map { it%4 to it/4 }.firstOrNull { (x,y) -> valid(source.copy(gridX=x,gridY=y),all) } ?: return null; val copy=source.copy(instanceId="${source.widgetType.name.lowercase()}-${System.currentTimeMillis()}",gridX=slot.first,gridY=slot.second); save(context,all+copy); return copy }
     fun locked(context:Context)=context.getSharedPreferences(PREF,0).getBoolean("locked",false)
     fun setLocked(context:Context,value:Boolean)=context.getSharedPreferences(PREF,0).edit().putBoolean("locked",value).apply()
 }
