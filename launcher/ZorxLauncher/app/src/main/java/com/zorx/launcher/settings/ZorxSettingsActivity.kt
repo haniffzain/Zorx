@@ -25,6 +25,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
 
     private lateinit var shell: ZorxShellSettings
     private lateinit var appearance: ZorxAppearanceSettings
+    private lateinit var typography: ZorxTypographySettings
     private lateinit var root: LinearLayout
     private lateinit var settingsContent: ScrollView
     private var isPanelMaximized = false
@@ -35,6 +36,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         shell = ZorxShellSettingsStore.readShell(this)
         appearance = ZorxShellSettingsStore.readAppearance(this)
+        typography = ZorxShellSettingsStore.readTypography(this)
         ZorxShellPanelManager.setDisplaySettingsState(
             ShellPanelState.OPEN
         )
@@ -99,12 +101,53 @@ class ZorxSettingsActivity : AppCompatActivity() {
                 appearance = appearance.copy(widgetCornerStyle = it); publishLiveSettings()
             }
         })
+        content.addView(card("Appearance → Typography") {
+            addSlider("Global Font Scale", 75, 150, (typography.globalFontScale * 100).toInt()) {
+                typography = typography.copy(globalFontScale = it / 100f)
+                publishLiveSettings()
+            }
+            addSlider("Interface Text", 10, 24, typography.interfaceTextSp.toInt()) {
+                typography = typography.copy(interfaceTextSp = it.toFloat())
+                publishLiveSettings()
+            }
+            addSlider("Titlebar Text", 10, 24, typography.titlebarTextSp.toInt()) {
+                typography = typography.copy(titlebarTextSp = it.toFloat())
+                publishLiveSettings()
+            }
+            addSlider("Start Menu Text", 10, 24, typography.startMenuTextSp.toInt()) {
+                typography = typography.copy(startMenuTextSp = it.toFloat())
+                publishLiveSettings()
+            }
+            addSlider("App Drawer Text", 10, 24, typography.appDrawerTextSp.toInt()) {
+                typography = typography.copy(appDrawerTextSp = it.toFloat())
+                publishLiveSettings()
+            }
+            addSlider("Taskbar Text", 10, 24, typography.taskbarTextSp.toInt()) {
+                typography = typography.copy(taskbarTextSp = it.toFloat())
+                publishLiveSettings()
+            }
+            addSlider("Widget Text", 10, 24, typography.widgetTextSp.toInt()) {
+                typography = typography.copy(widgetTextSp = it.toFloat())
+                publishLiveSettings()
+            }
+        })
+        content.addView(Button(this).apply {
+            text = "Reset typography to defaults"
+            setOnClickListener {
+                ZorxShellSettingsStore.resetTypography(context)
+                typography = ZorxShellSettingsStore.readTypography(context)
+                render()
+                configureFloatingWindow()
+                Toast.makeText(context, "Typography restored", Toast.LENGTH_SHORT).show()
+            }
+        })
         content.addView(Button(this).apply {
             text = "Reset appearance to defaults"
             setOnClickListener {
                 ZorxShellSettingsStore.resetAppearance(context)
                 shell = ZorxShellSettingsStore.readShell(context)
                 appearance = ZorxShellSettingsStore.readAppearance(context)
+                typography = ZorxShellSettingsStore.readTypography(context)
                 render()
                 configureFloatingWindow()
                 Toast.makeText(context, "Appearance defaults restored", Toast.LENGTH_SHORT).show()
@@ -113,7 +156,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
         content.addView(Button(this).apply {
             text = "Apply and Exit"
             setOnClickListener {
-                ZorxShellSettingsStore.save(context, shell, appearance)
+                ZorxShellSettingsStore.save(context, shell, appearance, typography)
                 ZorxShellPanelManager.setDisplaySettingsState(
                     ShellPanelState.CLOSED
                 )
@@ -448,7 +491,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
         text = value; textSize = 13f; setTextColor(ZorxColors.TextSecondary); setPadding(0, dp(10), 0, dp(4))
     }
     private fun publishLiveSettings() =
-        ZorxShellSettingsStore.save(this, shell, appearance)
+        ZorxShellSettingsStore.save(this, shell, appearance, typography)
 
     private fun orientationName(rotation: Int) = when (rotation) { 1 -> "90°"; 2 -> "180°"; 3 -> "270°"; else -> "0°" }
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
