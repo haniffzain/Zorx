@@ -401,9 +401,9 @@ class DesktopActivity : AppCompatActivity() {
                 TextView(this).apply {
                     text = label
                     textSize = ZorxTypography.effectivePx(
-                        this,
-                        ZorxShellSettingsStore.readTypography(this),
-                        ZorxShellSettingsStore.readTypography(this).interfaceTextSp
+                        this@DesktopActivity,
+                        ZorxShellSettingsStore.readTypography(this@DesktopActivity),
+                        ZorxShellSettingsStore.readTypography(this@DesktopActivity).interfaceTextSp
                     )
                     setTextColor(ZorxColors.TextPrimary)
                     gravity = Gravity.CENTER_VERTICAL

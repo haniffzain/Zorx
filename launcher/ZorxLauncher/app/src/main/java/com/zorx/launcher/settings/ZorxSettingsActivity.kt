@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.zorx.launcher.design.ZorxColors
 import com.zorx.launcher.design.ZorxTypography
+import com.zorx.launcher.design.ZorxTypographySettings
 import com.zorx.launcher.display.ZorxDisplayManager
 import com.zorx.launcher.shell.*
 
