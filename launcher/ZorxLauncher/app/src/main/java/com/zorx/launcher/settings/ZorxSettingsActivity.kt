@@ -133,6 +133,15 @@ class ZorxSettingsActivity : AppCompatActivity() {
                 ZorxThemeManager.applyPreset(context, ZorxThemePreset.values()[it]); render()
             }
             addView(label("Presets apply desktop, surface, panel, border, accent, text, button and active-window colors live."))
+            addColorPalette("Desktop") { theme, color -> theme.copy(desktopBackground = color) }
+            addColorPalette("Surface") { theme, color -> theme.copy(surfaceBackground = color) }
+            addColorPalette("Panel") { theme, color -> theme.copy(panelBackground = color) }
+            addColorPalette("Border") { theme, color -> theme.copy(borderColor = color) }
+            addColorPalette("Accent") { theme, color -> theme.copy(primaryAccent = color, activeWindowBorder = color, widgetAccent = color) }
+            addColorPalette("Primary text") { theme, color -> theme.copy(textPrimary = color) }
+            addColorPalette("Secondary text") { theme, color -> theme.copy(textSecondary = color) }
+            addColorPalette("Button") { theme, color -> theme.copy(buttonColor = color) }
+            addColorPalette("Active window border") { theme, color -> theme.copy(activeWindowBorder = color) }
         })
         content.addView(Button(this).apply {
             text = "Reset theme to default"
@@ -512,6 +521,17 @@ class ZorxSettingsActivity : AppCompatActivity() {
                 override fun onStartTrackingTouch(s: SeekBar?) {}
                 override fun onStopTrackingTouch(s: SeekBar?) {}
             })
+        })
+    }
+
+    private fun LinearLayout.addColorPalette(name: String, changed: (com.zorx.launcher.design.ZorxTheme, Int) -> com.zorx.launcher.design.ZorxTheme) {
+        val palette = intArrayOf(Color.parseColor("#101114"), Color.parseColor("#263238"), Color.parseColor("#1565C0"), Color.parseColor("#00897B"), Color.parseColor("#7E57C2"), Color.parseColor("#FFB300"), Color.WHITE)
+        addView(Button(context).apply {
+            text = "$name palette"
+            setOnClickListener {
+                val next = palette[(palette.indexOf(ZorxThemeManager.current().primaryAccent).coerceAtLeast(-1) + 1) % palette.size]
+                ZorxThemeManager.updateCustom(context) { changed(it, next) }; render()
+            }
         })
     }
 
