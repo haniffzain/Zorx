@@ -93,6 +93,13 @@ class NativeTaskSynchronizer(
         }, FRAME_INTERVAL_MS)
     }
 
+    /** Drop coalesced work when the owning desktop runtime is disposed. */
+    fun destroy() {
+        handler.removeCallbacksAndMessages(null)
+        pendingBounds.clear()
+        scheduledPackages.clear()
+    }
+
     private companion object {
 
         const val FRAME_INTERVAL_MS =

@@ -14,6 +14,7 @@
 - Multi-monitor topology foundation: logical display arrangement, per-display scale and work areas.
 - Phase 6C complete: persistent window workspace/display membership, logical bounds conversion, work-area clamping and desktop context actions for moving the highest-z window.
 - Phase 6D complete: taskbar workspace switcher, workspace/display-aware running-window filtering, item move menu and overflow scrolling.
+- Phase 6E stability pass complete for build/static checks: widget theme-listener and native bounds callback cleanup. Live Waydroid test matrix remains pending a Waydroid-capable host.
 
 - Unify native and spatial lifecycle using task identity.
 - Synchronize maximize/restore and close with native tasks.
@@ -26,4 +27,4 @@
 - Full-edge resize and work-area constraints.
 - Snap layout UI and multi-window workflows.
 - Desktop grid, widgets, icons and persistence.
-- Runtime validation of cross-display native task movement after Phase 6E.
+- Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.

@@ -1,6 +1,6 @@
 # Project Status
 
-Verified on development after Phase 6D on 21 August 2026.
+Build-verified on development after Phase 6E on 21 August 2026. Runtime Waydroid verification is pending an available Waydroid session.
 
 ## Build
 
@@ -29,6 +29,7 @@ Verified on development after Phase 6D on 21 August 2026.
 - Phase 6B: persistent multi-monitor topology data model with per-display scale, work area, logical primary and widget display migration. Waydroid currently exposes one display; host arrangement and cross-display movement remain future work.
 - Phase 6C: persistent window location model (workspace, display, logical bounds, state and z-order), workspace/display move actions and centralized logical-to-native coordinate conversion. Logical moves preserve task identity and use the existing native bounds bridge when more than one native display is available.
 - Phase 6D: compact taskbar workspace switcher, current-workspace/current-display running-window filtering, focused/minimized states and taskbar-item move actions.
+- Phase 6E: static stability pass, lifecycle/listener cleanup and build verification. Live Waydroid runtime verification could not run on this host because neither Waydroid nor ADB is installed and the available WSL distribution is stopped.
 
 ## Partial
 
@@ -39,7 +40,7 @@ Verified on development after Phase 6D on 21 August 2026.
 
 ## Current milestone
 
-Phase 6D is build-verified. Runtime visual testing, including real multi-display task movement, is intentionally deferred until Phase 6E.
+Phase 6E is build-verified. Runtime visual testing remains pending a Waydroid-capable host; it has not been represented as completed.
 
 ## Phase 6C coordinate and platform notes
 
@@ -54,3 +55,17 @@ Phase 6D is build-verified. Runtime visual testing, including real multi-display
 - The running strip is filtered to the active workspace and display scope. Default persisted policy is `PRIMARY_ONLY`; `PER_DISPLAY` and `MIRRORED` are represented in the model for later multi-taskbar rendering.
 - Active display resolves from the focused window's persisted display location, otherwise the logical primary display. The single visible Phase 6D taskbar remains the primary taskbar.
 - Long-pressing a running-window item opens desktop-style Move to Workspace / Move to Display actions. Horizontal scrolling prevents running items from overlapping in narrow taskbars.
+
+## Phase 6E verification and fixes
+
+### Completed on this host
+
+- Branch/remote synchronization, diff check and a clean debug APK build.
+- Static audit of workspace, display, taskbar, widget and runtime listener lifecycles.
+- `WidgetHost` now unregisters its Theme Engine listener on detachment and stops its clock runnable.
+- `NativeTaskSynchronizer` now cancels coalesced delayed native-bounds work when `DesktopRuntime` is destroyed, preventing stale callbacks against a disposed desktop.
+
+### Pending live Waydroid verification
+
+- Workspace switching, task/taskbar interactions, App Drawer/Start Menu dismissal, widget editing, persistence after restart and logcat inspection.
+- Real native multi-display task movement and scale conversion. The current Windows environment has no `waydroid` or `adb` executable; WSL Ubuntu is stopped.

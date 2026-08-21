@@ -43,3 +43,12 @@ active-display resolution. The Phase 6D view is a single primary taskbar: it
 filters running objects by active workspace plus the policy display scope, while
 the workspace switcher reacts through the workspace listener. Future `PER_DISPLAY`
 and `MIRRORED` policies reuse this model without changing window ownership.
+
+## Runtime lifecycle guardrails
+
+Phase 6E makes destruction explicit at the asynchronous boundaries. A detached
+`WidgetHost` unregisters its retained theme listener and cancels its periodic
+clock refresh. `DesktopRuntime.destroy()` disposes `NativeTaskSynchronizer`,
+which clears coalesced delayed bounds callbacks before the desktop event listener
+is left behind. This prevents callbacks from applying native task bounds after an
+activity/surface lifecycle has ended.

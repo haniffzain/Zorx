@@ -138,6 +138,7 @@ class DesktopRuntime(
     fun destroy() {
 
         ZorxEventBus.unregister(this)
+        nativeTaskSynchronizer.destroy()
 
     }
 }
