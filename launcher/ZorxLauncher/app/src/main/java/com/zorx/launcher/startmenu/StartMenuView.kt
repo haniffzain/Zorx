@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ResolveInfo
 import android.graphics.Color
+import com.zorx.launcher.design.ZorxTypography
+import com.zorx.launcher.shell.ZorxShellSettingsStore
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.inputmethod.EditorInfo
@@ -157,7 +159,11 @@ class StartMenuView(
                 text =
                     "✦"
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 gravity =
                     Gravity.CENTER
@@ -206,7 +212,11 @@ class StartMenuView(
                 text =
                     "Zorx"
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -219,7 +229,11 @@ class StartMenuView(
                 text =
                     "Your desktop, your space"
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -252,7 +266,11 @@ class StartMenuView(
                 text =
                     "●"
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.Success
@@ -314,7 +332,11 @@ class StartMenuView(
                 text =
                     "⌕"
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -338,7 +360,11 @@ class StartMenuView(
                 hint =
                     "Search applications..."
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -397,7 +423,11 @@ class StartMenuView(
                 text =
                     "⌘"
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -503,7 +533,11 @@ class StartMenuView(
                     text =
                         "No pinned applications yet"
 
-                    textSize = 13f
+                    textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                     setTextColor(
                         ZorxColors.TextSecondary
@@ -597,7 +631,11 @@ class StartMenuView(
                         context.packageManager
                     )
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -750,7 +788,11 @@ class StartMenuView(
                 text =
                     iconText
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.Accent
@@ -774,7 +816,11 @@ class StartMenuView(
                 text =
                     title
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -874,7 +920,11 @@ class StartMenuView(
                 text =
                     "Zorx Shell"
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -896,7 +946,11 @@ class StartMenuView(
                 text =
                     "⏻  Power"
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextSecondary
@@ -950,7 +1004,11 @@ class StartMenuView(
                 text =
                     title
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).startMenuTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextSecondary
