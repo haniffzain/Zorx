@@ -1,6 +1,6 @@
 # Project Status
 
-Verified on development at b14b199 on 20 August 2026.
+Verified on development after Phase 4F on 21 August 2026.
 
 ## Build
 
@@ -16,6 +16,10 @@ Verified on development at b14b199 on 20 August 2026.
 - Spatial minimize, maximize/restore and taskbar restore.
 - Coalesced native bounds synchronization for move events.
 - Start Menu and App Drawer integration with stable dismissal behavior.
+- Phase 4C: persistent centralized typography controls and live shell updates.
+- Phase 4D: independent application/taskbar icon sizing and centered responsive floating App Drawer.
+- Phase 4E: persistent resolution-aware display scale, effective workspace metrics and display preview.
+- Phase 4F: persistent live Theme Engine with ZorxColors compatibility tokens and initial presets.
 
 ## Partial
 
@@ -26,5 +30,4 @@ Verified on development at b14b199 on 20 August 2026.
 
 ## Current milestone
 
-Native Window Lifecycle Unification: task identity, native close, external task
-reconciliation, complete bounds/state synchronization and lifecycle tests.
+Phase 4 visual personalization is complete in code and build-verified. Runtime visual testing is intentionally deferred until after Phase 6.

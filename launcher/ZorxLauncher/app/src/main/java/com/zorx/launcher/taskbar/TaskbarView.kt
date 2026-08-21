@@ -41,6 +41,17 @@ class TaskbarView(
 
 ) : LinearLayout(context) {
 
+    private var iconSizePx = dpPx(32)
+
+    /** Independent from the taskbar height; rebuilds only the pinned icon strip. */
+    fun applyIconSize(sizePx: Int) {
+        val safeSize = sizePx.coerceAtLeast(dpPx(20))
+        if (iconSizePx != safeSize) {
+            iconSizePx = safeSize
+            refreshPinnedApps()
+        }
+    }
+
     private val shellPanelListener = {
         post {
             refreshRunningWindows()
@@ -369,11 +380,7 @@ class TaskbarView(
                 text =
                     symbol
 
-                textSize = ZorxTypography.effectivePx(
-                        context,
-                        ZorxShellSettingsStore.readTypography(context),
-                        ZorxShellSettingsStore.readTypography(context).taskbarTextSp
-                    )
+                textSize = iconSizePx / resources.displayMetrics.scaledDensity * 0.58f
 
                 gravity =
                     Gravity.CENTER
@@ -411,9 +418,9 @@ class TaskbarView(
         appContainer.addView(
             button,
             LayoutParams(
-                LayoutParams.WRAP_CONTENT,
+                iconSizePx,
                 LayoutParams.MATCH_PARENT
-            )
+            ).apply { setMargins(dpPx(2), 0, dpPx(2), 0) }
         )
     }
 
@@ -684,6 +691,9 @@ class TaskbarView(
         )
     }
 
+
+    private fun dpPx(value: Int): Int =
+        (value * resources.displayMetrics.density).toInt()
 
     // =========================================================
     // STATUS AREA

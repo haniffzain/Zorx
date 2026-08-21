@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.zorx.launcher.design.ZorxColors
 import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.design.ZorxTypographySettings
+import com.zorx.launcher.design.ZorxThemeManager
+import com.zorx.launcher.design.ZorxThemePreset
 import com.zorx.launcher.display.ZorxDisplayManager
 import com.zorx.launcher.shell.*
 
@@ -28,6 +30,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
     private lateinit var shell: ZorxShellSettings
     private lateinit var appearance: ZorxAppearanceSettings
     private lateinit var typography: ZorxTypographySettings
+    private lateinit var displaySettings: ZorxDisplaySettings
     private lateinit var root: LinearLayout
     private lateinit var settingsContent: ScrollView
     private var isPanelMaximized = false
@@ -36,9 +39,11 @@ class ZorxSettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ZorxThemeManager.load(this)
         shell = ZorxShellSettingsStore.readShell(this)
         appearance = ZorxShellSettingsStore.readAppearance(this)
         typography = ZorxShellSettingsStore.readTypography(this)
+        displaySettings = ZorxShellSettingsStore.readDisplay(this)
         ZorxShellPanelManager.setDisplaySettingsState(
             ShellPanelState.OPEN
         )
@@ -57,17 +62,26 @@ class ZorxSettingsActivity : AppCompatActivity() {
             buildTitlebar()
         )
         val displays = ZorxDisplayManager(this).getDisplays()
+        val displayMetrics = ZorxDisplayManager(this).getMetrics(displaySettings.displayScale).firstOrNull()
         content.addView(card("Monitor preview") {
             val d = displays.firstOrNull()
-            addView(MonitorPreviewView(context, d))
+            addView(MonitorPreviewView(context, d, displaySettings.displayScale))
             addView(label(if (d == null) "No display detected" else
                 "${d.name}  •  ${d.physicalWidthPx}×${d.physicalHeightPx}  •  ${"%.1f".format(d.refreshRateHz)} Hz"))
-            if (d != null) addView(label("Effective ${d.logicalWidthPx}×${d.logicalHeightPx}  •  ${d.densityDpi} dpi  •  primary=${d.isPrimary}"))
+            if (d != null) addView(label("Effective ${displayMetrics?.effectiveWidthPx}×${displayMetrics?.effectiveHeightPx}  •  ${displaySettings.displayScale.times(100).toInt()}%  •  primary=${d.isPrimary}"))
         })
         content.addView(card("Display") {
             addView(label("Resolution, orientation, refresh rate and primary display are detected from Android. Platform changes will be enabled only when the system backend reports support."))
             addView(label("Resolution: ${displays.firstOrNull()?.let { "${it.physicalWidthPx}×${it.physicalHeightPx}" } ?: "Unavailable"}"))
+            addView(label("Scale: ${(displaySettings.displayScale * 100).toInt()}%"))
+            addView(label("Effective desktop area: ${displayMetrics?.effectiveWidthPx ?: 0}×${displayMetrics?.effectiveHeightPx ?: 0}"))
             addView(label("Orientation: ${orientationName(displays.firstOrNull()?.rotation ?: 0)}"))
+            addView(label("Refresh rate: ${displays.firstOrNull()?.let { "%.1f Hz".format(it.refreshRateHz) } ?: "Unavailable"}"))
+            addSpinner("Display scale", listOf("75%", "100%", "125%", "150%", "175%", "200%"), listOf(.75f,1f,1.25f,1.5f,1.75f,2f).indexOf(displaySettings.displayScale)) {
+                displaySettings = displaySettings.copy(displayScale = listOf(.75f,1f,1.25f,1.5f,1.75f,2f)[it])
+                ZorxShellSettingsStore.saveDisplayScale(context, displaySettings.displayScale)
+                render()
+            }
         })
         content.addView(card("Shell metrics") {
             addSlider("Titlebar height", 23, 72, shell.titlebarHeightDp.toInt()) {
@@ -82,7 +96,10 @@ class ZorxSettingsActivity : AppCompatActivity() {
             addSlider("Start Menu height", 360, 760, shell.startMenuHeightDp.toInt()) {
                 shell = shell.copy(startMenuHeightDp = it.toFloat()); publishLiveSettings()
             }
-            addSlider("App Drawer height", 50, 100, (shell.appDrawerHeightFraction * 100).toInt()) {
+            addSlider("App Drawer width", 45, 90, (shell.appDrawerWidthFraction * 100).toInt()) {
+                shell = shell.copy(appDrawerWidthFraction = it / 100f); publishLiveSettings()
+            }
+            addSlider("App Drawer height", 45, 90, (shell.appDrawerHeightFraction * 100).toInt()) {
                 shell = shell.copy(appDrawerHeightFraction = it / 100f); publishLiveSettings()
             }
             addSlider("General UI scale", 75, 150, (shell.generalUiScale * 100).toInt()) {
@@ -102,6 +119,24 @@ class ZorxSettingsActivity : AppCompatActivity() {
             addCornerSpinner("Widget card", appearance.widgetCornerStyle) {
                 appearance = appearance.copy(widgetCornerStyle = it); publishLiveSettings()
             }
+        })
+        content.addView(card("Appearance → Icons") {
+            addSlider("Application Icon Size", 40, 96, shell.applicationIconSizeDp.toInt()) {
+                shell = shell.copy(applicationIconSizeDp = it.toFloat()); publishLiveSettings()
+            }
+            addSlider("Taskbar Icon Size", 20, 52, shell.taskbarIconSizeDp.toInt()) {
+                shell = shell.copy(taskbarIconSizeDp = it.toFloat()); publishLiveSettings()
+            }
+        })
+        content.addView(card("Personalization → Colors / Theme") {
+            addSpinner("Theme preset", ZorxThemePreset.values().map { it.name }, ZorxThemeManager.currentPreset().ordinal) {
+                ZorxThemeManager.applyPreset(context, ZorxThemePreset.values()[it]); render()
+            }
+            addView(label("Presets apply desktop, surface, panel, border, accent, text, button and active-window colors live."))
+        })
+        content.addView(Button(this).apply {
+            text = "Reset theme to default"
+            setOnClickListener { ZorxThemeManager.reset(context); render(); Toast.makeText(context, "Theme restored", Toast.LENGTH_SHORT).show() }
         })
         content.addView(card("Appearance → Typography") {
             addSlider("Global Font Scale", 75, 150, (typography.globalFontScale * 100).toInt()) {
@@ -514,7 +549,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 }
 
-private class MonitorPreviewView(context: Context, private val info: com.zorx.launcher.display.ZorxDisplayInfo?) : View(context) {
+private class MonitorPreviewView(context: Context, private val info: com.zorx.launcher.display.ZorxDisplayInfo?, private val scale: Float) : View(context) {
     private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
     override fun onMeasure(w: Int, h: Int) = setMeasuredDimension(resolveSize(520, w), 250)
     override fun onDraw(canvas: android.graphics.Canvas) {
@@ -526,5 +561,10 @@ private class MonitorPreviewView(context: Context, private val info: com.zorx.la
         canvas.drawRoundRect(outer, 20f, 20f, paint)
         paint.style = android.graphics.Paint.Style.FILL; paint.color = Color.rgb(42, 45, 52)
         canvas.drawRoundRect(outer.left + 18, outer.bottom - 38, outer.right - 18, outer.bottom - 18, 10f, 10f, paint)
+        paint.color = Color.WHITE; paint.textAlign = android.graphics.Paint.Align.CENTER; paint.textSize = 22f
+        canvas.drawText("1", width / 2f, 68f, paint)
+        paint.textSize = 18f
+        canvas.drawText(info?.let { "${it.physicalWidthPx} × ${it.physicalHeightPx}" } ?: "No display", width / 2f, 108f, paint)
+        canvas.drawText("${(scale * 100).toInt()}%", width / 2f, 140f, paint)
     }
 }

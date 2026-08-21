@@ -26,6 +26,28 @@ data class ZorxDisplayInfo(
     val supportedModes: List<ZorxDisplayMode>
 )
 
+/** Physical pixels remain the native-task coordinate system. Effective pixels describe desktop workspace. */
+data class ZorxDisplayMetrics(
+    val physicalWidthPx: Int,
+    val physicalHeightPx: Int,
+    val displayScale: Float,
+    val effectiveWidthPx: Int,
+    val effectiveHeightPx: Int,
+    val densityDpi: Int,
+    val refreshRateHz: Float,
+    val rotation: Int
+) {
+    companion object {
+        fun from(info: ZorxDisplayInfo, scale: Float) = fromPhysical(
+            info.physicalWidthPx, info.physicalHeightPx, scale, info.densityDpi, info.refreshRateHz, info.rotation
+        )
+        fun fromPhysical(width: Int, height: Int, scale: Float, density: Int, refresh: Float = 0f, rotation: Int = 0): ZorxDisplayMetrics {
+            val safeScale = scale.coerceIn(.75f, 2f)
+            return ZorxDisplayMetrics(width, height, safeScale, (width / safeScale).toInt(), (height / safeScale).toInt(), density, refresh, rotation)
+        }
+    }
+}
+
 class ZorxDisplayManager(private val context: Context) {
     private val manager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
@@ -53,4 +75,7 @@ class ZorxDisplayManager(private val context: Context) {
             }
         )
     }
+
+    fun getMetrics(displayScale: Float): List<ZorxDisplayMetrics> =
+        getDisplays().map { ZorxDisplayMetrics.from(it, displayScale) }
 }

@@ -18,6 +18,7 @@ import com.zorx.launcher.startmenu.StartMenuView
 import com.zorx.launcher.taskbar.TaskbarController
 import com.zorx.launcher.taskbar.TaskbarView
 import com.zorx.launcher.design.ZorxColors
+import com.zorx.launcher.design.ZorxThemeManager
 import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ZorxShellSettingsStore
@@ -37,12 +38,15 @@ class DesktopActivity : AppCompatActivity() {
             applyShellMetrics()
         }
     }
+    private val themeListener = { runOnUiThread { applyShellMetrics(); desktopRoot.setBackgroundColor(ZorxColors.Background) } }
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        ZorxThemeManager.load(this)
+        ZorxThemeManager.addListener(themeListener)
 
         enterImmersiveDesktop()
 
@@ -119,16 +123,10 @@ class DesktopActivity : AppCompatActivity() {
 
         val appDrawerParams =
             FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
             )
-
-        appDrawerParams.setMargins(
-            0,
-            0,
-            0,
-            96
-        )
+        appDrawerParams.gravity = Gravity.CENTER
 
         appDrawer.visibility =
             View.GONE
@@ -330,18 +328,23 @@ class DesktopActivity : AppCompatActivity() {
         if (::appDrawer.isInitialized) {
             appDrawer.layoutParams =
                 (appDrawer.layoutParams as FrameLayout.LayoutParams).apply {
-                    width = FrameLayout.LayoutParams.MATCH_PARENT
+                    width = metrics.appDrawerWidthPx
                     height = metrics.appDrawerHeightPx
-                    gravity = Gravity.BOTTOM
-                    setMargins(0, 0, 0, metrics.appDrawerBottomInsetPx)
+                    gravity = Gravity.CENTER
+                    setMargins(0, 0, 0, 0)
                 }
             appDrawer.applyShellRadius(metrics.menuRadiusPx)
+            appDrawer.applyIconMetrics(metrics.applicationIconSizePx, metrics.uiScale)
             ZorxTypography.applyToViewTree(
                 appDrawer,
                 this,
                 typography,
                 typography.appDrawerTextSp
             )
+        }
+
+        if (::taskbar.isInitialized) {
+            taskbar.applyIconSize(metrics.taskbarIconSizePx)
         }
 
         if (::desktopSurface.isInitialized) {
@@ -569,6 +572,7 @@ class DesktopActivity : AppCompatActivity() {
         ZorxShellSettingsStore.removeListener(
             shellSettingsListener
         )
+        ZorxThemeManager.removeListener(themeListener)
 
         desktopContextMenu?.dismiss()
 

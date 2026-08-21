@@ -4,6 +4,7 @@ import android.content.Context
 import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.design.ZorxTypographySettings
 import kotlin.math.roundToInt
+import com.zorx.launcher.display.ZorxDisplayMetrics
 
 object ZorxShellSettingsStore {
     private const val PREFS = "zorx_shell_settings"
@@ -20,7 +21,10 @@ object ZorxShellSettingsStore {
             taskbarHeightDp = p.getFloat("taskbar_height", 44f).coerceIn(TASKBAR_MIN_DP, TASKBAR_MAX_DP),
             taskbarWidthFraction = p.getFloat("taskbar_width", 0.92f),
             startMenuHeightDp = p.getFloat("start_menu_height", 500f),
-            appDrawerHeightFraction = p.getFloat("app_drawer_height", 1f),
+            appDrawerWidthFraction = p.getFloat("app_drawer_width", 0.62f).coerceIn(0.45f, 0.9f),
+            appDrawerHeightFraction = p.getFloat("app_drawer_height", 0.72f).coerceIn(0.45f, 0.9f),
+            applicationIconSizeDp = p.getFloat("application_icon_size", 72f).coerceIn(40f, 96f),
+            taskbarIconSizeDp = p.getFloat("taskbar_icon_size", 32f).coerceIn(20f, 52f),
             generalUiScale = p.getFloat("ui_scale", 1f)
         )
     }
@@ -54,6 +58,13 @@ object ZorxShellSettingsStore {
             widgetCornerStyle = cornerStyle(p.getString("widget_corner", null))
         )
     }
+    fun readDisplay(context: Context): ZorxDisplaySettings = ZorxDisplaySettings(
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("display_scale", 1f).coerceIn(.75f, 2f)
+    )
+    fun saveDisplayScale(context: Context, scale: Float) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putFloat("display_scale", scale.coerceIn(.75f, 2f)).apply()
+        listeners.toList().forEach { it() }
+    }
 
     private fun shellShape(value: String?): ShellShape =
         when (value) {
@@ -76,7 +87,10 @@ object ZorxShellSettingsStore {
             .putFloat("taskbar_height", shell.taskbarHeightDp.coerceIn(TASKBAR_MIN_DP, TASKBAR_MAX_DP))
             .putFloat("taskbar_width", shell.taskbarWidthFraction.coerceIn(0.5f, 1f))
             .putFloat("start_menu_height", shell.startMenuHeightDp.coerceIn(360f, 760f))
-            .putFloat("app_drawer_height", shell.appDrawerHeightFraction.coerceIn(0.5f, 1f))
+            .putFloat("app_drawer_width", shell.appDrawerWidthFraction.coerceIn(0.45f, 0.9f))
+            .putFloat("app_drawer_height", shell.appDrawerHeightFraction.coerceIn(0.45f, 0.9f))
+            .putFloat("application_icon_size", shell.applicationIconSizeDp.coerceIn(40f, 96f))
+            .putFloat("taskbar_icon_size", shell.taskbarIconSizeDp.coerceIn(20f, 52f))
             .putFloat("ui_scale", shell.generalUiScale.coerceIn(0.75f, 1.5f))
             .putFloat("font_global_scale", typography.globalFontScale.coerceIn(ZorxTypography.MIN_SCALE, ZorxTypography.MAX_SCALE))
             .putFloat("font_interface_sp", typography.interfaceTextSp.coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP))
@@ -113,7 +127,9 @@ object ZorxShellSettingsStore {
         val shell = readShell(context)
         val appearance = readAppearance(context)
         val density = context.resources.displayMetrics.density
-        val scale = shell.generalUiScale
+        val display = readDisplay(context)
+        val displayMetrics = ZorxDisplayMetrics.fromPhysical(widthPx, heightPx, display.displayScale, context.resources.displayMetrics.densityDpi)
+        val scale = shell.generalUiScale * display.displayScale
         fun px(dp: Float) = (dp * density * scale).roundToInt()
         fun radius(style: CornerStyle) = px(when (style) {
             CornerStyle.ROUNDED -> 18f
@@ -130,8 +146,10 @@ object ZorxShellSettingsStore {
             startMenuWidthPx = px(360f).coerceAtMost((widthPx * .8f).roundToInt()),
             startMenuHeightPx = px(shell.startMenuHeightDp).coerceAtMost((heightPx * .9f).roundToInt()),
             startMenuBottomMarginPx = taskbarHeight + bottomMargin + px(6f),
-            appDrawerHeightPx = (heightPx * shell.appDrawerHeightFraction).roundToInt(),
-            appDrawerBottomInsetPx = taskbarHeight + bottomMargin + px(10f),
+            appDrawerHeightPx = (heightPx * shell.appDrawerHeightFraction).roundToInt().coerceAtMost(heightPx - px(32f)),
+            appDrawerWidthPx = (widthPx * shell.appDrawerWidthFraction).roundToInt().coerceAtMost(widthPx - px(32f)),
+            applicationIconSizePx = px(shell.applicationIconSizeDp),
+            taskbarIconSizePx = px(shell.taskbarIconSizeDp),
             windowRadiusPx = radius(appearance.windowCornerStyle),
             taskbarRadiusPx = when (appearance.taskbarShape) {
                 ShellShape.PILL -> taskbarHeight / 2f
@@ -140,7 +158,10 @@ object ZorxShellSettingsStore {
             },
             menuRadiusPx = radius(appearance.menuCornerStyle),
             widgetRadiusPx = radius(appearance.widgetCornerStyle),
-            uiScale = scale
+            uiScale = scale,
+            displayScale = display.displayScale,
+            effectiveWorkspaceWidthPx = displayMetrics.effectiveWidthPx,
+            effectiveWorkspaceHeightPx = displayMetrics.effectiveHeightPx
         )
     }
 }

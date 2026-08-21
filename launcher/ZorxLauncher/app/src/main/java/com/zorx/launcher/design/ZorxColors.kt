@@ -10,29 +10,22 @@ import android.graphics.Color
  */
 object ZorxColors {
 
-    val Primary =
-        Color.parseColor("#4F8CFF")
+    val Primary get() = ZorxThemeManager.current().primaryAccent
 
     val Secondary =
         Color.parseColor("#7A5CFA")
 
-    val Accent =
-        Color.parseColor("#3ED6D0")
+    val Accent get() = ZorxThemeManager.current().primaryAccent
 
-    val Background =
-        Color.parseColor("#101114")
+    val Background get() = ZorxThemeManager.current().desktopBackground
 
-    val Surface =
-        Color.parseColor("#1A1C20")
+    val Surface get() = ZorxThemeManager.current().surfaceBackground
 
-    val Border =
-        Color.parseColor("#2D3036")
+    val Border get() = ZorxThemeManager.current().borderColor
 
-    val TextPrimary =
-        Color.parseColor("#F6F6F6")
+    val TextPrimary get() = ZorxThemeManager.current().textPrimary
 
-    val TextSecondary =
-        Color.parseColor("#B6B6B6")
+    val TextSecondary get() = ZorxThemeManager.current().textSecondary
 
     val Success =
         Color.parseColor("#36D67A")
