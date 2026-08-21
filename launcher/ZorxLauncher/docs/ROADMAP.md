@@ -10,6 +10,8 @@
 
 ## Active milestone
 
+- Virtual workspace foundation: logical workspace membership, visibility and workspace switching.
+
 - Unify native and spatial lifecycle using task identity.
 - Synchronize maximize/restore and close with native tasks.
 - Reconcile externally removed tasks.

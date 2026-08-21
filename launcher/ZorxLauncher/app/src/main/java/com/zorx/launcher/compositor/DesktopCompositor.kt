@@ -6,6 +6,7 @@ import com.zorx.launcher.shell.ZorxShellSettingsStore
 import androidx.core.content.res.ResourcesCompat
 import com.zorx.launcher.R
 import com.zorx.launcher.design.ZorxTypography
+import com.zorx.launcher.workspace.ZorxWorkspaceManager
 
 /**
  * Combines every desktop object into
@@ -63,6 +64,9 @@ class DesktopCompositor(
             .spatialEngine
             .getAllObjects()
             .forEach { desktopObject ->
+
+                ZorxWorkspaceManager.assignIfAbsent(runtime.context, desktopObject.id)
+                if (ZorxWorkspaceManager.workspaceFor(runtime.context, desktopObject.id) != ZorxWorkspaceManager.active(runtime.context)) return@forEach
 
                 if (
                     desktopObject.state ==

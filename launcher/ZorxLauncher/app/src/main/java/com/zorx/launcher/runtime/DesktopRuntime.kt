@@ -9,6 +9,7 @@ import com.zorx.launcher.spatial.SpatialEngine
 import com.zorx.launcher.spatial.SpatialBounds
 import android.util.Log
 import android.content.Context
+import com.zorx.launcher.workspace.ZorxWorkspaceManager
 
 /**
  * Central runtime for the Zorx desktop.
@@ -73,6 +74,8 @@ class DesktopRuntime(
                     "window:${window.packageName}:${window.taskId}:${window.title}"
 
                 if (!spatialEngine.containsObject(objectId)) {
+
+                    ZorxWorkspaceManager.assignIfAbsent(context, objectId)
 
                     spatialEngine.addObject(
 

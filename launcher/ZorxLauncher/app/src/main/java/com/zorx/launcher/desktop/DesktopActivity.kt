@@ -22,6 +22,7 @@ import com.zorx.launcher.design.ZorxThemeManager
 import com.zorx.launcher.widgets.WidgetHost
 import com.zorx.launcher.widgets.ZorxWidgetLayoutStore
 import com.zorx.launcher.widgets.ZorxWidgetRegistry
+import com.zorx.launcher.workspace.ZorxWorkspaceManager
 import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ZorxShellSettingsStore
@@ -43,6 +44,7 @@ class DesktopActivity : AppCompatActivity() {
         }
     }
     private val themeListener = { runOnUiThread { applyShellMetrics(); desktopRoot.setBackgroundColor(ZorxColors.Background) } }
+    private val workspaceListener = { runOnUiThread { desktopSurface.invalidate() } }
 
 
 
@@ -51,6 +53,7 @@ class DesktopActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         ZorxThemeManager.load(this)
         ZorxThemeManager.addListener(themeListener)
+        ZorxWorkspaceManager.addListener(workspaceListener)
 
         enterImmersiveDesktop()
 
@@ -442,6 +445,9 @@ class DesktopActivity : AppCompatActivity() {
         addAction("Widgets → Remove Last Clock") { ZorxWidgetLayoutStore.removeLastClock(this); widgetHost.render() }
         addAction("Widgets → Edit Layout") { widgetHost.setEditMode(true) }
         addAction("Widgets → Lock / Unlock Layout") { widgetHost.toggleLock() }
+        ZorxWorkspaceManager.workspaces().forEach { workspace -> addAction("Workspace → ${workspace.order}${if(ZorxWorkspaceManager.active(this)==workspace.id) " (Active)" else ""}") { ZorxWorkspaceManager.switchWorkspace(this,workspace.id) } }
+        addAction("Workspace → Next") { ZorxWorkspaceManager.nextWorkspace(this) }
+        addAction("Workspace → Previous") { ZorxWorkspaceManager.previousWorkspace(this) }
         addAction("Display Settings") {
             startActivity(
                 ZorxSettingsActivity.intent(
@@ -582,6 +588,7 @@ class DesktopActivity : AppCompatActivity() {
             shellSettingsListener
         )
         ZorxThemeManager.removeListener(themeListener)
+        ZorxWorkspaceManager.removeListener(workspaceListener)
 
         desktopContextMenu?.dismiss()
 
