@@ -8,6 +8,7 @@ import android.graphics.Typeface
 import com.zorx.launcher.spatial.DesktopObject
 import com.zorx.launcher.spatial.DesktopObjectState
 import com.zorx.launcher.shell.ZorxShellMetrics
+import com.zorx.launcher.design.ZorxThemeManager
 
 /**
  * Zorx Window Painter
@@ -263,12 +264,9 @@ class WindowPainter(
         // WINDOW BODY
         // =====================================================
 
-        windowPaint.color =
-            if (focused) {
-                Color.rgb(28, 30, 39)
-            } else {
-                Color.rgb(25, 27, 34)
-            }
+        val theme = ZorxThemeManager.current()
+        windowPaint.color = if (focused) theme.surfaceBackground else theme.panelBackground
+        windowInnerPaint.color = theme.surfaceBackground
 
         windowPaint.alpha =
             if (minimized) {
@@ -335,12 +333,7 @@ class WindowPainter(
                 255
             }
 
-        titleBarPaint.color =
-            if (focused) {
-                Color.rgb(30, 32, 41)
-            } else {
-                Color.rgb(23, 25, 32)
-            }
+        titleBarPaint.color = if (focused) theme.surfaceBackground else theme.panelBackground
 
         canvas.drawRoundRect(
             titleRect,
@@ -550,20 +543,7 @@ class WindowPainter(
         // BORDER
         // =====================================================
 
-        borderPaint.color =
-            if (focused) {
-                Color.rgb(
-                    75,
-                    205,
-                    214
-                )
-            } else {
-                Color.rgb(
-                    72,
-                    75,
-                    86
-                )
-            }
+        borderPaint.color = if (focused) theme.activeWindowBorder else theme.inactiveWindowBorder
 
         borderPaint.alpha =
             if (focused) {
