@@ -11,6 +11,7 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.zorx.launcher.design.ZorxColors
+import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.display.ZorxDisplayManager
 import com.zorx.launcher.shell.*
 
@@ -172,6 +173,12 @@ class ZorxSettingsActivity : AppCompatActivity() {
         root.addView(settingsContent,
             LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         setContentView(root)
+        ZorxTypography.applyToViewTree(
+            root,
+            this,
+            typography,
+            typography.interfaceTextSp
+        )
     }
 
     private fun buildTitlebar(): View {
@@ -490,8 +497,17 @@ class ZorxSettingsActivity : AppCompatActivity() {
     private fun label(value: String) = TextView(this).apply {
         text = value; textSize = 13f; setTextColor(ZorxColors.TextSecondary); setPadding(0, dp(10), 0, dp(4))
     }
-    private fun publishLiveSettings() =
+    private fun publishLiveSettings() {
         ZorxShellSettingsStore.save(this, shell, appearance, typography)
+        if (::root.isInitialized) {
+            ZorxTypography.applyToViewTree(
+                root,
+                this,
+                typography,
+                typography.interfaceTextSp
+            )
+        }
+    }
 
     private fun orientationName(rotation: Int) = when (rotation) { 1 -> "90°"; 2 -> "180°"; 3 -> "270°"; else -> "0°" }
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
