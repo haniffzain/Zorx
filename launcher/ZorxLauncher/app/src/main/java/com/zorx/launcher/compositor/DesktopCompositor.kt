@@ -65,6 +65,7 @@ class DesktopCompositor(
         runtime
             .spatialEngine
             .getAllObjects()
+            .sortedBy { it.zIndex }
             .forEach { desktopObject ->
 
                 ZorxWorkspaceManager.assignIfAbsent(runtime.context, desktopObject.id)
