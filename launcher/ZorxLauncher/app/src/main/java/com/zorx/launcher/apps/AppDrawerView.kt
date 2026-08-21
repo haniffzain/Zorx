@@ -4,6 +4,8 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.ResolveInfo
 import android.graphics.Color
+import com.zorx.launcher.design.ZorxTypography
+import com.zorx.launcher.shell.ZorxShellSettingsStore
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.MotionEvent
@@ -117,7 +119,11 @@ class AppDrawerView(
                         Color.WHITE
                     )
 
-                    textSize = 13f
+                    textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).appDrawerTextSp
+                    )
 
                     setPadding(
                         30,
@@ -240,7 +246,11 @@ class AppDrawerView(
                         Color.WHITE
                     )
 
-                    textSize = 13f
+                    textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).appDrawerTextSp
+                    )
 
                     gravity =
                         Gravity.CENTER
