@@ -1,6 +1,8 @@
 package com.zorx.launcher.shell
 
 import android.content.Context
+import com.zorx.launcher.design.ZorxTypography
+import com.zorx.launcher.design.ZorxTypographySettings
 import kotlin.math.roundToInt
 
 object ZorxShellSettingsStore {
@@ -20,6 +22,26 @@ object ZorxShellSettingsStore {
             startMenuHeightDp = p.getFloat("start_menu_height", 500f),
             appDrawerHeightFraction = p.getFloat("app_drawer_height", 1f),
             generalUiScale = p.getFloat("ui_scale", 1f)
+        )
+    }
+
+    fun readTypography(context: Context): ZorxTypographySettings {
+        val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return ZorxTypographySettings(
+            globalFontScale = p.getFloat("font_global_scale", 1f)
+                .coerceIn(ZorxTypography.MIN_SCALE, ZorxTypography.MAX_SCALE),
+            interfaceTextSp = p.getFloat("font_interface_sp", 13f)
+                .coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP),
+            titlebarTextSp = p.getFloat("font_titlebar_sp", 13f)
+                .coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP),
+            startMenuTextSp = p.getFloat("font_start_menu_sp", 13f)
+                .coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP),
+            appDrawerTextSp = p.getFloat("font_app_drawer_sp", 13f)
+                .coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP),
+            taskbarTextSp = p.getFloat("font_taskbar_sp", 13f)
+                .coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP),
+            widgetTextSp = p.getFloat("font_widget_sp", 13f)
+                .coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP)
         )
     }
 
@@ -48,7 +70,7 @@ object ZorxShellSettingsStore {
     private inline fun <reified T : Enum<T>> enumValue(value: String?, fallback: T): T =
         runCatching { enumValueOf<T>(value ?: "") }.getOrDefault(fallback)
 
-    fun save(context: Context, shell: ZorxShellSettings, appearance: ZorxAppearanceSettings) {
+    fun save(context: Context, shell: ZorxShellSettings, appearance: ZorxAppearanceSettings, typography: ZorxTypographySettings = readTypography(context)) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
             .putFloat("titlebar_height", shell.titlebarHeightDp.coerceIn(TITLEBAR_MIN_DP, TITLEBAR_MAX_DP))
             .putFloat("taskbar_height", shell.taskbarHeightDp.coerceIn(TASKBAR_MIN_DP, TASKBAR_MAX_DP))
@@ -56,6 +78,13 @@ object ZorxShellSettingsStore {
             .putFloat("start_menu_height", shell.startMenuHeightDp.coerceIn(360f, 760f))
             .putFloat("app_drawer_height", shell.appDrawerHeightFraction.coerceIn(0.5f, 1f))
             .putFloat("ui_scale", shell.generalUiScale.coerceIn(0.75f, 1.5f))
+            .putFloat("font_global_scale", typography.globalFontScale.coerceIn(ZorxTypography.MIN_SCALE, ZorxTypography.MAX_SCALE))
+            .putFloat("font_interface_sp", typography.interfaceTextSp.coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP))
+            .putFloat("font_titlebar_sp", typography.titlebarTextSp.coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP))
+            .putFloat("font_start_menu_sp", typography.startMenuTextSp.coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP))
+            .putFloat("font_app_drawer_sp", typography.appDrawerTextSp.coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP))
+            .putFloat("font_taskbar_sp", typography.taskbarTextSp.coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP))
+            .putFloat("font_widget_sp", typography.widgetTextSp.coerceIn(ZorxTypography.MIN_TEXT_SP, ZorxTypography.MAX_TEXT_SP))
             .putString("taskbar_shape", appearance.taskbarShape.name)
             .putString("menu_corner", appearance.menuCornerStyle.name)
             .putString("window_corner", appearance.windowCornerStyle.name)
@@ -65,7 +94,16 @@ object ZorxShellSettingsStore {
     }
 
     fun resetAppearance(context: Context) {
-        save(context, ZorxShellSettings(), ZorxAppearanceSettings())
+        save(context, ZorxShellSettings(), ZorxAppearanceSettings(), readTypography(context))
+    }
+
+    fun resetTypography(context: Context) {
+        save(
+            context,
+            readShell(context),
+            readAppearance(context),
+            ZorxTypographySettings()
+        )
     }
 
     fun addListener(listener: () -> Unit) { listeners.add(listener) }
