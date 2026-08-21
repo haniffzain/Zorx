@@ -5,6 +5,8 @@ import com.zorx.launcher.runtime.DesktopRuntime
 import com.zorx.launcher.shell.ZorxShellSettingsStore
 import androidx.core.content.res.ResourcesCompat
 import com.zorx.launcher.R
+import com.zorx.launcher.design.ZorxTypography
+import com.zorx.launcher.shell.ZorxShellSettingsStore
 
 /**
  * Combines every desktop object into
@@ -29,6 +31,22 @@ class DesktopCompositor(
                 ResourcesCompat.getFont(
                     runtime.context,
                     R.font.jetbrains_mono_regular
+                )
+            },
+            {
+                val typography =
+                    ZorxShellSettingsStore.readTypography(
+                        runtime.context
+                    )
+
+                ZorxTypography.effectivePx(
+                    runtime.context,
+                    typography,
+                    typography.titlebarTextSp
+                ) to ZorxTypography.effectivePx(
+                    runtime.context,
+                    typography,
+                    typography.interfaceTextSp
                 )
             }
         )
