@@ -6,7 +6,6 @@ import com.zorx.launcher.shell.ZorxShellSettingsStore
 import androidx.core.content.res.ResourcesCompat
 import com.zorx.launcher.R
 import com.zorx.launcher.design.ZorxTypography
-import com.zorx.launcher.shell.ZorxShellSettingsStore
 
 /**
  * Combines every desktop object into
