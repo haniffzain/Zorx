@@ -8,6 +8,7 @@ import android.view.Window
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.ScrollView
 import android.widget.TextView
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -376,6 +377,92 @@ class DesktopActivity : AppCompatActivity() {
         val density =
             resources.displayMetrics.density
 
+        val popupWidth =
+            (260 * density).toInt()
+
+        val widgetMenuX = x.toInt() + popupWidth
+        val widgetMenuY = y.toInt()
+
+        val actions = mutableListOf<Pair<String, () -> Unit>>()
+        actions += "View" to {}
+        actions += "Refresh" to { desktopSurface.invalidate() }
+        actions += "Change Wallpaper" to {
+            startActivity(ZorxSettingsActivity.intent(this, ZorxSettingsActivity.SECTION_BACKGROUND))
+        }
+        actions += "Widgets  ›" to { showWidgetContextMenu(widgetMenuX, widgetMenuY) }
+        actions += "Workspace  ›" to { showWorkspaceContextMenu(widgetMenuX, widgetMenuY) }
+        desktopSurface.spatialEngine.getAllObjects().maxByOrNull { it.zIndex }?.let { focused ->
+            ZorxWorkspaceManager.workspaces().forEach { workspace ->
+                actions += "Window → Move to Workspace ${workspace.order}" to {
+                    desktopSurface.moveWindowToWorkspace(focused.id, workspace.id)
+                    desktopSurface.invalidate()
+                }
+            }
+            ZorxDisplayManager(this).topology(ZorxShellSettingsStore.readDisplay(this).displayScale).displays.forEach { display ->
+                actions += "Window → Move to ${display.name}" to {
+                    desktopSurface.moveWindowToDisplay(focused.id, display.id)
+                    desktopSurface.invalidate()
+                }
+            }
+        }
+        actions += "Display Settings" to {
+            startActivity(ZorxSettingsActivity.intent(this, ZorxSettingsActivity.SECTION_DISPLAY))
+        }
+        actions += "Personalization" to {
+            startActivity(ZorxSettingsActivity.intent(this, ZorxSettingsActivity.SECTION_APPEARANCE))
+        }
+
+        desktopContextMenu = showActionPopup(x.toInt(), y.toInt(), popupWidth, actions)
+    }
+
+    private fun showWorkspaceContextMenu(x: Int, y: Int) {
+        val density = resources.displayMetrics.density
+        val actions = mutableListOf<Pair<String, () -> Unit>>()
+        val activeWorkspace = ZorxWorkspaceManager.active(this)
+        ZorxWorkspaceManager.workspaces().forEach { workspace ->
+            actions += "Workspace ${workspace.order}${if (activeWorkspace == workspace.id) "  ✓" else ""}" to {
+                ZorxWorkspaceManager.switchWorkspace(this, workspace.id)
+            }
+        }
+        actions += "Next Workspace" to { ZorxWorkspaceManager.nextWorkspace(this) }
+        actions += "Previous Workspace" to { ZorxWorkspaceManager.previousWorkspace(this) }
+        desktopContextMenu = showActionPopup(x, y, (230 * density).toInt(), actions)
+    }
+
+    private fun showWidgetContextMenu(x: Int, y: Int) {
+        val density = resources.displayMetrics.density
+        val popupWidth = (230 * density).toInt()
+        val actions = listOf<Pair<String, () -> Unit>>(
+            "Add Widget  ›" to { showAddWidgetMenu(x + popupWidth, y) },
+            "Remove Last Clock" to {
+                ZorxWidgetLayoutStore.removeLastClock(this)
+                widgetHost.render()
+            },
+            "Edit Layout" to { widgetHost.setEditMode(true) },
+            "Lock / Unlock Layout" to { widgetHost.toggleLock() }
+        )
+        desktopContextMenu = showActionPopup(x, y, popupWidth, actions)
+    }
+
+    private fun showAddWidgetMenu(x: Int, y: Int) {
+        val density = resources.displayMetrics.density
+        val actions = ZorxWidgetRegistry.available().map { metadata ->
+            metadata.name to {
+                ZorxWidgetLayoutStore.add(this, metadata.type)
+                widgetHost.render()
+            }
+        }
+        desktopContextMenu = showActionPopup(x, y, (220 * density).toInt(), actions)
+    }
+
+    private fun showActionPopup(
+        requestedX: Int,
+        requestedY: Int,
+        popupWidth: Int,
+        actions: List<Pair<String, () -> Unit>>
+    ): PopupWindow {
+        val density = resources.displayMetrics.density
+
         val menu =
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
@@ -394,21 +481,13 @@ class DesktopActivity : AppCompatActivity() {
                     }
             }
 
-        val popup =
-            PopupWindow(
-                menu,
-                (260 * density).toInt(),
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                true
-            ).apply {
-                isOutsideTouchable = true
-                elevation = 14 * density
-                setBackgroundDrawable(
-                    GradientDrawable().apply {
-                        setColor(Color.TRANSPARENT)
-                    }
-                )
-            }
+        val scrollView = ScrollView(this).apply {
+            isFillViewport = false
+            isVerticalScrollBarEnabled = true
+            addView(menu)
+        }
+
+        lateinit var popup: PopupWindow
 
         fun addAction(
             label: String,
@@ -442,67 +521,32 @@ class DesktopActivity : AppCompatActivity() {
             )
         }
 
-        addAction("View")
-        addAction("Refresh") {
-            desktopSurface.invalidate()
-        }
-        addAction("Change Wallpaper") {
-            startActivity(ZorxSettingsActivity.intent(this, ZorxSettingsActivity.SECTION_BACKGROUND))
-        }
-        ZorxWidgetRegistry.available().forEach { metadata -> addAction("Widgets → Add ${metadata.name}") { ZorxWidgetLayoutStore.add(this, metadata.type); widgetHost.render() } }
-        addAction("Widgets → Remove Last Clock") { ZorxWidgetLayoutStore.removeLastClock(this); widgetHost.render() }
-        addAction("Widgets → Edit Layout") { widgetHost.setEditMode(true) }
-        addAction("Widgets → Lock / Unlock Layout") { widgetHost.toggleLock() }
-        ZorxWorkspaceManager.workspaces().forEach { workspace -> addAction("Workspace → ${workspace.order}${if(ZorxWorkspaceManager.active(this)==workspace.id) " (Active)" else ""}") { ZorxWorkspaceManager.switchWorkspace(this,workspace.id) } }
-        addAction("Workspace → Next") { ZorxWorkspaceManager.nextWorkspace(this) }
-        addAction("Workspace → Previous") { ZorxWorkspaceManager.previousWorkspace(this) }
-        desktopSurface.spatialEngine.getAllObjects().maxByOrNull { it.zIndex }?.let { focused ->
-            ZorxWorkspaceManager.workspaces().forEach { workspace ->
-                addAction("Window → Move to Workspace ${workspace.order}") {
-                    desktopSurface.moveWindowToWorkspace(focused.id, workspace.id)
-                    desktopSurface.invalidate()
-                }
-            }
-            ZorxDisplayManager(this).topology(ZorxShellSettingsStore.readDisplay(this).displayScale).displays.forEach { display ->
-                addAction("Window → Move to ${display.name}") {
-                    desktopSurface.moveWindowToDisplay(focused.id, display.id)
-                    desktopSurface.invalidate()
-                }
-            }
-        }
-        addAction("Display Settings") {
-            startActivity(
-                ZorxSettingsActivity.intent(
-                    this,
-                    ZorxSettingsActivity.SECTION_DISPLAY
-                )
-            )
-        }
-        addAction("Personalization") {
-            startActivity(
-                ZorxSettingsActivity.intent(
-                    this,
-                    ZorxSettingsActivity.SECTION_APPEARANCE
-                )
-            )
-        }
+        actions.forEach { (label, action) -> addAction(label, action) }
 
-        desktopContextMenu =
-            popup
+        menu.measure(
+            View.MeasureSpec.makeMeasureSpec(popupWidth, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        val screenMargin = (12 * density).toInt()
+        val maximumHeight = (desktopRoot.height - (screenMargin * 2)).coerceAtLeast((120 * density).toInt())
+        val popupHeight = menu.measuredHeight.coerceAtMost(maximumHeight)
 
-        val popupWidth =
-            (260 * density).toInt()
+        popup = PopupWindow(scrollView, popupWidth, popupHeight, true).apply {
+            isOutsideTouchable = true
+            elevation = 14 * density
+            setBackgroundDrawable(GradientDrawable().apply { setColor(Color.TRANSPARENT) })
+        }
 
         val safeX =
-            x.toInt().coerceIn(
-                0,
-                (desktopRoot.width - popupWidth).coerceAtLeast(0)
+            requestedX.coerceIn(
+                screenMargin,
+                (desktopRoot.width - popupWidth - screenMargin).coerceAtLeast(screenMargin)
             )
 
         val safeY =
-            y.toInt().coerceAtMost(
-                (desktopRoot.height - (300 * density).toInt())
-                    .coerceAtLeast(0)
+            requestedY.coerceIn(
+                screenMargin,
+                (desktopRoot.height - popupHeight - screenMargin).coerceAtLeast(screenMargin)
             )
 
         popup.showAtLocation(
@@ -511,6 +555,7 @@ class DesktopActivity : AppCompatActivity() {
             safeX,
             safeY
         )
+        return popup
     }
 
     // =========================================================
