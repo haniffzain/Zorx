@@ -78,4 +78,6 @@ class ZorxDisplayManager(private val context: Context) {
 
     fun getMetrics(displayScale: Float): List<ZorxDisplayMetrics> =
         getDisplays().map { ZorxDisplayMetrics.from(it, displayScale) }
+
+    fun topology(defaultScale:Float):ZorxDisplayTopology = ZorxDisplayTopologyStore.load(context,getDisplays(),defaultScale)
 }

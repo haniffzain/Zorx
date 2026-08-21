@@ -11,6 +11,7 @@
 ## Active milestone
 
 - Virtual workspace foundation: logical workspace membership, visibility and workspace switching.
+- Multi-monitor topology foundation: logical display arrangement, per-display scale and work areas.
 
 - Unify native and spatial lifecycle using task identity.
 - Synchronize maximize/restore and close with native tasks.

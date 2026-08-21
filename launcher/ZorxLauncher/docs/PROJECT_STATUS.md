@@ -26,6 +26,7 @@ Verified on development after Phase 4F on 21 August 2026.
 - Phase 5D: Widget Library v1 — Calendar, System Monitor, Network and Quick Controls registered with shared grid/persistence/theme support. Runtime data availability remains platform-dependent and visual testing is deferred until after Phase 6.
 - Phase 5E: Weather and Media provider abstractions plus persistent per-instance Notes widget configuration. Weather/media providers remain unconfigured until platform integration.
 - Phase 6A: four persistent virtual workspaces with logical window membership and compositor visibility. Widgets remain global in this foundation phase; runtime visual testing is deferred until Phase 6E.
+- Phase 6B: persistent multi-monitor topology data model with per-display scale, work area, logical primary and widget display migration. Waydroid currently exposes one display; host arrangement and cross-display movement remain future work.
 
 ## Partial
 
