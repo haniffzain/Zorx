@@ -203,7 +203,9 @@ class DesktopActivity : AppCompatActivity() {
                     taskbarController.onRunningWindowClicked(
                         objectId
                     )
-                }
+                },
+                { objectId, workspace -> desktopSurface.moveWindowToWorkspace(objectId, workspace); desktopSurface.invalidate() },
+                { objectId, display -> desktopSurface.moveWindowToDisplay(objectId, display); desktopSurface.invalidate() }
             )
 
         taskbarController =

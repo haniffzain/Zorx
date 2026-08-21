@@ -35,3 +35,11 @@ move uses `SpatialEngine.moveObject` only when Android exposes multiple native
 displays, preserving `NativeTaskSynchronizer` as the native bounds bridge. On
 single-display Waydroid the selected display remains a persisted Zorx logical
 location until a multi-display host is available.
+
+## Taskbar workspace/display integration
+
+`TaskbarWorkspaceDisplayModel` owns the persisted taskbar display policy and
+active-display resolution. The Phase 6D view is a single primary taskbar: it
+filters running objects by active workspace plus the policy display scope, while
+the workspace switcher reacts through the workspace listener. Future `PER_DISPLAY`
+and `MIRRORED` policies reuse this model without changing window ownership.

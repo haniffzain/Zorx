@@ -15,6 +15,13 @@ import com.zorx.launcher.spatial.SpatialEngine
 import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ShellPanelState
 import com.zorx.launcher.shell.ZorxShellPanelManager
+import com.zorx.launcher.workspace.ZorxWorkspaceId
+import com.zorx.launcher.workspace.ZorxWorkspaceManager
+import com.zorx.launcher.display.ZorxDisplayId
+import com.zorx.launcher.display.ZorxDisplayManager
+import com.zorx.launcher.windowing.ZorxWindowLocationManager
+import android.widget.PopupWindow
+import android.widget.HorizontalScrollView
 
 /**
  * Zorx floating taskbar.
@@ -37,7 +44,9 @@ class TaskbarView(
 
     private val onStartClicked: () -> Unit,
 
-    private val onRunningWindowClicked: (String) -> Unit
+    private val onRunningWindowClicked: (String) -> Unit,
+    private val onMoveWindowToWorkspace: (String, ZorxWorkspaceId) -> Unit,
+    private val onMoveWindowToDisplay: (String, ZorxDisplayId) -> Unit
 
 ) : LinearLayout(context) {
 
@@ -57,6 +66,13 @@ class TaskbarView(
             refreshRunningWindows()
         }
         Unit
+    }
+    private val workspaceListener = { post { refreshWorkspaceSwitcher(); refreshRunningWindows() }; Unit }
+
+    private val workspaceContainer = LinearLayout(context).apply {
+        orientation = HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding(dpPx(4), 0, dpPx(4), 0)
     }
 
     fun applyShellRadius(
@@ -132,6 +148,11 @@ class TaskbarView(
             )
         }
 
+    private val runningScrollContainer = HorizontalScrollView(context).apply {
+        isHorizontalScrollBarEnabled = false
+        addView(runningContainer, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
+    }
+
     private val statusContainer =
         LinearLayout(context).apply {
 
@@ -154,6 +175,7 @@ class TaskbarView(
         ZorxShellPanelManager.addListener(
             shellPanelListener
         )
+        ZorxWorkspaceManager.addListener(workspaceListener)
 
         orientation =
             HORIZONTAL
@@ -294,6 +316,8 @@ class TaskbarView(
             separatorParams
         )
 
+        addView(workspaceContainer, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
+
         // =====================================================
         // APPLICATION AREA
         // =====================================================
@@ -315,7 +339,7 @@ class TaskbarView(
         // =====================================================
 
         addView(
-            runningContainer,
+            runningScrollContainer,
             LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 LayoutParams.MATCH_PARENT
@@ -336,6 +360,7 @@ class TaskbarView(
 
         buildStatusArea()
 
+        refreshWorkspaceSwitcher()
         refreshPinnedApps()
     }
 
@@ -428,6 +453,28 @@ class TaskbarView(
     // RUNNING WINDOWS
     // =========================================================
 
+    private fun refreshWorkspaceSwitcher() {
+        workspaceContainer.removeAllViews()
+        val allWindows = spatialEngine.getAllObjects()
+        val active = ZorxWorkspaceManager.active(context)
+        ZorxWorkspaceManager.workspaces().forEach { workspace ->
+            val hasWindows = allWindows.any { ZorxWorkspaceManager.workspaceFor(context, it.id) == workspace.id }
+            workspaceContainer.addView(TextView(context).apply {
+                text = workspace.order.toString()
+                gravity = Gravity.CENTER
+                textSize = ZorxTypography.effectivePx(context, ZorxShellSettingsStore.readTypography(context), ZorxShellSettingsStore.readTypography(context).taskbarTextSp)
+                setTextColor(if (workspace.id == active) ZorxColors.TextPrimary else ZorxColors.TextSecondary)
+                background = GradientDrawable().apply {
+                    setColor(when { workspace.id == active -> ZorxColors.Accent; hasWindows -> ZorxColors.Surface; else -> Color.TRANSPARENT })
+                    if (hasWindows && workspace.id != active) setStroke(dpPx(1), ZorxColors.Border)
+                    cornerRadius = ZorxRadius.Button
+                }
+                alpha = if (workspace.id == active || hasWindows) 1f else .55f
+                setOnClickListener { ZorxWorkspaceManager.switchWorkspace(context, workspace.id) }
+            }, LayoutParams(dpPx(28), LayoutParams.MATCH_PARENT).apply { setMargins(dpPx(1), dpPx(6), dpPx(1), dpPx(6)) })
+        }
+    }
+
     /**
      * Refresh hook used by TaskbarController.
      *
@@ -448,13 +495,19 @@ class TaskbarView(
 
         runningContainer.removeAllViews()
 
-        val runningWindows =
-            spatialEngine
-                .getAllObjects()
-                .sortedByDescending {
-
-                    it.zIndex
-                }
+        val allWindows = spatialEngine.getAllObjects()
+        val topology = ZorxDisplayManager(context).topology(ZorxShellSettingsStore.readDisplay(context).displayScale)
+        val primaryDisplay = topology.primary()?.id
+        val activeDisplay = ZorxActiveDisplayResolver.displayFor(context, allWindows)
+        val targetDisplay = when (ZorxTaskbarPolicyStore.read(context)) {
+            ZorxTaskbarDisplayPolicy.PRIMARY_ONLY -> primaryDisplay
+            ZorxTaskbarDisplayPolicy.PER_DISPLAY, ZorxTaskbarDisplayPolicy.MIRRORED -> activeDisplay
+        }
+        val runningWindows = allWindows.filter { window ->
+            val location = ZorxWindowLocationManager.ensure(context, window, topology)
+            ZorxWorkspaceManager.workspaceFor(context, window.id) == ZorxWorkspaceManager.active(context) &&
+                (targetDisplay == null || location?.displayId == targetDisplay)
+        }.sortedByDescending { it.zIndex }
 
         runningWindows.forEach { desktopObject ->
 
@@ -605,6 +658,10 @@ class TaskbarView(
                             desktopObject.id
                         )
                     }
+                    setOnLongClickListener {
+                        showWindowActions(this, desktopObject.id)
+                        true
+                    }
                 }
 
             runningContainer.addView(
@@ -689,6 +746,19 @@ class TaskbarView(
         ZorxShellPanelManager.removeListener(
             shellPanelListener
         )
+        ZorxWorkspaceManager.removeListener(workspaceListener)
+    }
+
+    private fun showWindowActions(anchor: View, windowId: String) {
+        val menu = LinearLayout(context).apply { orientation = VERTICAL; setPadding(dpPx(8), dpPx(8), dpPx(8), dpPx(8)); background = GradientDrawable().apply { setColor(ZorxColors.Surface); setStroke(dpPx(1), ZorxColors.Border); cornerRadius = ZorxRadius.Button } }
+        val popup = PopupWindow(menu, dpPx(220), LayoutParams.WRAP_CONTENT, true).apply { isOutsideTouchable = true; elevation = dpPx(12).toFloat() }
+        fun action(label: String, run: () -> Unit) = menu.addView(TextView(context).apply {
+            text = label; gravity = Gravity.CENTER_VERTICAL; setTextColor(ZorxColors.TextPrimary); setPadding(dpPx(12), dpPx(9), dpPx(12), dpPx(9))
+            setOnClickListener { popup.dismiss(); run() }
+        }, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        ZorxWorkspaceManager.workspaces().forEach { action("Move to Workspace ${it.order}") { onMoveWindowToWorkspace(windowId, it.id) } }
+        ZorxDisplayManager(context).topology(ZorxShellSettingsStore.readDisplay(context).displayScale).displays.forEach { display -> action("Move to ${display.name}") { onMoveWindowToDisplay(windowId, display.id) } }
+        popup.showAsDropDown(anchor)
     }
 
 

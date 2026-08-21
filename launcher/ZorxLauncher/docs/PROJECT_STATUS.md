@@ -1,6 +1,6 @@
 # Project Status
 
-Verified on development after Phase 6C on 21 August 2026.
+Verified on development after Phase 6D on 21 August 2026.
 
 ## Build
 
@@ -28,6 +28,7 @@ Verified on development after Phase 6C on 21 August 2026.
 - Phase 6A: four persistent virtual workspaces with logical window membership and compositor visibility. Widgets remain global in this foundation phase; runtime visual testing is deferred until Phase 6E.
 - Phase 6B: persistent multi-monitor topology data model with per-display scale, work area, logical primary and widget display migration. Waydroid currently exposes one display; host arrangement and cross-display movement remain future work.
 - Phase 6C: persistent window location model (workspace, display, logical bounds, state and z-order), workspace/display move actions and centralized logical-to-native coordinate conversion. Logical moves preserve task identity and use the existing native bounds bridge when more than one native display is available.
+- Phase 6D: compact taskbar workspace switcher, current-workspace/current-display running-window filtering, focused/minimized states and taskbar-item move actions.
 
 ## Partial
 
@@ -38,7 +39,7 @@ Verified on development after Phase 6C on 21 August 2026.
 
 ## Current milestone
 
-Phase 6C is build-verified. Runtime visual testing, including real multi-display task movement, is intentionally deferred until Phase 6E.
+Phase 6D is build-verified. Runtime visual testing, including real multi-display task movement, is intentionally deferred until Phase 6E.
 
 ## Phase 6C coordinate and platform notes
 
@@ -46,3 +47,10 @@ Phase 6C is build-verified. Runtime visual testing, including real multi-display
 - `ZorxWindowLocationManager` persists a display-local logical rectangle; `ZorxDisplayCoordinates` is the only Phase 6C boundary that converts it to native physical task pixels.
 - Moving a maximized window targets the new display work area. Minimized windows retain their mapping without forced restore.
 - Current Waydroid exposure is normally one Android display. In that configuration, a move-to-display updates only the logical Zorx mapping; it does not fabricate a host-level native move. Workspace moves are immediately reflected by compositor visibility.
+
+## Phase 6D taskbar behavior
+
+- The taskbar displays workspace buttons 1–4: active uses the accent, a workspace with windows uses a subtle surface/border indicator, and empty workspaces are muted.
+- The running strip is filtered to the active workspace and display scope. Default persisted policy is `PRIMARY_ONLY`; `PER_DISPLAY` and `MIRRORED` are represented in the model for later multi-taskbar rendering.
+- Active display resolves from the focused window's persisted display location, otherwise the logical primary display. The single visible Phase 6D taskbar remains the primary taskbar.
+- Long-pressing a running-window item opens desktop-style Move to Workspace / Move to Display actions. Horizontal scrolling prevents running items from overlapping in narrow taskbars.
