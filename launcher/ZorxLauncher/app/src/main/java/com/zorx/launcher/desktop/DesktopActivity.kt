@@ -19,6 +19,8 @@ import com.zorx.launcher.taskbar.TaskbarController
 import com.zorx.launcher.taskbar.TaskbarView
 import com.zorx.launcher.design.ZorxColors
 import com.zorx.launcher.design.ZorxThemeManager
+import com.zorx.launcher.widgets.WidgetHost
+import com.zorx.launcher.widgets.ZorxWidgetLayoutStore
 import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ZorxShellSettingsStore
@@ -31,6 +33,7 @@ class DesktopActivity : AppCompatActivity() {
     private lateinit var taskbarController: TaskbarController
     private lateinit var desktopRoot: FrameLayout
     private lateinit var desktopSurface: DesktopSurface
+    private lateinit var widgetHost: WidgetHost
     private var desktopContextMenu: PopupWindow? = null
 
     private val shellSettingsListener = {
@@ -62,6 +65,8 @@ class DesktopActivity : AppCompatActivity() {
         // DESKTOP SURFACE
         // =====================================================
 
+        widgetHost = WidgetHost(this)
+        desktop.addView(widgetHost, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         val desktopSurface =
             DesktopSurface(this)
 
@@ -432,7 +437,10 @@ class DesktopActivity : AppCompatActivity() {
         addAction("Refresh") {
             desktopSurface.invalidate()
         }
-        addAction("Widgets")
+        addAction("Widgets → Add Clock") { ZorxWidgetLayoutStore.addClock(this); widgetHost.render() }
+        addAction("Widgets → Remove Last Clock") { ZorxWidgetLayoutStore.removeLastClock(this); widgetHost.render() }
+        addAction("Widgets → Edit Layout") { widgetHost.setEditMode(true) }
+        addAction("Widgets → Lock / Unlock Layout") { widgetHost.toggleLock() }
         addAction("Display Settings") {
             startActivity(
                 ZorxSettingsActivity.intent(

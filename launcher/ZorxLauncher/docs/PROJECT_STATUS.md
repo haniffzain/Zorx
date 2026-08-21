@@ -20,6 +20,8 @@ Verified on development after Phase 4F on 21 August 2026.
 - Phase 4D: independent application/taskbar icon sizing and centered responsive floating App Drawer.
 - Phase 4E: persistent resolution-aware display scale, effective workspace metrics and display preview.
 - Phase 4F: persistent live Theme Engine with ZorxColors compatibility tokens and initial presets.
+- Phase 5A: persistent Widget Engine foundation and theme-aware Clock widget.
+- Phase 5B: Widget Edit Mode with logical grid drag/snap and persistent layout lock.
 
 ## Partial
 
@@ -30,4 +32,4 @@ Verified on development after Phase 4F on 21 August 2026.
 
 ## Current milestone
 
-Phase 4 visual personalization is complete in code and build-verified. Runtime visual testing is intentionally deferred until after Phase 6.
+Widget Engine foundation and edit mode are build-verified. Runtime visual testing is intentionally deferred until after Phase 6.
