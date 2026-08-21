@@ -23,6 +23,7 @@ Verified on development after Phase 4F on 21 August 2026.
 - Phase 5A: persistent Widget Engine foundation and theme-aware Clock widget.
 - Phase 5B: Widget Edit Mode with logical grid drag/snap and persistent layout lock.
 - Phase 5C: selected-widget toolbar, logical resize, duplicate/remove and collision-safe placement.
+- Phase 5D: Widget Library v1 — Calendar, System Monitor, Network and Quick Controls registered with shared grid/persistence/theme support. Runtime data availability remains platform-dependent and visual testing is deferred until after Phase 6.
 
 ## Partial
 

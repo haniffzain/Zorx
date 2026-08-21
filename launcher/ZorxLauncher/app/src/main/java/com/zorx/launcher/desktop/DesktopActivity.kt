@@ -21,6 +21,7 @@ import com.zorx.launcher.design.ZorxColors
 import com.zorx.launcher.design.ZorxThemeManager
 import com.zorx.launcher.widgets.WidgetHost
 import com.zorx.launcher.widgets.ZorxWidgetLayoutStore
+import com.zorx.launcher.widgets.ZorxWidgetRegistry
 import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ZorxShellSettingsStore
@@ -437,7 +438,7 @@ class DesktopActivity : AppCompatActivity() {
         addAction("Refresh") {
             desktopSurface.invalidate()
         }
-        addAction("Widgets → Add Clock") { ZorxWidgetLayoutStore.addClock(this); widgetHost.render() }
+        ZorxWidgetRegistry.available().forEach { metadata -> addAction("Widgets → Add ${metadata.name}") { ZorxWidgetLayoutStore.add(this, metadata.type); widgetHost.render() } }
         addAction("Widgets → Remove Last Clock") { ZorxWidgetLayoutStore.removeLastClock(this); widgetHost.render() }
         addAction("Widgets → Edit Layout") { widgetHost.setEditMode(true) }
         addAction("Widgets → Lock / Unlock Layout") { widgetHost.toggleLock() }
