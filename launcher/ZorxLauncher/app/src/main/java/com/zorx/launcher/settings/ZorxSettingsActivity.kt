@@ -2,6 +2,7 @@ package com.zorx.launcher.settings
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -17,12 +18,16 @@ import com.zorx.launcher.design.ZorxThemeManager
 import com.zorx.launcher.design.ZorxThemePreset
 import com.zorx.launcher.display.ZorxDisplayManager
 import com.zorx.launcher.shell.*
+import com.zorx.launcher.wallpaper.*
+import com.zorx.launcher.workspace.ZorxWorkspaceManager
 
 class ZorxSettingsActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_SECTION = "zorx.settings.section"
         const val SECTION_DISPLAY = "display"
         const val SECTION_APPEARANCE = "appearance"
+        const val SECTION_BACKGROUND = "background"
+        private const val REQUEST_WALLPAPER_IMAGE = 4601
         fun intent(context: Context, section: String = SECTION_DISPLAY) =
             Intent(context, ZorxSettingsActivity::class.java).putExtra(EXTRA_SECTION, section)
     }
@@ -36,6 +41,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
     private var isPanelMaximized = false
     private var isPanelCollapsed = false
     private var minimizedToTaskbar = false
+    private var wallpaperScope = ZorxWallpaperScope.ALL_WORKSPACES
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +50,7 @@ class ZorxSettingsActivity : AppCompatActivity() {
         appearance = ZorxShellSettingsStore.readAppearance(this)
         typography = ZorxShellSettingsStore.readTypography(this)
         displaySettings = ZorxShellSettingsStore.readDisplay(this)
+        wallpaperScope = ZorxWallpaperManager.scope(this)
         ZorxShellPanelManager.setDisplaySettingsState(
             ShellPanelState.OPEN
         )
@@ -146,6 +153,27 @@ class ZorxSettingsActivity : AppCompatActivity() {
         content.addView(Button(this).apply {
             text = "Reset theme to default"
             setOnClickListener { ZorxThemeManager.reset(context); render(); Toast.makeText(context, "Theme restored", Toast.LENGTH_SHORT).show() }
+        })
+        content.addView(card("Personalization → Background") {
+            val workspace = ZorxWorkspaceManager.active(context)
+            var wallpaper = ZorxWallpaperManager.current(context, workspace, null)
+            addView(label("Preview: ${wallpaper.source.name} • ${wallpaper.mode.name}"))
+            addSpinner("Wallpaper scope", listOf("All Workspaces", "Current Workspace"), wallpaperScope.ordinal) {
+                wallpaperScope = ZorxWallpaperScope.values()[it]
+                ZorxWallpaperManager.setScope(context, wallpaperScope)
+            }
+            addSpinner("Wallpaper mode", ZorxWallpaperMode.values().map { it.name }, wallpaper.mode.ordinal) {
+                wallpaper = wallpaper.copy(mode = ZorxWallpaperMode.values()[it])
+                ZorxWallpaperManager.apply(context, wallpaper, wallpaperScope, workspace, null)
+            }
+            addView(Button(context).apply { text = "Use Zorx default"; setOnClickListener { ZorxWallpaperManager.apply(context, ZorxWallpaper(), wallpaperScope, workspace, null); render() } })
+            addView(Button(context).apply { text = "Choose Image"; setOnClickListener { chooseWallpaperImage() } })
+            addView(Button(context).apply { text = "Solid Color palette"; setOnClickListener {
+                val colors = intArrayOf(Color.parseColor("#10151F"), Color.parseColor("#16283A"), Color.parseColor("#19324A"), Color.parseColor("#243447"), Color.parseColor("#302B63"))
+                val color = colors[(colors.indexOf(wallpaper.solidColor).takeIf { it >= 0 } ?: -1).plus(1) % colors.size]
+                ZorxWallpaperManager.apply(context, wallpaper.copy(source = ZorxWallpaperSource.SOLID_COLOR, solidColor = color), wallpaperScope, workspace, null); render()
+            } })
+            addView(Button(context).apply { text = "Reset wallpaper to default"; setOnClickListener { ZorxWallpaperManager.reset(context, wallpaperScope, workspace, null); render() } })
         })
         content.addView(card("Appearance → Typography") {
             addSlider("Global Font Scale", 75, 150, (typography.globalFontScale * 100).toInt()) {
@@ -565,8 +593,28 @@ class ZorxSettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun chooseWallpaperImage() {
+        startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE); type = "image/*"
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }, REQUEST_WALLPAPER_IMAGE)
+    }
+
+    @Deprecated("Deprecated in Android API")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != REQUEST_WALLPAPER_IMAGE || resultCode != RESULT_OK) return
+        val uri: Uri = data?.data ?: return
+        runCatching { contentResolver.takePersistableUriPermission(uri, data.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION) }
+        val workspace = ZorxWorkspaceManager.active(this)
+        val current = ZorxWallpaperManager.current(this, workspace, null)
+        ZorxWallpaperManager.apply(this, current.copy(source = ZorxWallpaperSource.USER_IMAGE, imageUri = uri.toString()), wallpaperScope, workspace, null)
+        render()
+    }
+
     private fun orientationName(rotation: Int) = when (rotation) { 1 -> "90°"; 2 -> "180°"; 3 -> "270°"; else -> "0°" }
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+
 }
 
 private class MonitorPreviewView(context: Context, private val info: com.zorx.launcher.display.ZorxDisplayInfo?, private val scale: Float) : View(context) {

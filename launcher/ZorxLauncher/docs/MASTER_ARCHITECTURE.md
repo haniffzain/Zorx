@@ -52,3 +52,12 @@ clock refresh. `DesktopRuntime.destroy()` disposes `NativeTaskSynchronizer`,
 which clears coalesced delayed bounds callbacks before the desktop event listener
 is left behind. This prevents callbacks from applying native task bounds after an
 activity/surface lifecycle has ended.
+
+## Desktop wallpaper layer
+
+`WallpaperView` is inserted before `WidgetHost` in the desktop frame, making it
+the non-interactive lowest layer. `ZorxWallpaperManager` owns the wallpaper
+model, persisted scope/assignment and decoded source-bitmap cache; neither the
+activity nor views read wallpaper preferences directly. Wallpaper assignment is
+keyed by workspace and optional display identity, allowing later per-display
+surfaces without conflating wallpaper scaling with shell UI scale.

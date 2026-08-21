@@ -1,6 +1,6 @@
 # Project Status
 
-Build-verified on development after Phase 6E on 21 August 2026. Runtime Waydroid verification is pending an available Waydroid session.
+Build-verified on development after Phase 6F on 21 August 2026. Runtime Waydroid verification is pending an available Waydroid session.
 
 ## Build
 
@@ -30,6 +30,7 @@ Build-verified on development after Phase 6E on 21 August 2026. Runtime Waydroid
 - Phase 6C: persistent window location model (workspace, display, logical bounds, state and z-order), workspace/display move actions and centralized logical-to-native coordinate conversion. Logical moves preserve task identity and use the existing native bounds bridge when more than one native display is available.
 - Phase 6D: compact taskbar workspace switcher, current-workspace/current-display running-window filtering, focused/minimized states and taskbar-item move actions.
 - Phase 6E: static stability pass, lifecycle/listener cleanup and build verification. Live Waydroid runtime verification could not run on this host because neither Waydroid nor ADB is installed and the available WSL distribution is stopped.
+- Phase 6F: centralized desktop wallpaper system with built-in Zorx gradient, user document URI, solid color, five rendering modes, live desktop layer and persisted all/current-workspace assignments.
 
 ## Partial
 
@@ -41,6 +42,14 @@ Build-verified on development after Phase 6E on 21 August 2026. Runtime Waydroid
 ## Current milestone
 
 Phase 6E is build-verified. Runtime visual testing remains pending a Waydroid-capable host; it has not been represented as completed.
+
+## Phase 6F wallpaper system
+
+- `ZorxWallpaperManager` is the sole wallpaper persistence/loading and listener authority. Wallpaper renders in `WallpaperView`, below widgets and desktop windows, without hit testing.
+- Supported sources: built-in Zorx gradient, persisted user image URI, and solid color. User images use `ACTION_OPEN_DOCUMENT` with persisted read access where the provider supports it; missing/revoked/decode-failed images fall back to the selected solid color.
+- Supported modes: `FILL`, `FIT`, `STRETCH`, `CENTER`, and `TILE`. Bitmap decoding first reads dimensions, then uses sampling against current target bounds and retains only the current source bitmap cache.
+- Scope is persisted as all workspaces or current workspace. Assignment keys already include workspace plus optional display identity, preparing per-display wallpaper without inventing additional Waydroid display surfaces.
+- Slideshow, dynamic/live wallpapers and physical multi-display rendering are intentionally deferred. Runtime picker/render testing is pending Waydroid/ADB availability.
 
 ## Phase 6C coordinate and platform notes
 

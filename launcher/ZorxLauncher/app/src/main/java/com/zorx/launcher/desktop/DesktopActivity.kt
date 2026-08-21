@@ -27,6 +27,7 @@ import com.zorx.launcher.display.ZorxDisplayManager
 import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ZorxShellSettingsStore
+import com.zorx.launcher.wallpaper.WallpaperView
 
 class DesktopActivity : AppCompatActivity() {
 
@@ -70,6 +71,7 @@ class DesktopActivity : AppCompatActivity() {
         // DESKTOP SURFACE
         // =====================================================
 
+        desktop.addView(WallpaperView(this), FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         widgetHost = WidgetHost(this)
         desktop.addView(widgetHost, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         val desktopSurface =
@@ -443,6 +445,9 @@ class DesktopActivity : AppCompatActivity() {
         addAction("View")
         addAction("Refresh") {
             desktopSurface.invalidate()
+        }
+        addAction("Change Wallpaper") {
+            startActivity(ZorxSettingsActivity.intent(this, ZorxSettingsActivity.SECTION_BACKGROUND))
         }
         ZorxWidgetRegistry.available().forEach { metadata -> addAction("Widgets → Add ${metadata.name}") { ZorxWidgetLayoutStore.add(this, metadata.type); widgetHost.render() } }
         addAction("Widgets → Remove Last Clock") { ZorxWidgetLayoutStore.removeLastClock(this); widgetHost.render() }

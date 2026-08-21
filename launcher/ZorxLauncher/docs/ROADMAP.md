@@ -15,6 +15,7 @@
 - Phase 6C complete: persistent window workspace/display membership, logical bounds conversion, work-area clamping and desktop context actions for moving the highest-z window.
 - Phase 6D complete: taskbar workspace switcher, workspace/display-aware running-window filtering, item move menu and overflow scrolling.
 - Phase 6E stability pass complete for build/static checks: widget theme-listener and native bounds callback cleanup. Live Waydroid test matrix remains pending a Waydroid-capable host.
+- Phase 6F complete: centralized desktop wallpaper layer, persistent workspace/display-ready assignment model, image picker, solid color and layout modes.
 
 - Unify native and spatial lifecycle using task identity.
 - Synchronize maximize/restore and close with native tasks.
@@ -28,3 +29,4 @@
 - Snap layout UI and multi-window workflows.
 - Desktop grid, widgets, icons and persistence.
 - Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.
+- Add slideshow/dynamic/live wallpaper providers only after live wallpaper rendering and persistence are validated in Waydroid.
