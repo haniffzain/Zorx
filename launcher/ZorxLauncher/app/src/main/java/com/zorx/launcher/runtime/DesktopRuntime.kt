@@ -112,6 +112,24 @@ class DesktopRuntime(
                     event.desktopObject
                 )
             }
+
+            is com.zorx.launcher.events.desktop.DesktopStateChangedEvent -> {
+
+                /*
+                 * Maximize and restore change bounds without emitting a move
+                 * event. Forward every visible state transition through the
+                 * same native bounds pipeline; minimize remains spatial-only
+                 * until a native minimize contract is introduced.
+                 */
+                if (
+                    event.desktopObject.state !=
+                        com.zorx.launcher.spatial.DesktopObjectState.MINIMIZED
+                ) {
+                    nativeTaskSynchronizer.syncBounds(
+                        event.desktopObject
+                    )
+                }
+            }
         }
     }
 
