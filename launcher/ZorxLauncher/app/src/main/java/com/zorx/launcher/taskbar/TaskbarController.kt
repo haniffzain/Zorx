@@ -6,6 +6,7 @@ import com.zorx.launcher.events.ZorxEventBus
 import com.zorx.launcher.events.ZorxEventListener
 import com.zorx.launcher.events.WindowOpenedEvent
 import com.zorx.launcher.events.desktop.DesktopRemovedEvent
+import com.zorx.launcher.events.desktop.DesktopFocusedEvent
 import com.zorx.launcher.events.desktop.DesktopStateChangedEvent
 import com.zorx.launcher.events.desktop.DesktopFocusedEvent
 import com.zorx.launcher.events.desktop.DesktopMovedEvent
@@ -73,6 +74,17 @@ class TaskbarController(
 
                 taskbarView.refreshRunningWindows()
             }
+
+            is DesktopFocusedEvent -> {
+
+                Log.i(
+                    TAG,
+                    "Window focused: ${event.desktopObject.title}"
+                )
+
+                taskbarView.refreshRunningWindows()
+            }
+
         }
     }
 
