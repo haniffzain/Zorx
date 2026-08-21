@@ -18,6 +18,7 @@ import com.zorx.launcher.startmenu.StartMenuView
 import com.zorx.launcher.taskbar.TaskbarController
 import com.zorx.launcher.taskbar.TaskbarView
 import com.zorx.launcher.design.ZorxColors
+import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ZorxShellSettingsStore
 
@@ -270,6 +271,9 @@ class DesktopActivity : AppCompatActivity() {
                 desktopRoot.height
             )
 
+        val typography =
+            ZorxShellSettingsStore.readTypography(this)
+
         if (::taskbar.isInitialized) {
             val compactPadding =
                 if (metrics.taskbarHeightPx < 40) {
@@ -293,6 +297,12 @@ class DesktopActivity : AppCompatActivity() {
                     setMargins(0, 0, 0, metrics.taskbarBottomMarginPx)
                 }
             taskbar.applyShellRadius(metrics.taskbarRadiusPx)
+            ZorxTypography.applyToViewTree(
+                taskbar,
+                this,
+                typography,
+                typography.taskbarTextSp
+            )
         }
 
         if (::startMenu.isInitialized) {
@@ -309,6 +319,12 @@ class DesktopActivity : AppCompatActivity() {
                     )
                 }
             startMenu.applyShellRadius(metrics.menuRadiusPx)
+            ZorxTypography.applyToViewTree(
+                startMenu,
+                this,
+                typography,
+                typography.startMenuTextSp
+            )
         }
 
         if (::appDrawer.isInitialized) {
@@ -320,6 +336,12 @@ class DesktopActivity : AppCompatActivity() {
                     setMargins(0, 0, 0, metrics.appDrawerBottomInsetPx)
                 }
             appDrawer.applyShellRadius(metrics.menuRadiusPx)
+            ZorxTypography.applyToViewTree(
+                appDrawer,
+                this,
+                typography,
+                typography.appDrawerTextSp
+            )
         }
 
         if (::desktopSurface.isInitialized) {
@@ -378,7 +400,11 @@ class DesktopActivity : AppCompatActivity() {
             menu.addView(
                 TextView(this).apply {
                     text = label
-                    textSize = 13f
+                    textSize = ZorxTypography.effectivePx(
+                        this,
+                        ZorxShellSettingsStore.readTypography(this),
+                        ZorxShellSettingsStore.readTypography(this).interfaceTextSp
+                    )
                     setTextColor(ZorxColors.TextPrimary)
                     gravity = Gravity.CENTER_VERTICAL
                     setPadding(
