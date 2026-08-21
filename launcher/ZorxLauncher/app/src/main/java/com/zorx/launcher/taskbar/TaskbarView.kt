@@ -1,6 +1,8 @@
 package com.zorx.launcher.taskbar
 
 import android.graphics.Color
+import com.zorx.launcher.design.ZorxTypography
+import com.zorx.launcher.shell.ZorxShellSettingsStore
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
@@ -194,7 +196,11 @@ class TaskbarView(
                 text =
                     "✦  Zorx"
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).taskbarTextSp
+                    )
 
                 setTextColor(
                     ZorxColors.TextPrimary
@@ -363,7 +369,11 @@ class TaskbarView(
                 text =
                     symbol
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).taskbarTextSp
+                    )
 
                 gravity =
                     Gravity.CENTER
@@ -469,7 +479,11 @@ class TaskbarView(
                                 "◇  ${desktopObject.title}"
                         }
 
-                    textSize = 13f
+                    textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).taskbarTextSp
+                    )
 
                     setTextColor(
                         if (isFocused) {
@@ -611,7 +625,11 @@ class TaskbarView(
             runningContainer.addView(
                 TextView(context).apply {
                     text = "▱  Display Settings"
-                    textSize = 13f
+                    textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).taskbarTextSp
+                    )
                     setTextColor(ZorxColors.TextSecondary)
                     gravity = Gravity.CENTER
                     maxLines = 1
@@ -698,7 +716,11 @@ class TaskbarView(
                 text =
                     textValue
 
-                textSize = 13f
+                textSize = ZorxTypography.effectivePx(
+                        context,
+                        ZorxShellSettingsStore.readTypography(context),
+                        ZorxShellSettingsStore.readTypography(context).taskbarTextSp
+                    )
 
                 gravity =
                     Gravity.CENTER
