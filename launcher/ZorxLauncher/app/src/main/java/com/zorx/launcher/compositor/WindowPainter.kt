@@ -25,7 +25,9 @@ class WindowPainter(
     private val metricsProvider:
         (() -> ZorxShellMetrics)? = null,
     private val typefaceProvider:
-        (() -> Typeface?)? = null
+        (() -> Typeface?)? = null,
+    private val textSizeProvider:
+        (() -> Pair<Float, Float>)? = null
 ) {
 
     // =========================================================
