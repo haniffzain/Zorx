@@ -1,6 +1,6 @@
 # Project Status
 
-Build-verified on development after Phase 6F on 21 August 2026. Runtime Waydroid verification is pending an available Waydroid session.
+Build-verified on development after Phase 6G on 21 August 2026. The updated APK installs and launches in Waydroid without an observed startup crash; automated visual tab traversal remains unavailable on this host.
 
 ## Build
 
@@ -31,6 +31,7 @@ Build-verified on development after Phase 6F on 21 August 2026. Runtime Waydroid
 - Phase 6D: compact taskbar workspace switcher, current-workspace/current-display running-window filtering, focused/minimized states and taskbar-item move actions.
 - Phase 6E: static stability pass, lifecycle/listener cleanup and build verification. Live Waydroid runtime verification could not run on this host because neither Waydroid nor ADB is installed and the available WSL distribution is stopped.
 - Phase 6F: centralized desktop wallpaper system with built-in Zorx gradient, user document URI, solid color, five rendering modes, live desktop layer and persisted all/current-workspace assignments.
+- Phase 6G — Tabbed Display Settings UI — Complete. The floating settings window uses fixed title, tab and footer regions with `DISPLAY`, `SCALE`, `APPEARANCE` and `WALLPAPER` content panels.
 
 ## Partial
 
@@ -50,6 +51,15 @@ Phase 6E is build-verified. Runtime visual testing remains pending a Waydroid-ca
 - Supported modes: `FILL`, `FIT`, `STRETCH`, `CENTER`, and `TILE`. Bitmap decoding first reads dimensions, then uses sampling against current target bounds and retains only the current source bitmap cache.
 - Scope is persisted as all workspaces or current workspace. Assignment keys already include workspace plus optional display identity, preparing per-display wallpaper without inventing additional Waydroid display surfaces.
 - Slideshow, dynamic/live wallpapers and physical multi-display rendering are intentionally deferred. Runtime picker/render testing is pending Waydroid/ADB availability.
+
+## Phase 6G tabbed settings UI
+
+- The existing `ZorxSettingsActivity` remains the single settings surface. Its compact floating window is centered at a responsive 840dp by 620dp target, constrained to the current display, draggable, maximizable and styled by the current window-corner preference and Theme Engine tokens.
+- Tabs are `DISPLAY`, `SCALE`, `APPEARANCE` and `WALLPAPER`. Only the selected tab is mounted. The titlebar, tab strip and `Reset` / `Apply` / `Close` footer stay fixed; scrolling is confined to the selected content panel when required.
+- `DISPLAY` contains the topology preview and compact monitor cards. `SCALE` contains display/UI scale and physical/effective resolution. `APPEARANCE` uses responsive two-column groups for shell size, icons, typography, shape and theme. `WALLPAPER` keeps its preview, source, five modes and workspace scope in a compact layout.
+- Desktop `Display Settings`, `Personalization` and `Change Wallpaper` actions route to `DISPLAY`, `APPEARANCE` and `WALLPAPER` respectively through the existing activity intent extra. The active tab survives activity state recreation.
+- Display scale, shell metrics, icon sizing, typography, shapes, theme and wallpaper retain their existing live persistence paths. Appearance is the only tab expected to need internal vertical scrolling at the default window size; no whole-window scrolling is used.
+- Waydroid accepted the rebuilt APK and launched Zorx without an observed startup crash. Direct tab mappings are statically verified at their desktop call sites; full visual tab switching and persistence interaction remain a manual smoke test because the host denies non-root access to the Waydroid activity shell.
 
 ## Phase 6C coordinate and platform notes
 

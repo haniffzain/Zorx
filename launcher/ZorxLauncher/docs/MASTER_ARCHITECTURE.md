@@ -61,3 +61,16 @@ model, persisted scope/assignment and decoded source-bitmap cache; neither the
 activity nor views read wallpaper preferences directly. Wallpaper assignment is
 keyed by workspace and optional display identity, allowing later per-display
 surfaces without conflating wallpaper scaling with shell UI scale.
+
+## Tabbed settings surface
+
+Phase 6G keeps `ZorxSettingsActivity` as the only display, appearance and
+wallpaper settings owner. A fixed window shell surrounds four replaceable tab
+panels: Display, Scale, Appearance and Wallpaper. Each panel may own its own
+scroll container, while the draggable titlebar, tab navigation and action footer
+remain outside scrolling content. Existing desktop entry points select a tab
+through `EXTRA_SECTION`; they do not create parallel settings activities.
+
+All controls continue to write through `ZorxShellSettingsStore`,
+`ZorxThemeManager` or `ZorxWallpaperManager`, preserving the existing live
+listener notifications and persistence boundaries.

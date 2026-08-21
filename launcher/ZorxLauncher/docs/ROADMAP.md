@@ -16,6 +16,7 @@
 - Phase 6D complete: taskbar workspace switcher, workspace/display-aware running-window filtering, item move menu and overflow scrolling.
 - Phase 6E stability pass complete for build/static checks: widget theme-listener and native bounds callback cleanup. Live Waydroid test matrix remains pending a Waydroid-capable host.
 - Phase 6F complete: centralized desktop wallpaper layer, persistent workspace/display-ready assignment model, image picker, solid color and layout modes.
+- Phase 6G complete: responsive floating tabbed settings window with fixed navigation/footer, per-tab scrolling and direct desktop context routing.
 
 - Unify native and spatial lifecycle using task identity.
 - Synchronize maximize/restore and close with native tasks.
