@@ -77,6 +77,15 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 - Chooser actions flow through `SpatialEngine.moveObject`, so native bounds
   synchronization uses the same lifecycle pipeline as drag and resize.
 
+## Phase 7C multi-window arrangements
+
+- The focused-window context menu exposes an Arrange submenu for two columns,
+  three columns and a main-left/two-right composition.
+- Arrangements select the highest-z visible non-minimized windows from the active
+  workspace and reject layouts when too few windows are available.
+- Group geometry preserves odd remainder pixels and routes every bounds update
+  through `SpatialEngine`, retaining native synchronization.
+
 ## Current milestone
 
 Phase 6E is build-verified. Runtime visual testing remains pending a Waydroid-capable host; it has not been represented as completed.

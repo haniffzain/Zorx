@@ -22,6 +22,10 @@ import com.zorx.launcher.workspace.ZorxWorkspaceId
 import com.zorx.launcher.display.ZorxDisplayId
 import com.zorx.launcher.interaction.SnapLayoutEngine
 import com.zorx.launcher.interaction.SnapSlot
+import com.zorx.launcher.interaction.WindowGroupLayout
+import com.zorx.launcher.interaction.WindowGroupLayoutEngine
+import com.zorx.launcher.spatial.DesktopObjectState
+import com.zorx.launcher.workspace.ZorxWorkspaceManager
 
 class DesktopSurface @JvmOverloads constructor(
     context: Context,
@@ -48,6 +52,22 @@ class DesktopSurface @JvmOverloads constructor(
             windowId,
             SnapLayoutEngine.bounds(currentWorkArea(), slot)
         )
+
+    fun arrangeWindows(layout: WindowGroupLayout): Boolean {
+        val activeWorkspace = ZorxWorkspaceManager.active(context)
+        val windows = spatialEngine.getAllObjects()
+            .filter { it.packageName != null }
+            .filter { it.state != DesktopObjectState.MINIMIZED }
+            .filter { ZorxWorkspaceManager.workspaceFor(context, it.id) == activeWorkspace }
+            .sortedByDescending { it.zIndex }
+            .take(layout.windowCount)
+
+        if (windows.size < layout.windowCount) return false
+
+        windows.zip(WindowGroupLayoutEngine.bounds(currentWorkArea(), layout))
+            .forEach { (window, bounds) -> spatialEngine.moveObject(window.id, bounds) }
+        return true
+    }
 
     private fun currentWorkArea(): SpatialBounds {
         val metrics = ZorxShellSettingsStore.resolve(

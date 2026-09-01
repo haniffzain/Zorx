@@ -30,6 +30,8 @@ import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ZorxShellSettingsStore
 import com.zorx.launcher.wallpaper.WallpaperView
 import com.zorx.launcher.interaction.SnapSlot
+import com.zorx.launcher.interaction.WindowGroupLayout
+import android.widget.Toast
 
 class DesktopActivity : AppCompatActivity() {
 
@@ -399,6 +401,9 @@ class DesktopActivity : AppCompatActivity() {
             actions += "Window → Snap  ›" to {
                 showSnapContextMenu(widgetMenuX, widgetMenuY, focused.id)
             }
+            actions += "Window → Arrange  ›" to {
+                showArrangeContextMenu(widgetMenuX, widgetMenuY)
+            }
             ZorxWorkspaceManager.workspaces().forEach { workspace ->
                 actions += "Window → Move to Workspace ${workspace.order}" to {
                     desktopSurface.moveWindowToWorkspace(focused.id, workspace.id)
@@ -431,6 +436,23 @@ class DesktopActivity : AppCompatActivity() {
             }
         }
         desktopContextMenu = showActionPopup(x, y, (230 * density).toInt(), actions)
+    }
+
+    private fun showArrangeContextMenu(x: Int, y: Int) {
+        val density = resources.displayMetrics.density
+        val actions = WindowGroupLayout.values().map { layout ->
+            layout.label to {
+                if (!desktopSurface.arrangeWindows(layout)) {
+                    Toast.makeText(
+                        this,
+                        "${layout.windowCount} visible windows required",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                desktopSurface.invalidate()
+            }
+        }
+        desktopContextMenu = showActionPopup(x, y, (250 * density).toInt(), actions)
     }
 
     private fun showWorkspaceContextMenu(x: Int, y: Int) {
