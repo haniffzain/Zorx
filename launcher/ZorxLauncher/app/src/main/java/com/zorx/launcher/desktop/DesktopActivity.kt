@@ -29,6 +29,7 @@ import com.zorx.launcher.design.ZorxTypography
 import com.zorx.launcher.settings.ZorxSettingsActivity
 import com.zorx.launcher.shell.ZorxShellSettingsStore
 import com.zorx.launcher.wallpaper.WallpaperView
+import com.zorx.launcher.interaction.SnapSlot
 
 class DesktopActivity : AppCompatActivity() {
 
@@ -391,7 +392,13 @@ class DesktopActivity : AppCompatActivity() {
         }
         actions += "Widgets  ›" to { showWidgetContextMenu(widgetMenuX, widgetMenuY) }
         actions += "Workspace  ›" to { showWorkspaceContextMenu(widgetMenuX, widgetMenuY) }
-        desktopSurface.spatialEngine.getAllObjects().maxByOrNull { it.zIndex }?.let { focused ->
+        desktopSurface.spatialEngine.getAllObjects()
+            .filter { it.packageName != null }
+            .maxByOrNull { it.zIndex }
+            ?.let { focused ->
+            actions += "Window → Snap  ›" to {
+                showSnapContextMenu(widgetMenuX, widgetMenuY, focused.id)
+            }
             ZorxWorkspaceManager.workspaces().forEach { workspace ->
                 actions += "Window → Move to Workspace ${workspace.order}" to {
                     desktopSurface.moveWindowToWorkspace(focused.id, workspace.id)
@@ -413,6 +420,17 @@ class DesktopActivity : AppCompatActivity() {
         }
 
         desktopContextMenu = showActionPopup(x.toInt(), y.toInt(), popupWidth, actions)
+    }
+
+    private fun showSnapContextMenu(x: Int, y: Int, windowId: String) {
+        val density = resources.displayMetrics.density
+        val actions = SnapSlot.values().map { slot ->
+            slot.label to {
+                desktopSurface.snapWindow(windowId, slot)
+                desktopSurface.invalidate()
+            }
+        }
+        desktopContextMenu = showActionPopup(x, y, (230 * density).toInt(), actions)
     }
 
     private fun showWorkspaceContextMenu(x: Int, y: Int) {

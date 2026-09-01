@@ -68,6 +68,15 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 - Geometry is platform-independent and covered by unit tests for handle detection,
   minimum size, work-area clamping and opposite-edge behavior.
 
+## Phase 7B snap chooser foundation
+
+- The desktop context menu exposes a focused-window Snap submenu with left/right
+  halves and all four quarter placements.
+- `SnapLayoutEngine` owns deterministic, taskbar-aware slot geometry and preserves
+  remainder pixels on odd-sized work areas without gaps or overlap.
+- Chooser actions flow through `SpatialEngine.moveObject`, so native bounds
+  synchronization uses the same lifecycle pipeline as drag and resize.
+
 ## Current milestone
 
 Phase 6E is build-verified. Runtime visual testing remains pending a Waydroid-capable host; it has not been represented as completed.

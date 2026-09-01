@@ -20,6 +20,8 @@ import com.zorx.launcher.spatial.SpatialBounds
 import com.zorx.launcher.shell.ZorxShellSettingsStore
 import com.zorx.launcher.workspace.ZorxWorkspaceId
 import com.zorx.launcher.display.ZorxDisplayId
+import com.zorx.launcher.interaction.SnapLayoutEngine
+import com.zorx.launcher.interaction.SnapSlot
 
 class DesktopSurface @JvmOverloads constructor(
     context: Context,
@@ -41,6 +43,27 @@ class DesktopSurface @JvmOverloads constructor(
     fun moveWindowToDisplay(windowId: String, displayId: ZorxDisplayId) =
         runtime.moveWindowToDisplay(windowId, displayId)
 
+    fun snapWindow(windowId: String, slot: SnapSlot): Boolean =
+        spatialEngine.moveObject(
+            windowId,
+            SnapLayoutEngine.bounds(currentWorkArea(), slot)
+        )
+
+    private fun currentWorkArea(): SpatialBounds {
+        val metrics = ZorxShellSettingsStore.resolve(
+            context,
+            width.coerceAtLeast(1),
+            height.coerceAtLeast(1)
+        )
+        return SpatialBounds(
+            0,
+            0,
+            width.coerceAtLeast(1),
+            (height - metrics.taskbarHeightPx - metrics.taskbarBottomMarginPx)
+                .coerceAtLeast(1)
+        )
+    }
+
     private val scene =
         DesktopScene(runtime)
     private val interactionController =
@@ -49,20 +72,7 @@ class DesktopSurface @JvmOverloads constructor(
             {
                 width to height
             },
-            {
-                val metrics = ZorxShellSettingsStore.resolve(
-                    context,
-                    width.coerceAtLeast(1),
-                    height.coerceAtLeast(1)
-                )
-                SpatialBounds(
-                    0,
-                    0,
-                    width.coerceAtLeast(1),
-                    (height - metrics.taskbarHeightPx - metrics.taskbarBottomMarginPx)
-                        .coerceAtLeast(1)
-                )
-            },
+            ::currentWorkArea,
             {
                 ZorxShellSettingsStore.resolve(
                     context,

@@ -28,7 +28,8 @@
 
 - Phase 7A complete: full-edge/corner resize, minimum sizing and taskbar-aware
   work-area constraints with unit-tested geometry.
-- Snap layout UI and multi-window workflows.
+- Phase 7B foundation complete: focused-window Snap chooser for half and quarter
+  slots with unit-tested work-area geometry. Multi-window group arrangements remain.
 - Desktop grid, widgets, icons and persistence.
 - Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.
 - Add slideshow/dynamic/live wallpaper providers only after live wallpaper rendering and persistence are validated in Waydroid.
