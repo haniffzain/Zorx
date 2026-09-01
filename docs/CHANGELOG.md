@@ -15,7 +15,9 @@
   backward-compatible widget mapping (Phase 7D).
 - Added persistent launchable desktop shortcuts with grid-aware add, drag/snap,
   collision rejection and removal (Phase 7E).
-- Next: shared grid preferences and cross-object placement persistence.
+- Added a shared placement policy for widget/shortcut collision ownership and
+  deterministic shortcut migration while preserving legacy widget records (Phase 7F).
+- Next: configurable grid density and workspace/display-scoped layouts.
 
 ## 20 August 2026 — development at b14b199
 

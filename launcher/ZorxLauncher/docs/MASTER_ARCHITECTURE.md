@@ -93,3 +93,9 @@ placement. Legacy four-column widget records map to three columns per unit.
 between widgets and the window surface. `DesktopShortcutStore` owns component and
 placement persistence; launches remain delegated to `AppManager`, so shortcuts use
 the same freeform task lifecycle as the drawer and Start Menu.
+
+`DesktopPlacementPolicy` is the cross-object occupancy boundary. Widget operations
+translate legacy four-column records into shared-grid spans before checking shortcut
+reservations; shortcut operations reserve visible widget spans. Reconciliation is
+ordered and deterministic, moving conflicting shortcuts to the first free cell
+without rewriting backward-compatible widget persistence.

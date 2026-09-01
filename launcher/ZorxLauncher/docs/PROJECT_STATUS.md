@@ -101,10 +101,10 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 
 ## Current milestone
 
-Phase 7E is implemented: persistent launchable desktop shortcuts use the shared
-grid, support collision-aware add/drag placement and removal, and discard invalid
-or uninstalled persisted entries. Runtime-only behavior remains explicitly
-unverified until a Waydroid/device smoke-test host is available.
+Phase 7F is implemented: widgets and shortcuts share collision ownership while
+retaining backward-compatible persistence. Phase 7G targets configurable grid
+density and workspace/display-scoped layouts. Runtime-only behavior remains
+explicitly unverified until a Waydroid/device smoke-test host is available.
 
 ## Phase 7E desktop shortcuts
 
@@ -115,6 +115,17 @@ unverified until a Waydroid/device smoke-test host is available.
 - Icons launch through the existing freeform `AppManager`, drag to the nearest
   collision-free cell and reflow from responsive `GridEngine` bounds.
 - Persistence codec tests cover round-trip identity/placement and malformed data.
+
+## Phase 7F shared placement policy
+
+- `DesktopPlacementPolicy` is the common widget/shortcut occupancy authority and
+  preserves the legacy four-column widget mapping as 12-column grid spans.
+- Shortcut add and drag reserve visible widget spans; widget add, drag, resize and
+  duplicate reserve persisted shortcut cells.
+- Existing duplicate, invalid or cross-object shortcut conflicts migrate
+  deterministically to the first free cell and are persisted after reconciliation.
+- Platform-independent tests cover legacy mapping, cross-object rejection and
+  deterministic migration order.
 
 ## Phase 6F wallpaper system
 

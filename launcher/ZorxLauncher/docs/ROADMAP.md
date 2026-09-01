@@ -37,6 +37,8 @@
   geometry, collision/placement utilities and backward-compatible widget mapping.
 - Phase 7E complete: persistent launchable desktop shortcuts with add, drag/snap,
   collision rejection and removal interactions.
-- Expanded shared grid preferences and cross-object collision persistence.
+- Phase 7F complete: shared widget/shortcut occupancy, cross-object collision
+  rejection and deterministic migration of existing shortcut conflicts.
+- Configurable grid density and workspace/display-scoped desktop layouts.
 - Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.
 - Add slideshow/dynamic/live wallpaper providers only after live wallpaper rendering and persistence are validated in Waydroid.

@@ -1,6 +1,8 @@
 package com.zorx.launcher.widgets
 
 import android.content.Context
+import com.zorx.launcher.spatial.DesktopGridPlacement
+import com.zorx.launcher.spatial.DesktopPlacementPolicy
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -18,13 +20,14 @@ object ZorxWidgetLayoutStore {
     fun read(context:Context):List<ZorxWidgetInstance> = runCatching { val a=JSONArray(context.getSharedPreferences(PREF,0).getString(KEY,"[]")); (0 until a.length()).map { i -> a.getJSONObject(i).let { ZorxWidgetInstance(it.getString("id"),WidgetType.valueOf(it.getString("type")),it.getInt("x"),it.getInt("y"),it.getInt("w"),it.getInt("h"),it.optBoolean("visible",true),it.optString("display","primary")) } } }.getOrDefault(emptyList())
     fun save(context:Context, items:List<ZorxWidgetInstance>) { val a=JSONArray(); items.forEach { a.put(JSONObject().put("id",it.instanceId).put("type",it.widgetType.name).put("x",it.gridX).put("y",it.gridY).put("w",it.gridWidth).put("h",it.gridHeight).put("visible",it.visible).put("display",it.displayId)) }; context.getSharedPreferences(PREF,0).edit().putString(KEY,a.toString()).apply() }
     fun addClock(context:Context):ZorxWidgetInstance { val all=read(context); val used=all.map { it.gridX to it.gridY }.toSet(); val slot=(0..40).map { it%4 to it/4 }.first { it !in used }; val item=ZorxWidgetInstance("clock-${System.currentTimeMillis()}",WidgetType.CLOCK,slot.first,slot.second); save(context,all+item); return item }
-    fun add(context:Context,type:WidgetType):ZorxWidgetInstance? { val all=read(context); val meta=ZorxWidgetRegistry.metadata(type); val slot=(0 until 32).map { it%4 to it/4 }.firstOrNull { (x,y)->valid(ZorxWidgetInstance("new",type,x,y,meta.defaultWidth,meta.defaultHeight),all) }?:return null; val item=ZorxWidgetInstance("${type.name.lowercase()}-${System.currentTimeMillis()}",type,slot.first,slot.second,meta.defaultWidth,meta.defaultHeight);save(context,all+item);return item }
+    fun add(context:Context,type:WidgetType,reserved:List<DesktopGridPlacement> = emptyList()):ZorxWidgetInstance? { val all=read(context); val meta=ZorxWidgetRegistry.metadata(type); val slot=(0 until 32).map { it%4 to it/4 }.firstOrNull { (x,y)->validShared(ZorxWidgetInstance("new",type,x,y,meta.defaultWidth,meta.defaultHeight),all,reserved) }?:return null; val item=ZorxWidgetInstance("${type.name.lowercase()}-${System.currentTimeMillis()}",type,slot.first,slot.second,meta.defaultWidth,meta.defaultHeight);save(context,all+item);return item }
     fun removeLastClock(context:Context) { val all=read(context); val index=all.indexOfLast { it.widgetType==WidgetType.CLOCK }; if(index>=0) save(context,all.filterIndexed { i,_ -> i!=index }) }
     fun replace(context:Context, next:ZorxWidgetInstance) = save(context,read(context).map { if(it.instanceId==next.instanceId) next else it })
     fun remove(context:Context, id:String) = save(context,read(context).filterNot { it.instanceId==id })
     fun overlaps(candidate:ZorxWidgetInstance, others:List<ZorxWidgetInstance>) = others.any { it.instanceId!=candidate.instanceId && it.visible && candidate.gridX < it.gridX+it.gridWidth && candidate.gridX+candidate.gridWidth > it.gridX && candidate.gridY < it.gridY+it.gridHeight && candidate.gridY+candidate.gridHeight > it.gridY }
     fun valid(candidate:ZorxWidgetInstance, others:List<ZorxWidgetInstance>, columns:Int=4, rows:Int=8) = candidate.gridX>=0 && candidate.gridY>=0 && candidate.gridX+candidate.gridWidth<=columns && candidate.gridY+candidate.gridHeight<=rows && !overlaps(candidate,others)
-    fun duplicate(context:Context, source:ZorxWidgetInstance):ZorxWidgetInstance? { val all=read(context); val slot=(0 until 32).map { it%4 to it/4 }.firstOrNull { (x,y) -> valid(source.copy(gridX=x,gridY=y),all) } ?: return null; val copy=source.copy(instanceId="${source.widgetType.name.lowercase()}-${System.currentTimeMillis()}",gridX=slot.first,gridY=slot.second); save(context,all+copy); return copy }
+    fun validShared(candidate:ZorxWidgetInstance, others:List<ZorxWidgetInstance>, reserved:List<DesktopGridPlacement>):Boolean { val widget=DesktopPlacementPolicy.legacyWidgetPlacement(candidate.gridX,candidate.gridY,candidate.gridWidth,candidate.gridHeight); return valid(candidate,others) && reserved.none { DesktopPlacementPolicy.overlaps(widget,it) } }
+    fun duplicate(context:Context, source:ZorxWidgetInstance, reserved:List<DesktopGridPlacement> = emptyList()):ZorxWidgetInstance? { val all=read(context); val slot=(0 until 32).map { it%4 to it/4 }.firstOrNull { (x,y) -> validShared(source.copy(gridX=x,gridY=y),all,reserved) } ?: return null; val copy=source.copy(instanceId="${source.widgetType.name.lowercase()}-${System.currentTimeMillis()}",gridX=slot.first,gridY=slot.second); save(context,all+copy); return copy }
     fun locked(context:Context)=context.getSharedPreferences(PREF,0).getBoolean("locked",false)
     fun setLocked(context:Context,value:Boolean)=context.getSharedPreferences(PREF,0).edit().putBoolean("locked",value).apply()
 }

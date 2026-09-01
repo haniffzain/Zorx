@@ -17,6 +17,7 @@ import com.zorx.launcher.R
 import com.zorx.launcher.apps.AppDrawerView
 import com.zorx.launcher.apps.AppManager
 import com.zorx.launcher.desktopicons.DesktopShortcutHost
+import com.zorx.launcher.desktopicons.DesktopShortcutStore
 import com.zorx.launcher.startmenu.StartMenuView
 import com.zorx.launcher.taskbar.TaskbarController
 import com.zorx.launcher.taskbar.TaskbarView
@@ -517,8 +518,13 @@ class DesktopActivity : AppCompatActivity() {
         val density = resources.displayMetrics.density
         val actions = ZorxWidgetRegistry.available().map { metadata ->
             metadata.name to {
-                ZorxWidgetLayoutStore.add(this, metadata.type)
+                ZorxWidgetLayoutStore.add(
+                    this,
+                    metadata.type,
+                    DesktopShortcutStore(this).read().map { it.placement }
+                )
                 widgetHost.render()
+                desktopShortcutHost.render()
             }
         }
         desktopContextMenu = showActionPopup(x, y, (220 * density).toInt(), actions)

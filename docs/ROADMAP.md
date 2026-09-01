@@ -32,11 +32,17 @@ Status updated through Phase 7D on `codex/continue-window-lifecycle`.
 - Add and drag placement resolves collisions through `GridEngine`; removal and
   malformed/uninstalled entry cleanup do not change widget persistence.
 
-## Current milestone: Shared Grid Persistence
+## Completed shared placement policy
 
-- Add persistent grid preferences and cross-object collision ownership.
-- Migrate widgets and shortcuts through one placement repository while retaining
-  backward compatibility with existing widget records.
+- Widgets and shortcuts now reserve cells through one placement policy.
+- Add, drag, widget resize and duplication reject cross-object collisions.
+- Existing shortcut collisions are deterministically migrated to the next free cell
+  while legacy widget records retain their four-column persisted format.
+
+## Current milestone: Configurable Desktop Layouts
+
+- Add user-configurable grid density and spacing.
+- Scope widget and shortcut layouts by logical workspace and display.
 
 ## Later
 - File Manager, Terminal, Settings and notifications.
