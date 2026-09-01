@@ -20,8 +20,8 @@
 
 - Native/spatial task identity, maximize/restore bounds synchronization and native
   close are implemented; privileged runtime verification remains.
-- Reconcile externally removed tasks.
-- Complete multi-instance-safe native discovery without package ambiguity.
+- External task reconciliation and new-task-aware multi-instance discovery are
+  implemented; privileged runtime verification remains.
 - Add unit and integration coverage.
 
 ## Later

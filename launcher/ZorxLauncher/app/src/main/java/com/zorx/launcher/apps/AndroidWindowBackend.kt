@@ -68,23 +68,46 @@ fun movePackageToFreeform(
     }
 
     fun findTaskId(
-        packageName: String
+        packageName: String,
+        excludedTaskIds: Set<Int> = emptySet()
     ): Int? {
+
+        return findTaskIds(packageName)
+            ?.firstOrNull { it !in excludedTaskIds }
+    }
+
+    fun findTaskIds(packageName: String): List<Int>? {
+
+        return try {
+            runningTasks()
+                .filter {
+                    it.baseActivity?.packageName == packageName ||
+                        it.topActivity?.packageName == packageName
+                }
+                .map { it.id }
+        } catch (exception: SecurityException) {
+            Log.w(TAG, "Task discovery unavailable for $packageName", exception)
+            null
+        }
+    }
+
+    fun runningTaskIds(): Set<Int>? {
+
+        return try {
+            runningTasks().mapTo(mutableSetOf()) { it.id }
+        } catch (exception: SecurityException) {
+            Log.w(TAG, "Running-task reconciliation unavailable", exception)
+            null
+        }
+    }
+
+    private fun runningTasks(): List<ActivityManager.RunningTaskInfo> {
 
         val activityManager =
             context.getSystemService(Context.ACTIVITY_SERVICE)
                 as ActivityManager
 
-        val tasks =
-            activityManager.getRunningTasks(100)
-
-        val task =
-            tasks.firstOrNull {
-                it.baseActivity?.packageName == packageName ||
-                it.topActivity?.packageName == packageName
-            }
-
-        return task?.id
+        return activityManager.getRunningTasks(100)
     }
 
     fun moveTaskToFreeform(

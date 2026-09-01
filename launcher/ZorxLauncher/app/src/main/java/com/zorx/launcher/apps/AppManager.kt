@@ -9,13 +9,11 @@ import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import java.util.concurrent.atomic.AtomicInteger
 
 class AppManager(
     private val context: Context
 ) {
-
-    private val launchingPackages =
-        mutableSetOf<String>()
 
     /*
      * Temporary Zorx task IDs.
@@ -25,11 +23,8 @@ class AppManager(
      *
      * Negative IDs are reserved for Zorx synthetic windows.
      */
-    private var nextSyntheticTaskId = -1
-
     private fun createSyntheticTaskId(): Int {
-
-        return nextSyntheticTaskId--
+        return nextSyntheticTaskId.getAndDecrement()
     }
 
     companion object {
@@ -41,6 +36,9 @@ class AppManager(
         // Confirmed from Android 15 ActivityOptions framework.
         private const val KEY_LAUNCH_WINDOWING_MODE =
             "android.activity.windowingMode"
+
+        private val launchingPackages = mutableSetOf<String>()
+        private val nextSyntheticTaskId = AtomicInteger(-1)
     }
 
     private val activeAppManager =
@@ -86,6 +84,9 @@ class AppManager(
         val packageName =
             activityInfo.packageName
 
+        val existingNativeTaskIds =
+            androidWindowBackend.findTaskIds(packageName).orEmpty().toSet()
+
         synchronized(launchingPackages) {
 
             if (!launchingPackages.add(packageName)) {
@@ -112,7 +113,9 @@ class AppManager(
                 )
 
                 addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_MULTIPLE_TASK or
+                        Intent.FLAG_ACTIVITY_NEW_DOCUMENT
                 )
             }
 
@@ -221,7 +224,8 @@ class AppManager(
 
             promoteNativeTask(
                 packageName,
-                syntheticTaskId
+                syntheticTaskId,
+                existingNativeTaskIds
             )
 
             true
@@ -246,6 +250,7 @@ class AppManager(
     private fun promoteNativeTask(
         packageName: String,
         syntheticTaskId: Int,
+        existingNativeTaskIds: Set<Int>,
         attempt: Int = 0
     ) {
 
@@ -253,7 +258,8 @@ class AppManager(
 
             val nativeTaskId =
                 androidWindowBackend.findTaskId(
-                    packageName
+                    packageName,
+                    existingNativeTaskIds
                 )
 
             if (nativeTaskId != null) {
@@ -282,6 +288,7 @@ class AppManager(
                 promoteNativeTask(
                     packageName,
                     syntheticTaskId,
+                    existingNativeTaskIds,
                     attempt + 1
                 )
 

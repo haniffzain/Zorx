@@ -60,6 +60,11 @@ class DesktopRuntime(
                 )
             )
         )
+
+        nativeTaskSynchronizer.startReconciliation(
+            objects = spatialEngine::getAllObjects,
+            removeObject = { spatialEngine.removeObject(it) }
+        )
     }
 
     override fun onEvent(

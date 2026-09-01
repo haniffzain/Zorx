@@ -35,6 +35,14 @@ class NativeTaskSynchronizer(
     private val scheduledObjects =
         mutableSetOf<String>()
 
+    private val externallyRemovedTaskIds =
+        mutableSetOf<Int>()
+
+    private val missingTaskObservations =
+        mutableMapOf<Int, Int>()
+
+    private var reconciliationAction: Runnable? = null
+
     fun syncBounds(
         desktopObject: DesktopObject
     ) {
@@ -81,10 +89,50 @@ class NativeTaskSynchronizer(
         scheduledObjects.remove(desktopObject.id)
 
         val taskId = desktopObject.taskId ?: return
-        if (taskId >= 0) {
+        if (taskId >= 0 && !externallyRemovedTaskIds.remove(taskId)) {
             backend.removeTask(taskId)
         }
         ZorxWindowManager.unregisterWindow(taskId)
+    }
+
+    fun startReconciliation(
+        objects: () -> List<DesktopObject>,
+        removeObject: (String) -> Unit
+    ) {
+        if (reconciliationAction != null) return
+
+        val action = object : Runnable {
+            override fun run() {
+                val runningTaskIds = backend.runningTaskIds()
+                if (runningTaskIds != null) {
+                    val nativeObjects = objects()
+                        .filter { (it.taskId ?: -1) >= 0 }
+                    val trackedIds = nativeObjects.mapNotNull { it.taskId }.toSet()
+                    missingTaskObservations.keys.retainAll(trackedIds)
+
+                    nativeObjects.forEach { candidate ->
+                        val taskId = candidate.taskId ?: return@forEach
+                        if (taskId in runningTaskIds) {
+                            missingTaskObservations.remove(taskId)
+                            return@forEach
+                        }
+
+                        val observations =
+                            (missingTaskObservations[taskId] ?: 0) + 1
+                        if (observations >= REQUIRED_MISSING_OBSERVATIONS) {
+                            missingTaskObservations.remove(taskId)
+                            externallyRemovedTaskIds.add(taskId)
+                            removeObject(candidate.id)
+                        } else {
+                            missingTaskObservations[taskId] = observations
+                        }
+                    }
+                }
+                handler.postDelayed(this, RECONCILIATION_INTERVAL_MS)
+            }
+        }
+        reconciliationAction = action
+        handler.postDelayed(action, RECONCILIATION_INTERVAL_MS)
     }
 
     /** Drop coalesced work when the owning desktop runtime is disposed. */
@@ -92,11 +140,19 @@ class NativeTaskSynchronizer(
         handler.removeCallbacksAndMessages(null)
         pendingBounds.clear()
         scheduledObjects.clear()
+        externallyRemovedTaskIds.clear()
+        missingTaskObservations.clear()
+        reconciliationAction = null
     }
 
     private companion object {
 
         const val FRAME_INTERVAL_MS =
             32L
+
+        const val RECONCILIATION_INTERVAL_MS =
+            1500L
+
+        const val REQUIRED_MISSING_OBSERVATIONS = 2
     }
 }

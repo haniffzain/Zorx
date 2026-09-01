@@ -38,9 +38,11 @@ Build-verified on development after Phase 6G on 21 August 2026. The updated APK 
 - Native discovery/promotion depends on platform visibility.
 - Native close and exact task cleanup are implemented but still require privileged
   Waydroid/device verification.
-- External native task removal is not yet reconciled back into the desktop model.
-- Native task discovery still begins with package lookup, so concurrent launch-time
-  promotion of multiple instances from one package requires further platform work.
+- External native task removal is reconciled by task ID after two consecutive
+  missing-task observations; privileged runtime verification remains pending.
+- New launches snapshot the package's existing task IDs and promote only a newly
+  created task. Launch requests use Android's multiple-task/document flags, while a
+  process-wide launch guard prevents ambiguous concurrent launches of one package.
 
 ## Native lifecycle update
 
@@ -52,6 +54,8 @@ Build-verified on development after Phase 6G on 21 August 2026. The updated APK 
 - Close calls the native task backend and unregisters the exact task. A late native
   discovery after a synthetic window was closed removes the orphaned native task.
 - Compositor rendering is sorted by z-index and taskbar state refreshes on focus.
+- Periodic reconciliation removes desktop/registry state when Android closes a task
+  externally. Two consecutive misses avoid reacting to transient task visibility.
 
 ## Current milestone
 
