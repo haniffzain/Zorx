@@ -4,8 +4,8 @@ Build-verified on development after Phase 6G on 21 August 2026. The updated APK 
 
 ## Build
 
-./gradlew assembleDebug succeeds. Android Gradle Plugin 8.5.0 emits a compileSdk
-35 compatibility warning.
+GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugin
+8.8.2, Gradle 8.10.2, JDK 17 and compileSdk 35, then publishes the debug APK.
 
 ## Completed
 
@@ -56,6 +56,17 @@ Build-verified on development after Phase 6G on 21 August 2026. The updated APK 
 - Compositor rendering is sorted by z-index and taskbar state refreshes on focus.
 - Periodic reconciliation removes desktop/registry state when Android closes a task
   externally. Two consecutive misses avoid reacting to transient task visibility.
+
+## Phase 7A full-edge resize and work area
+
+- Window hit testing supports all four edges and four corners while preserving the
+  titlebar controls and drag region.
+- Resize keeps the opposite edge fixed, enforces a 240×180 minimum and clamps every
+  result to the usable desktop area above the taskbar.
+- Titlebar dragging is constrained to the same work area, and edge/corner snap uses
+  work-area bounds instead of the full surface.
+- Geometry is platform-independent and covered by unit tests for handle detection,
+  minimum size, work-area clamping and opposite-edge behavior.
 
 ## Current milestone
 

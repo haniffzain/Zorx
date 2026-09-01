@@ -50,6 +50,20 @@ class DesktopSurface @JvmOverloads constructor(
                 width to height
             },
             {
+                val metrics = ZorxShellSettingsStore.resolve(
+                    context,
+                    width.coerceAtLeast(1),
+                    height.coerceAtLeast(1)
+                )
+                SpatialBounds(
+                    0,
+                    0,
+                    width.coerceAtLeast(1),
+                    (height - metrics.taskbarHeightPx - metrics.taskbarBottomMarginPx)
+                        .coerceAtLeast(1)
+                )
+            },
+            {
                 ZorxShellSettingsStore.resolve(
                     context,
                     width.coerceAtLeast(1),

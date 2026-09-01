@@ -26,7 +26,8 @@
 
 ## Later
 
-- Full-edge resize and work-area constraints.
+- Phase 7A complete: full-edge/corner resize, minimum sizing and taskbar-aware
+  work-area constraints with unit-tested geometry.
 - Snap layout UI and multi-window workflows.
 - Desktop grid, widgets, icons and persistence.
 - Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.

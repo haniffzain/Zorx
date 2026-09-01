@@ -5,7 +5,6 @@ import com.zorx.launcher.spatial.DesktopObject
 import com.zorx.launcher.spatial.DesktopObjectState
 import com.zorx.launcher.spatial.SpatialBounds
 import com.zorx.launcher.spatial.SpatialEngine
-import kotlin.math.max
 
 /**
  * Handles direct manipulation of Zorx desktop windows.
@@ -14,7 +13,7 @@ import kotlin.math.max
  * - Focus
  * - Z-order
  * - Drag
- * - Bottom-right resize
+ * - Full-edge and corner resize
  * - Minimize
  * - Maximize / restore
  * - Close
@@ -23,6 +22,10 @@ import kotlin.math.max
 class WindowInteractionController(
     private val spatialEngine: SpatialEngine,
     private val viewportSizeProvider: () -> Pair<Int, Int>,
+    private val workAreaProvider: () -> SpatialBounds = {
+        val viewport = viewportSizeProvider()
+        SpatialBounds(0, 0, viewport.first, viewport.second)
+    },
     private val titlebarHeightProvider: () -> Int = {
         TITLE_BAR_HEIGHT
     }
@@ -32,7 +35,9 @@ class WindowInteractionController(
 
         private const val TITLE_BAR_HEIGHT = 56
         private const val CONTROL_WIDTH = 44
-        private const val RESIZE_HANDLE_SIZE = 40
+        private const val RESIZE_HANDLE_SIZE = 16
+        private const val MINIMUM_WIDTH = 240
+        private const val MINIMUM_HEIGHT = 180
 
         private const val SNAP_THRESHOLD = 64
     }
@@ -42,7 +47,7 @@ class WindowInteractionController(
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
 
-    private var resizing = false
+    private var resizeDirection: ResizeDirection? = null
 
     private var pendingMoveX: Float? = null
     private var pendingMoveY: Float? = null
@@ -52,8 +57,7 @@ class WindowInteractionController(
     private var resizeStartX = 0f
     private var resizeStartY = 0f
 
-    private var resizeStartWidth = 0
-    private var resizeStartHeight = 0
+    private var resizeStartBounds: SpatialBounds? = null
 
     fun queueMove(
         x: Float,
@@ -214,13 +218,12 @@ class WindowInteractionController(
 
                 } else {
 
-                    val viewport =
-                        viewportSizeProvider()
+                    val workArea = workAreaProvider()
 
                     spatialEngine.maximizeObject(
                         objectToSelect.id,
-                        viewport.first,
-                        viewport.second
+                        workArea.width,
+                        workArea.height
                     )
                 }
 
@@ -258,37 +261,24 @@ class WindowInteractionController(
             objectToSelect.id
         )
 
-        /*
-         * -----------------------------------------------------
-         * BOTTOM-RIGHT RESIZE
-         * -----------------------------------------------------
-         */
+        val resizeHandle = WindowResizeGeometry.directionAt(
+            bounds,
+            x,
+            y,
+            RESIZE_HANDLE_SIZE
+        )
 
-        val onBottomRightHandle =
-            x >=
-                bounds.x +
-                bounds.width -
-                RESIZE_HANDLE_SIZE &&
-            y >=
-                bounds.y +
-                bounds.height -
-                RESIZE_HANDLE_SIZE
-
-        if (onBottomRightHandle) {
+        if (resizeHandle != null) {
 
             draggedObjectId =
                 objectToSelect.id
 
-            resizing = true
+            resizeDirection = resizeHandle
 
             resizeStartX = x
             resizeStartY = y
 
-            resizeStartWidth =
-                bounds.width
-
-            resizeStartHeight =
-                bounds.height
+            resizeStartBounds = bounds.copy()
 
             return true
         }
@@ -340,32 +330,21 @@ class WindowInteractionController(
          * -----------------------------------------------------
          */
 
-        if (resizing) {
+        val activeResizeDirection = resizeDirection
+        val startBounds = resizeStartBounds
 
-            val newWidth =
-                max(
-                    240,
-                    resizeStartWidth +
-                        (x - resizeStartX).toInt()
-                )
-
-            val newHeight =
-                max(
-                    180,
-                    resizeStartHeight +
-                        (y - resizeStartY).toInt()
-                )
-
-            val bounds =
-                objectToModify.bounds
+        if (activeResizeDirection != null && startBounds != null) {
 
             spatialEngine.moveObject(
                 objectId,
-                SpatialBounds(
-                    x = bounds.x,
-                    y = bounds.y,
-                    width = newWidth,
-                    height = newHeight
+                WindowResizeGeometry.resize(
+                    start = startBounds,
+                    direction = activeResizeDirection,
+                    deltaX = (x - resizeStartX).toInt(),
+                    deltaY = (y - resizeStartY).toInt(),
+                    workArea = workAreaProvider(),
+                    minimumWidth = MINIMUM_WIDTH,
+                    minimumHeight = MINIMUM_HEIGHT
                 )
             )
 
@@ -378,29 +357,22 @@ class WindowInteractionController(
          * -----------------------------------------------------
          */
 
-        val newX =
-            max(
-                0,
-                (x - dragOffsetX).toInt()
-            )
-
-        val newY =
-            max(
-                0,
-                (y - dragOffsetY).toInt()
-            )
-
         val oldBounds =
             objectToModify.bounds
 
-        spatialEngine.moveObject(
-            objectId,
+        val constrainedBounds = WindowResizeGeometry.constrain(
             SpatialBounds(
-                x = newX,
-                y = newY,
+                x = (x - dragOffsetX).toInt(),
+                y = (y - dragOffsetY).toInt(),
                 width = oldBounds.width,
                 height = oldBounds.height
-            )
+            ),
+            workAreaProvider()
+        )
+
+        spatialEngine.moveObject(
+            objectId,
+            constrainedBounds
         )
 
         return true
@@ -413,7 +385,7 @@ class WindowInteractionController(
 
         if (
             objectId != null &&
-            !resizing
+            resizeDirection == null
         ) {
 
             applyEdgeSnap(
@@ -423,7 +395,8 @@ class WindowInteractionController(
 
         draggedObjectId = null
 
-        resizing = false
+        resizeDirection = null
+        resizeStartBounds = null
     }
 
     private fun applyEdgeSnap(
@@ -435,36 +408,31 @@ class WindowInteractionController(
                 objectId
             ) ?: return
 
-        val viewport =
-            viewportSizeProvider()
-
-        val viewportWidth =
-            viewport.first
-
-        val viewportHeight =
-            viewport.second
+        val workArea = workAreaProvider()
+        val viewportWidth = workArea.width
+        val viewportHeight = workArea.height
 
         val bounds =
             desktopObject.bounds
 
         val nearLeft =
             bounds.x <=
-                SNAP_THRESHOLD
+                workArea.x + SNAP_THRESHOLD
 
         val nearRight =
             bounds.x +
                 bounds.width >=
-                viewportWidth -
+                workArea.x + viewportWidth -
                 SNAP_THRESHOLD
 
         val nearTop =
             bounds.y <=
-                SNAP_THRESHOLD
+                workArea.y + SNAP_THRESHOLD
 
         val nearBottom =
             bounds.y +
                 bounds.height >=
-                viewportHeight -
+                workArea.y + viewportHeight -
                 SNAP_THRESHOLD
 
         val halfWidth =
@@ -486,8 +454,8 @@ class WindowInteractionController(
             spatialEngine.moveObject(
                 objectId,
                 SpatialBounds(
-                    x = 0,
-                    y = 0,
+                    x = workArea.x,
+                    y = workArea.y,
                     width = halfWidth,
                     height = halfHeight
                 )
@@ -501,8 +469,8 @@ class WindowInteractionController(
             spatialEngine.moveObject(
                 objectId,
                 SpatialBounds(
-                    x = halfWidth,
-                    y = 0,
+                    x = workArea.x + halfWidth,
+                    y = workArea.y,
                     width = halfWidth,
                     height = halfHeight
                 )
@@ -516,8 +484,8 @@ class WindowInteractionController(
             spatialEngine.moveObject(
                 objectId,
                 SpatialBounds(
-                    x = 0,
-                    y = halfHeight,
+                    x = workArea.x,
+                    y = workArea.y + halfHeight,
                     width = halfWidth,
                     height = halfHeight
                 )
@@ -531,8 +499,8 @@ class WindowInteractionController(
             spatialEngine.moveObject(
                 objectId,
                 SpatialBounds(
-                    x = halfWidth,
-                    y = halfHeight,
+                    x = workArea.x + halfWidth,
+                    y = workArea.y + halfHeight,
                     width = halfWidth,
                     height = halfHeight
                 )
@@ -552,8 +520,8 @@ class WindowInteractionController(
             spatialEngine.moveObject(
                 objectId,
                 SpatialBounds(
-                    x = 0,
-                    y = 0,
+                    x = workArea.x,
+                    y = workArea.y,
                     width = halfWidth,
                     height = viewportHeight
                 )
@@ -567,8 +535,8 @@ class WindowInteractionController(
             spatialEngine.moveObject(
                 objectId,
                 SpatialBounds(
-                    x = halfWidth,
-                    y = 0,
+                    x = workArea.x + halfWidth,
+                    y = workArea.y,
                     width = halfWidth,
                     height = viewportHeight
                 )
