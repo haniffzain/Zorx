@@ -36,9 +36,22 @@ Build-verified on development after Phase 6G on 21 August 2026. The updated APK 
 ## Partial
 
 - Native discovery/promotion depends on platform visibility.
-- Native sync covers move events but not maximize/restore state events.
-- Taskbar refresh covers open/state/remove but not focus events.
-- zIndex is tracked but compositor order is not sorted by it.
+- Native close and exact task cleanup are implemented but still require privileged
+  Waydroid/device verification.
+- External native task removal is not yet reconciled back into the desktop model.
+- Native task discovery still begins with package lookup, so concurrent launch-time
+  promotion of multiple instances from one package requires further platform work.
+
+## Native lifecycle update
+
+- Desktop window objects now retain their Android task identity independently of
+  their stable presentation ID.
+- Synthetic-to-native promotion updates the matching desktop object through an
+  explicit event, so bounds updates and close operations target the promoted task.
+- Maximize/restore use the same native bounds synchronization path as move/resize.
+- Close calls the native task backend and unregisters the exact task. A late native
+  discovery after a synthetic window was closed removes the orphaned native task.
+- Compositor rendering is sorted by z-index and taskbar state refreshes on focus.
 
 ## Current milestone
 

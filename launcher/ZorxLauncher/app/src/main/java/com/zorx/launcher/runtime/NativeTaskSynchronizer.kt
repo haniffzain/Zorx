@@ -32,32 +32,19 @@ class NativeTaskSynchronizer(
     private val pendingBounds =
         mutableMapOf<String, Rect>()
 
-    private val scheduledPackages =
+    private val scheduledObjects =
         mutableSetOf<String>()
 
     fun syncBounds(
         desktopObject: DesktopObject
     ) {
 
-        val packageName =
-            desktopObject.id
-                .removePrefix("window:")
-                .substringBefore(":")
-
-        if (packageName.isBlank() || packageName == desktopObject.id) {
+        val taskId = desktopObject.taskId ?: return
+        if (taskId < 0) {
             return
         }
 
-        val window =
-            ZorxWindowManager.getWindowForPackage(
-                packageName
-            ) ?: return
-
-        if (window.taskId < 0) {
-            return
-        }
-
-        pendingBounds[packageName] =
+        pendingBounds[desktopObject.id] =
             Rect(
                 desktopObject.bounds.x,
                 desktopObject.bounds.y,
@@ -67,37 +54,44 @@ class NativeTaskSynchronizer(
                     desktopObject.bounds.height
             )
 
-        if (!scheduledPackages.add(packageName)) {
+        if (!scheduledObjects.add(desktopObject.id)) {
             return
         }
 
         handler.postDelayed({
 
-            scheduledPackages.remove(packageName)
+            scheduledObjects.remove(desktopObject.id)
 
             val bounds =
-                pendingBounds.remove(packageName)
+                pendingBounds.remove(desktopObject.id)
                     ?: return@postDelayed
 
-            val currentWindow =
-                ZorxWindowManager.getWindowForPackage(
-                    packageName
-                ) ?: return@postDelayed
-
-            if (currentWindow.taskId >= 0) {
+            val currentTaskId = desktopObject.taskId
+            if (currentTaskId != null && currentTaskId >= 0) {
                 backend.moveTaskToFreeform(
-                    currentWindow.taskId,
+                    currentTaskId,
                     bounds
                 )
             }
         }, FRAME_INTERVAL_MS)
     }
 
+    fun closeTask(desktopObject: DesktopObject) {
+        pendingBounds.remove(desktopObject.id)
+        scheduledObjects.remove(desktopObject.id)
+
+        val taskId = desktopObject.taskId ?: return
+        if (taskId >= 0) {
+            backend.removeTask(taskId)
+        }
+        ZorxWindowManager.unregisterWindow(taskId)
+    }
+
     /** Drop coalesced work when the owning desktop runtime is disposed. */
     fun destroy() {
         handler.removeCallbacksAndMessages(null)
         pendingBounds.clear()
-        scheduledPackages.clear()
+        scheduledObjects.clear()
     }
 
     private companion object {

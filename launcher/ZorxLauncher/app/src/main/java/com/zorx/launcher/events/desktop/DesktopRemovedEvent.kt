@@ -1,6 +1,7 @@
 package com.zorx.launcher.events.desktop
 
 import com.zorx.launcher.events.ZorxEvent
+import com.zorx.launcher.spatial.DesktopObject
 
 /**
  * Published whenever a desktop object
@@ -8,6 +9,9 @@ import com.zorx.launcher.events.ZorxEvent
  */
 data class DesktopRemovedEvent(
 
-    val objectId: String
+    val desktopObject: DesktopObject
 
-) : ZorxEvent()
+) : ZorxEvent() {
+    val objectId: String
+        get() = desktopObject.id
+}

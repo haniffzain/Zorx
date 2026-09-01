@@ -18,10 +18,10 @@
 - Phase 6F complete: centralized desktop wallpaper layer, persistent workspace/display-ready assignment model, image picker, solid color and layout modes.
 - Phase 6G complete: responsive floating tabbed settings window with fixed navigation/footer, per-tab scrolling and direct desktop context routing.
 
-- Unify native and spatial lifecycle using task identity.
-- Synchronize maximize/restore and close with native tasks.
+- Native/spatial task identity, maximize/restore bounds synchronization and native
+  close are implemented; privileged runtime verification remains.
 - Reconcile externally removed tasks.
-- Correct render z-order and taskbar focus refresh.
+- Complete multi-instance-safe native discovery without package ambiguity.
 - Add unit and integration coverage.
 
 ## Later

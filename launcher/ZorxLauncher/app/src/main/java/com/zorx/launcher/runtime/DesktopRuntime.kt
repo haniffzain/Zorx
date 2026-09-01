@@ -4,6 +4,7 @@ import com.zorx.launcher.events.ZorxEvent
 import com.zorx.launcher.events.ZorxEventBus
 import com.zorx.launcher.events.ZorxEventListener
 import com.zorx.launcher.events.WindowOpenedEvent
+import com.zorx.launcher.events.WindowTaskPromotedEvent
 import com.zorx.launcher.spatial.DesktopObject
 import com.zorx.launcher.spatial.SpatialEngine
 import com.zorx.launcher.spatial.SpatialBounds
@@ -97,13 +98,21 @@ class DesktopRuntime(
                                     bounds.top,
                                     bounds.width(),
                                     bounds.height()
-                                )
+                                ),
+                            taskId = window.taskId,
+                            packageName = window.packageName
                         )
                     )
                     spatialEngine.findObject(objectId)?.let { created ->
                         ZorxWindowLocationManager.ensure(context, created, displayTopology())
                     }
                 }
+            }
+
+            is WindowTaskPromotedEvent -> {
+                spatialEngine.getAllObjects()
+                    .firstOrNull { it.taskId == event.syntheticTaskId }
+                    ?.taskId = event.nativeTaskId
             }
 
             is com.zorx.launcher.events.desktop.DesktopMovedEvent -> {
@@ -129,6 +138,10 @@ class DesktopRuntime(
                         event.desktopObject
                     )
                 }
+            }
+
+            is com.zorx.launcher.events.desktop.DesktopRemovedEvent -> {
+                nativeTaskSynchronizer.closeTask(event.desktopObject)
             }
         }
     }

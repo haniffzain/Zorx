@@ -2,6 +2,7 @@ package com.zorx.launcher.service
 
 import com.zorx.launcher.events.ZorxEventBus
 import com.zorx.launcher.events.WindowOpenedEvent
+import com.zorx.launcher.events.WindowTaskPromotedEvent
 import com.zorx.launcher.window.ZorxWindow
 import com.zorx.launcher.window.ZorxWindowManager
 import android.util.Log
@@ -65,6 +66,12 @@ class ZorxWindowService {
             )
 
         if (promoted) {
+            ZorxEventBus.post(
+                WindowTaskPromotedEvent(
+                    syntheticTaskId,
+                    nativeTaskId
+                )
+            )
             Log.i(
                 TAG,
                 "Promoted task $syntheticTaskId to Android task $nativeTaskId"

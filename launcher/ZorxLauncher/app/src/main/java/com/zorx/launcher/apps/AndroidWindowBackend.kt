@@ -209,4 +209,27 @@ fun movePackageToFreeform(
         }
     }
 
+    fun removeTask(taskId: Int): Boolean {
+        return try {
+            val serviceManagerClass = Class.forName("android.os.ServiceManager")
+            val binder = serviceManagerClass
+                .getMethod("getService", String::class.java)
+                .invoke(null, "activity_task")
+                ?: throw IllegalStateException("activity_task binder unavailable")
+            val iBinderClass = Class.forName("android.os.IBinder")
+            val service = Class.forName("android.app.IActivityTaskManager\$Stub")
+                .getMethod("asInterface", iBinderClass)
+                .invoke(null, binder)
+                ?: throw IllegalStateException("IActivityTaskManager unavailable")
+            Class.forName("android.app.IActivityTaskManager")
+                .getMethod("removeTask", Int::class.javaPrimitiveType)
+                .invoke(service, taskId)
+            Log.i(TAG, "removeTask SUCCESS: taskId=$taskId")
+            true
+        } catch (exception: Throwable) {
+            Log.e(TAG, "removeTask FAILED: taskId=$taskId", exception)
+            false
+        }
+    }
+
 }

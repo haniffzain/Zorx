@@ -23,6 +23,12 @@ open class DesktopObject(
 
     var zIndex: Int = 0,
 
-    var isLocked: Boolean = false
+    var isLocked: Boolean = false,
+
+    /** Native Android task identity for window objects; null for widgets/icons. */
+    var taskId: Int? = null,
+
+    /** Android package metadata for window objects; null for non-window objects. */
+    val packageName: String? = null
 
 )

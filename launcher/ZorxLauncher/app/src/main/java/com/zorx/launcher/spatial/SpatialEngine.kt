@@ -321,7 +321,7 @@ class SpatialEngine(
 
         ZorxEventBus.post(
             DesktopRemovedEvent(
-                id
+                desktopObject
             )
         )
 

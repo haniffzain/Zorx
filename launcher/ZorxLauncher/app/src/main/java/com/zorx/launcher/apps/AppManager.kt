@@ -258,10 +258,17 @@ class AppManager(
 
             if (nativeTaskId != null) {
 
-                zorxWindowService.promoteTaskId(
+                val promoted = zorxWindowService.promoteTaskId(
                     syntheticTaskId,
                     nativeTaskId
                 )
+
+                // The user may close the synthetic desktop object while native
+                // discovery is still pending. Do not leave the late native task
+                // running after its registry entry has already been removed.
+                if (!promoted) {
+                    androidWindowBackend.removeTask(nativeTaskId)
+                }
 
                 synchronized(launchingPackages) {
                     launchingPackages.remove(packageName)
