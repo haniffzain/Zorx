@@ -43,7 +43,7 @@ class DesktopSurface @JvmOverloads constructor(
     fun moveWindowToDisplay(windowId: String, displayId: ZorxDisplayId) =
         runtime.moveWindowToDisplay(windowId, displayId)
 
-    fun snapWindow(windowId: String, slot: SnapSlot): Boolean =
+    fun snapWindow(windowId: String, slot: SnapSlot) =
         spatialEngine.moveObject(
             windowId,
             SnapLayoutEngine.bounds(currentWorkArea(), slot)
