@@ -129,11 +129,19 @@ explicitly unverified until a Waydroid/device smoke-test host is available.
 
 ## Phase 6F wallpaper system
 
-- `ZorxWallpaperManager` is the sole wallpaper persistence/loading and listener authority. Wallpaper renders in `WallpaperView`, below widgets and desktop windows, without hit testing.
+- `ZorxWallpaperManager` is the sole wallpaper persistence/loading and listener authority. Static wallpaper renders in `WallpaperView`, below widgets and desktop windows, without hit testing.
 - Supported sources: built-in Zorx gradient, persisted user image URI, and solid color. User images use `ACTION_OPEN_DOCUMENT` with persisted read access where the provider supports it; missing/revoked/decode-failed images fall back to the selected solid color.
 - Supported modes: `FILL`, `FIT`, `STRETCH`, `CENTER`, and `TILE`. Bitmap decoding first reads dimensions, then uses sampling against current target bounds and retains only the current source bitmap cache.
 - Scope is persisted as all workspaces or current workspace. Assignment keys already include workspace plus optional display identity, preparing per-display wallpaper without inventing additional Waydroid display surfaces.
-- Slideshow, dynamic/live wallpapers and physical multi-display rendering are intentionally deferred. Runtime picker/render testing is pending Waydroid/ADB availability.
+- The September audit fixed workspace-switch redraw, ensured `ALL_WORKSPACES`
+  ignores stale workspace overrides and made URI bitmap caching target-size aware.
+  Selection policy now has platform-independent unit coverage.
+- Android Live Wallpaper is **not implemented**: there is no `WallpaperService`,
+  engine, provider picker or manifest service. “Live update” refers only to immediate
+  redraw after static settings changes. Slideshow/dynamic wallpaper and physical
+  multi-display rendering remain deferred.
+- Static paths are build/test verified; document picker permissions, rendering and
+  workspace switching still require a Waydroid/device visual smoke test.
 
 ## Phase 6G tabbed settings UI
 

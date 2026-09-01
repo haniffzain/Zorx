@@ -11,7 +11,13 @@ import com.zorx.launcher.workspace.ZorxWorkspaceManager
 class WallpaperView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val wallpaperListener = { post { invalidate() }; Unit }
-    init { isClickable = false; ZorxWallpaperManager.addListener(wallpaperListener) }
+    private val workspaceListener = { post { invalidate() }; Unit }
+    init { isClickable = false }
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        ZorxWallpaperManager.addListener(wallpaperListener)
+        ZorxWorkspaceManager.addListener(workspaceListener)
+    }
     override fun onDraw(canvas: Canvas) {
         val workspace = ZorxWorkspaceManager.active(context)
         val wallpaper = ZorxWallpaperManager.current(context, workspace, null as ZorxDisplayId?)
@@ -31,5 +37,9 @@ class WallpaperView @JvmOverloads constructor(context: Context, attrs: Attribute
         val dest = if(mode==ZorxWallpaperMode.STRETCH) RectF(0f,0f,w,h) else { val dw=bw*scale; val dh=bh*scale; RectF((w-dw)/2,(h-dh)/2,(w+dw)/2,(h+dh)/2) }
         canvas.drawBitmap(bitmap, null, dest, paint)
     }
-    override fun onDetachedFromWindow() { ZorxWallpaperManager.removeListener(wallpaperListener); super.onDetachedFromWindow() }
+    override fun onDetachedFromWindow() {
+        ZorxWallpaperManager.removeListener(wallpaperListener)
+        ZorxWorkspaceManager.removeListener(workspaceListener)
+        super.onDetachedFromWindow()
+    }
 }

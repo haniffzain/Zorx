@@ -64,6 +64,12 @@ activity nor views read wallpaper preferences directly. Wallpaper assignment is
 keyed by workspace and optional display identity, allowing later per-display
 surfaces without conflating wallpaper scaling with shell UI scale.
 
+This is a static wallpaper renderer, not Android Live Wallpaper. `WallpaperView`
+listens to both manager and workspace changes; `WallpaperSelectionPolicy` owns
+global/workspace precedence, and the bitmap cache re-decodes when a larger target
+is requested. A future live implementation requires an Android `WallpaperService`
+engine and explicit manifest/provider lifecycle integration.
+
 ## Tabbed settings surface
 
 Phase 6G keeps `ZorxSettingsActivity` as the only display, appearance and

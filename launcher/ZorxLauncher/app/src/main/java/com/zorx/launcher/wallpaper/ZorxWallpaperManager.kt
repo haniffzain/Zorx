@@ -23,14 +23,22 @@ object ZorxWallpaperManager {
     private val listeners = mutableSetOf<() -> Unit>()
     private var cachedUri: String? = null
     private var cachedBitmap: Bitmap? = null
+    private var cachedTargetWidth = 0
+    private var cachedTargetHeight = 0
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
     private fun key(workspace: ZorxWorkspaceId?, display: ZorxDisplayId?) =
         if (workspace == null) "all" else "ws_${workspace.value}_${display?.value?.hashCode() ?: "primary"}"
 
-    fun current(context: Context, workspace: ZorxWorkspaceId, display: ZorxDisplayId?): ZorxWallpaper =
-        read(context, key(workspace, display)).takeIf { prefs(context).getBoolean("${key(workspace, display)}.assigned", false) }
-            ?: read(context, "all")
+    fun current(context: Context, workspace: ZorxWorkspaceId, display: ZorxDisplayId?): ZorxWallpaper {
+        val workspaceKey = key(workspace, display)
+        return WallpaperSelectionPolicy.select(
+            scope(context),
+            read(context, "all"),
+            read(context, workspaceKey),
+            prefs(context).getBoolean("$workspaceKey.assigned", false)
+        )
+    }
 
     fun scope(context: Context): ZorxWallpaperScope = runCatching {
         ZorxWallpaperScope.valueOf(prefs(context).getString("scope", ZorxWallpaperScope.ALL_WORKSPACES.name)!!)
@@ -38,6 +46,7 @@ object ZorxWallpaperManager {
 
     fun setScope(context: Context, scope: ZorxWallpaperScope) {
         prefs(context).edit().putString("scope", scope.name).apply()
+        notifyChanged()
     }
 
     fun apply(context: Context, wallpaper: ZorxWallpaper, scope: ZorxWallpaperScope, workspace: ZorxWorkspaceId, display: ZorxDisplayId?) {
@@ -60,7 +69,10 @@ object ZorxWallpaperManager {
 
     fun bitmap(context: Context, wallpaper: ZorxWallpaper, targetWidth: Int, targetHeight: Int): Bitmap? {
         val uriText = wallpaper.imageUri ?: return null
-        if (cachedUri == uriText && cachedBitmap?.isRecycled == false) return cachedBitmap
+        if (
+            cachedUri == uriText && cachedBitmap?.isRecycled == false &&
+            cachedTargetWidth >= targetWidth && cachedTargetHeight >= targetHeight
+        ) return cachedBitmap
         clearCache()
         val uri = runCatching { Uri.parse(uriText) }.getOrNull() ?: return null
         val resolver = context.contentResolver
@@ -72,6 +84,8 @@ object ZorxWallpaperManager {
         val options = BitmapFactory.Options().apply { inSampleSize = sample; inPreferredConfig = Bitmap.Config.ARGB_8888 }
         cachedBitmap = runCatching { resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) } }.getOrNull()
         cachedUri = uriText
+        cachedTargetWidth = targetWidth
+        cachedTargetHeight = targetHeight
         return cachedBitmap
     }
 
@@ -82,5 +96,5 @@ object ZorxWallpaperManager {
         return ZorxWallpaper(source, mode, p.getInt("$target.color", 0xFF10151FFF.toInt()), p.getString("$target.uri", null))
     }
 
-    private fun clearCache() { cachedBitmap?.takeUnless { it.isRecycled }?.recycle(); cachedBitmap = null; cachedUri = null }
+    private fun clearCache() { cachedBitmap?.takeUnless { it.isRecycled }?.recycle(); cachedBitmap = null; cachedUri = null; cachedTargetWidth = 0; cachedTargetHeight = 0 }
 }

@@ -45,5 +45,6 @@ Status updated through Phase 7D on `codex/continue-window-lifecycle`.
 - Scope widget and shortcut layouts by logical workspace and display.
 
 ## Later
+- Android Live Wallpaper service/provider integration and device validation.
 - File Manager, Terminal, Settings and notifications.
 - Physical multi-monitor rendering and privileged runtime verification.

@@ -89,6 +89,10 @@ Project screenshots
 
 ✔ Shared widget/shortcut collision-aware placement
 
+✔ Static wallpaper: gradient, solid color and persisted document images
+
+🚧 Android Live Wallpaper service/rendering
+
 🚧 Final menu implementation
 
 🚧 Final typography/font system

@@ -17,6 +17,8 @@
 - Phase 6D complete: taskbar workspace switcher, workspace/display-aware running-window filtering, item move menu and overflow scrolling.
 - Phase 6E stability pass complete for build/static checks: widget theme-listener and native bounds callback cleanup. Live Waydroid test matrix remains pending a Waydroid-capable host.
 - Phase 6F complete: centralized desktop wallpaper layer, persistent workspace/display-ready assignment model, image picker, solid color and layout modes.
+- Phase 6F audit complete: corrected workspace redraw, scope precedence and
+  target-aware image caching. Android Live Wallpaper remains a separate future phase.
 - Phase 6G complete: responsive floating tabbed settings window with fixed navigation/footer, per-tab scrolling and direct desktop context routing.
 
 - Native/spatial task identity, maximize/restore bounds synchronization and native
@@ -41,4 +43,5 @@
   rejection and deterministic migration of existing shortcut conflicts.
 - Configurable grid density and workspace/display-scoped desktop layouts.
 - Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.
-- Add slideshow/dynamic/live wallpaper providers only after live wallpaper rendering and persistence are validated in Waydroid.
+- Implement `WallpaperService` integration, provider selection and lifecycle before
+  claiming Android Live Wallpaper support; then validate it in Waydroid/device.

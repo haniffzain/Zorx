@@ -17,6 +17,9 @@
   collision rejection and removal (Phase 7E).
 - Added a shared placement policy for widget/shortcut collision ownership and
   deterministic shortcut migration while preserving legacy widget records (Phase 7F).
+- Audited the wallpaper subsystem: fixed workspace-switch redraw, made scope
+  selection authoritative and made bitmap caching target-size aware. Android Live
+  Wallpaper remains unimplemented and is not implied by “live desktop layer”.
 - Next: configurable grid density and workspace/display-scoped layouts.
 
 ## 20 August 2026 — development at b14b199
