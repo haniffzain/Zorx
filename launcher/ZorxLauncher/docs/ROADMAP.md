@@ -32,6 +32,8 @@
   slots with unit-tested work-area geometry.
 - Phase 7C complete: two-column, three-column and main-plus-stack group arrangements
   for visible windows in the active workspace.
-- Desktop grid, widgets, icons and persistence.
+- Phase 7D complete: configurable 12-column Desktop Grid Engine with responsive
+  geometry, collision/placement utilities and backward-compatible widget mapping.
+- Desktop icons and expanded grid persistence.
 - Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.
 - Add slideshow/dynamic/live wallpaper providers only after live wallpaper rendering and persistence are validated in Waydroid.

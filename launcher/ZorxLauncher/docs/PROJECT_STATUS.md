@@ -86,6 +86,16 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 - Group geometry preserves odd remainder pixels and routes every bounds update
   through `SpatialEngine`, retaining native synchronization.
 
+## Phase 7D desktop grid engine
+
+- `GridEngine` provides a configurable 12-column, eight-row desktop grid with
+  deterministic remainder distribution, responsive cell sizing, gaps and padding.
+- The engine exposes span bounds, nearest-cell snapping, bounds validation,
+  collision detection and first-available placement.
+- Existing widget persistence remains backward compatible: each legacy 4-column
+  widget unit maps to three desktop-grid columns while rendering and drag snapping
+  now use the shared responsive grid above the taskbar.
+
 ## Current milestone
 
 Phase 6E is build-verified. Runtime visual testing remains pending a Waydroid-capable host; it has not been represented as completed.
