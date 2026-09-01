@@ -38,8 +38,8 @@ class NativeTaskSynchronizer(
     private val externallyRemovedTaskIds =
         mutableSetOf<Int>()
 
-    private val missingTaskObservations =
-        mutableMapOf<Int, Int>()
+    private val reconciliationPolicy =
+        NativeTaskReconciliationPolicy()
 
     private var reconciliationAction: Runnable? = null
 
@@ -108,24 +108,14 @@ class NativeTaskSynchronizer(
                     val nativeObjects = objects()
                         .filter { (it.taskId ?: -1) >= 0 }
                     val trackedIds = nativeObjects.mapNotNull { it.taskId }.toSet()
-                    missingTaskObservations.keys.retainAll(trackedIds)
+                    val removedTaskIds =
+                        reconciliationPolicy.observe(trackedIds, runningTaskIds)
 
-                    nativeObjects.forEach { candidate ->
-                        val taskId = candidate.taskId ?: return@forEach
-                        if (taskId in runningTaskIds) {
-                            missingTaskObservations.remove(taskId)
-                            return@forEach
-                        }
-
-                        val observations =
-                            (missingTaskObservations[taskId] ?: 0) + 1
-                        if (observations >= REQUIRED_MISSING_OBSERVATIONS) {
-                            missingTaskObservations.remove(taskId)
-                            externallyRemovedTaskIds.add(taskId)
-                            removeObject(candidate.id)
-                        } else {
-                            missingTaskObservations[taskId] = observations
-                        }
+                    nativeObjects
+                        .filter { it.taskId in removedTaskIds }
+                        .forEach { missing ->
+                            missing.taskId?.let(externallyRemovedTaskIds::add)
+                            removeObject(missing.id)
                     }
                 }
                 handler.postDelayed(this, RECONCILIATION_INTERVAL_MS)
@@ -141,7 +131,7 @@ class NativeTaskSynchronizer(
         pendingBounds.clear()
         scheduledObjects.clear()
         externallyRemovedTaskIds.clear()
-        missingTaskObservations.clear()
+        reconciliationPolicy.reset()
         reconciliationAction = null
     }
 
@@ -153,6 +143,5 @@ class NativeTaskSynchronizer(
         const val RECONCILIATION_INTERVAL_MS =
             1500L
 
-        const val REQUIRED_MISSING_OBSERVATIONS = 2
     }
 }
