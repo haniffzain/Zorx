@@ -1,6 +1,6 @@
 # Zorx Development Roadmap
 
-Status updated through Phase 7G on `codex/continue-window-lifecycle`.
+Status updated through Phase 7H on `codex/continue-window-lifecycle`.
 
 ## Completed foundation
 
@@ -46,9 +46,17 @@ Status updated through Phase 7G on `codex/continue-window-lifecycle`.
 - Both widget and shortcut hosts resolve the same profile; shortcut reconciliation
   migrates cells that no longer fit after a profile change.
 
-## Current milestone: Scoped Desktop Layouts
+## Completed scoped desktop layouts
 
-- Scope widget and shortcut layouts by logical workspace and display.
+- Widget and shortcut records persist workspace/display identity.
+- Rendering and collision ownership are isolated to the active scope, and switching
+  workspaces refreshes both desktop hosts immediately.
+- Legacy records migrate to Workspace 1 / primary display.
+
+## Current milestone: Layout Mobility
+
+- Add copy/move controls for desktop objects between workspace/display scopes.
+- Bind display scope to physical per-display surfaces when Android exposes them.
 
 ## Later
 - Android Live Wallpaper service/provider integration and device validation.

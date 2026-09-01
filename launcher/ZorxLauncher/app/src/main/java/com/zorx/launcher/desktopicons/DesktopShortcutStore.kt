@@ -2,6 +2,7 @@ package com.zorx.launcher.desktopicons
 
 import android.content.Context
 import com.zorx.launcher.spatial.DesktopGridPlacement
+import com.zorx.launcher.spatial.DesktopLayoutScope
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -9,9 +10,12 @@ data class DesktopShortcut(
     val packageName: String,
     val activityName: String,
     val label: String,
-    val placement: DesktopGridPlacement
+    val placement: DesktopGridPlacement,
+    val workspaceId: Int = DesktopLayoutScope.LEGACY_DEFAULT.workspaceId,
+    val displayId: String = DesktopLayoutScope.LEGACY_DEFAULT.displayId
 ) {
     val id: String get() = "$packageName|$activityName"
+    val scopedId: String get() = "$id|$workspaceId|$displayId"
 }
 
 class DesktopShortcutStore(context: Context) {
@@ -41,6 +45,8 @@ object DesktopShortcutCodec {
                 put("label", shortcut.label)
                 put("column", shortcut.placement.column)
                 put("row", shortcut.placement.row)
+                put("workspace", shortcut.workspaceId)
+                put("display", shortcut.displayId)
             })
         }
         return array.toString()
@@ -61,7 +67,9 @@ object DesktopShortcutCodec {
                             placement = DesktopGridPlacement(
                                 item.getInt("column"),
                                 item.getInt("row")
-                            )
+                            ),
+                            workspaceId = item.optInt("workspace", DesktopLayoutScope.LEGACY_DEFAULT.workspaceId),
+                            displayId = item.optString("display", DesktopLayoutScope.LEGACY_DEFAULT.displayId)
                         )
                     )
                 }

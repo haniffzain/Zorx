@@ -22,7 +22,10 @@
   Wallpaper remains unimplemented and is not implied by “live desktop layer”.
 - Added persistent Comfortable/Compact grid profiles shared by widgets and desktop
   shortcuts, with a checked desktop View menu and deterministic migration (Phase 7G).
-- Next: workspace/display-scoped desktop object layouts.
+- Scoped widget and shortcut visibility, occupancy and persistence by workspace and
+  display. Legacy records migrate deterministically to Workspace 1 / primary display
+  without deleting records in inactive scopes (Phase 7H).
+- Next: desktop layout copy/move controls and physical multi-display surfaces.
 
 ## 20 August 2026 — development at b14b199
 

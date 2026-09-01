@@ -1,7 +1,7 @@
 # Project Status
 
-Updated through Phase 7G on 1 September 2026. Phases 7D–7F and the wallpaper audit
-are verified by GitHub Actions; Phase 7G verification follows its implementation
+Updated through Phase 7H on 1 September 2026. Phases 7D–7G and the wallpaper audit
+are verified by GitHub Actions; Phase 7H verification follows its implementation
 commit. The last Waydroid smoke run launched without an observed startup crash, but
 privileged lifecycle and visual interaction testing remain pending on a capable host.
 
@@ -101,9 +101,10 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 
 ## Current milestone
 
-Phase 7G is implemented: widgets and shortcuts resolve one persistent grid profile.
-Phase 7H targets workspace/display-scoped desktop layouts. Runtime-only behavior
-remains explicitly unverified until a Waydroid/device smoke-test host is available.
+Phase 7H is implemented: widget and shortcut layout records are isolated by logical
+workspace and display. Phase 7I targets copy/move controls and physical display
+surface binding. Runtime-only behavior remains explicitly unverified until a
+Waydroid/device smoke-test host is available.
 
 ## Phase 7E desktop shortcuts
 
@@ -134,6 +135,18 @@ remains explicitly unverified until a Waydroid/device smoke-test host is availab
 - The selected profile persists centrally and is consumed by both widget and
   shortcut hosts; shortcuts outside a reduced profile migrate deterministically.
 - Unit tests guard profile capacity, spacing and widget-compatibility invariants.
+
+## Phase 7H scoped desktop layouts
+
+- Widget and shortcut records persist workspace plus display identity; new records
+  use the active workspace and current primary desktop surface.
+- Hosts render and reconcile only the active scope. Workspace switching refreshes
+  wallpaper, widgets, shortcuts, windows and taskbar state without deleting inactive
+  layout records.
+- Cross-object collision checks and remove/duplicate operations are scope-local.
+- Records created before Phase 7H migrate to Workspace 1 / `primary`, providing a
+  deterministic, backward-compatible default instead of duplicating them everywhere.
+- Scope identity and shortcut codec migration have platform-independent tests.
 
 ## Phase 6F wallpaper system
 

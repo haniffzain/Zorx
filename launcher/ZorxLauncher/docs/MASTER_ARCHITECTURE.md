@@ -110,3 +110,9 @@ without rewriting backward-compatible widget persistence.
 derive their `DesktopGridSpec` from it, preventing visual and collision geometry
 from drifting apart. Profiles retain 12 columns for legacy widget compatibility;
 row count, gap and padding may vary, and shortcut reconciliation handles reductions.
+
+Every widget and shortcut record also carries `workspaceId` and `displayId`.
+`DesktopLayoutScopeResolver` selects the active logical workspace and current
+primary surface; both hosts filter rendering and occupancy to that exact pair while
+stores retain records from inactive scopes. Legacy records decode into Workspace 1
+and `primary`. Physical per-display view creation remains a later topology concern.

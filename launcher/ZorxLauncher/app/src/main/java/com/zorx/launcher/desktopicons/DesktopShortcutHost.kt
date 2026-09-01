@@ -16,6 +16,7 @@ import com.zorx.launcher.shell.ZorxShellSettingsStore
 import com.zorx.launcher.spatial.DesktopGridPlacement
 import com.zorx.launcher.spatial.DesktopGridSettingsStore
 import com.zorx.launcher.spatial.DesktopPlacementPolicy
+import com.zorx.launcher.spatial.DesktopLayoutScopeResolver
 import com.zorx.launcher.spatial.GridEngine
 import com.zorx.launcher.spatial.SpatialBounds
 import com.zorx.launcher.widgets.ZorxWidgetLayoutStore
@@ -26,14 +27,20 @@ class DesktopShortcutHost(context: Context) : FrameLayout(context) {
 
     fun removeLastShortcut() {
         val shortcuts = store.read()
-        if (shortcuts.isNotEmpty()) store.save(shortcuts.dropLast(1))
+        val scope = DesktopLayoutScopeResolver.current(context)
+        val index = shortcuts.indexOfLast { scope.matches(it.workspaceId, it.displayId) }
+        if (index >= 0) store.save(shortcuts.filterIndexed { itemIndex, _ -> itemIndex != index })
         render()
     }
 
     fun addShortcut(app: ResolveInfo) {
         post {
             val grid = createGrid() ?: return@post
-            val shortcuts = store.read().filter { grid.fits(it.placement) }
+            val scope = DesktopLayoutScopeResolver.current(context)
+            val persisted = store.read()
+            val shortcuts = persisted.filter {
+                scope.matches(it.workspaceId, it.displayId) && grid.fits(it.placement)
+            }
             val widgetPlacements = widgetPlacements()
             val id = "${app.activityInfo.packageName}|${app.activityInfo.name}"
             if (shortcuts.any { it.id == id }) {
@@ -46,11 +53,13 @@ class DesktopShortcutHost(context: Context) : FrameLayout(context) {
                 return@post
             }
             store.save(
-                shortcuts + DesktopShortcut(
+                persisted + DesktopShortcut(
                     packageName = app.activityInfo.packageName,
                     activityName = app.activityInfo.name,
                     label = app.loadLabel(context.packageManager).toString(),
-                    placement = placement
+                    placement = placement,
+                    workspaceId = scope.workspaceId,
+                    displayId = scope.displayId
                 )
             )
             render()
@@ -63,7 +72,9 @@ class DesktopShortcutHost(context: Context) : FrameLayout(context) {
         val installed = appManager.getInstalledApps().associateBy {
             "${it.activityInfo.packageName}|${it.activityInfo.name}"
         }
-        val persisted = store.read().filter { installed.containsKey(it.id) }
+        val scope = DesktopLayoutScopeResolver.current(context)
+        val installedShortcuts = store.read().filter { installed.containsKey(it.id) }
+        val persisted = installedShortcuts.filter { scope.matches(it.workspaceId, it.displayId) }
         val reconciledPlacements = DesktopPlacementPolicy.reconcile(
             grid,
             persisted.map { it.placement },
@@ -72,7 +83,12 @@ class DesktopShortcutHost(context: Context) : FrameLayout(context) {
         val shortcuts = persisted.mapIndexedNotNull { index, shortcut ->
             reconciledPlacements[index]?.let { shortcut.copy(placement = it) }
         }
-        if (shortcuts != store.read()) store.save(shortcuts)
+        val replacements = shortcuts.associateBy { it.scopedId }
+        val visibleIds = persisted.map { it.scopedId }.toSet()
+        val updated = installedShortcuts.mapNotNull { shortcut ->
+            if (shortcut.scopedId in visibleIds) replacements[shortcut.scopedId] else shortcut
+        }
+        if (updated != store.read()) store.save(updated)
         shortcuts.forEach { shortcut -> addShortcutView(shortcut, installed.getValue(shortcut.id), shortcuts, grid) }
     }
 
@@ -134,7 +150,9 @@ class DesktopShortcutHost(context: Context) : FrameLayout(context) {
                     )
                     val occupied = widgetPlacements() + all.filterNot { it.id == shortcut.id }.map { it.placement }
                     val next = if (DesktopPlacementPolicy.canPlace(grid, nextPlacement, occupied)) nextPlacement else shortcut.placement
-                    store.save(all.map { if (it.id == shortcut.id) it.copy(placement = next) else it })
+                    store.save(store.read().map {
+                        if (it.scopedId == shortcut.scopedId) it.copy(placement = next) else it
+                    })
                     render()
                 }
             }
@@ -153,7 +171,10 @@ class DesktopShortcutHost(context: Context) : FrameLayout(context) {
     }
 
     private fun widgetPlacements(): List<DesktopGridPlacement> =
-        ZorxWidgetLayoutStore.read(context).filter { it.visible }.map {
+        ZorxWidgetLayoutStore.read(context).filter {
+            val scope = DesktopLayoutScopeResolver.current(context)
+            it.visible && scope.matches(it.workspaceId, it.displayId)
+        }.map {
             DesktopPlacementPolicy.legacyWidgetPlacement(it.gridX, it.gridY, it.gridWidth, it.gridHeight)
         }
 }

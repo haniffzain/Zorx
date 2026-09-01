@@ -36,6 +36,7 @@ import com.zorx.launcher.interaction.SnapSlot
 import com.zorx.launcher.interaction.WindowGroupLayout
 import com.zorx.launcher.spatial.DesktopGridProfile
 import com.zorx.launcher.spatial.DesktopGridSettingsStore
+import com.zorx.launcher.spatial.DesktopLayoutScopeResolver
 import android.widget.Toast
 
 class DesktopActivity : AppCompatActivity() {
@@ -56,7 +57,11 @@ class DesktopActivity : AppCompatActivity() {
         }
     }
     private val themeListener = { runOnUiThread { applyShellMetrics(); desktopRoot.setBackgroundColor(ZorxColors.Background) } }
-    private val workspaceListener = { runOnUiThread { desktopSurface.invalidate() } }
+    private val workspaceListener = { runOnUiThread {
+        desktopSurface.invalidate()
+        if (::widgetHost.isInitialized) widgetHost.render()
+        if (::desktopShortcutHost.isInitialized) desktopShortcutHost.render()
+    } }
 
 
 
@@ -536,7 +541,11 @@ class DesktopActivity : AppCompatActivity() {
                 ZorxWidgetLayoutStore.add(
                     this,
                     metadata.type,
-                    DesktopShortcutStore(this).read().map { it.placement }
+                    DesktopLayoutScopeResolver.current(this).let { scope ->
+                        DesktopShortcutStore(this).read()
+                            .filter { scope.matches(it.workspaceId, it.displayId) }
+                            .map { it.placement }
+                    }
                 )
                 widgetHost.render()
                 desktopShortcutHost.render()

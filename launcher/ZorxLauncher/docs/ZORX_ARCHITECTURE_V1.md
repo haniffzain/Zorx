@@ -13,6 +13,7 @@ maximize/restore, native close, taskbar activation, external reconciliation,
 multi-instance identity, snap/group arrangements and responsive desktop grid.
 
 Desktop shortcuts now use `GridEngine`, with `DesktopPlacementPolicy` preventing
-collisions across shortcut and legacy widget records. Next: configurable grid
-density, workspace/display-scoped layouts and runtime verification of privileged
-operations. Stable Start Menu and App Drawer behavior must be preserved.
+collisions across shortcut and legacy widget records. Grid profiles and desktop
+records now persist centrally, with rendering and occupancy scoped by workspace and
+display. Next: layout mobility, physical display surfaces and runtime verification
+of privileged operations. Stable Start Menu and App Drawer behavior must be preserved.
