@@ -20,7 +20,9 @@
 - Audited the wallpaper subsystem: fixed workspace-switch redraw, made scope
   selection authoritative and made bitmap caching target-size aware. Android Live
   Wallpaper remains unimplemented and is not implied by “live desktop layer”.
-- Next: configurable grid density and workspace/display-scoped layouts.
+- Added persistent Comfortable/Compact grid profiles shared by widgets and desktop
+  shortcuts, with a checked desktop View menu and deterministic migration (Phase 7G).
+- Next: workspace/display-scoped desktop object layouts.
 
 ## 20 August 2026 — development at b14b199
 

@@ -1,6 +1,6 @@
 # Zorx Development Roadmap
 
-Status updated through Phase 7D on `codex/continue-window-lifecycle`.
+Status updated through Phase 7G on `codex/continue-window-lifecycle`.
 
 ## Completed foundation
 
@@ -39,9 +39,15 @@ Status updated through Phase 7D on `codex/continue-window-lifecycle`.
 - Existing shortcut collisions are deterministically migrated to the next free cell
   while legacy widget records retain their four-column persisted format.
 
-## Current milestone: Configurable Desktop Layouts
+## Completed configurable grid profiles
 
-- Add user-configurable grid density and spacing.
+- Persistent Comfortable (12×8) and Compact (12×10) profiles control shared grid
+  rows, gaps and padding from the desktop View menu.
+- Both widget and shortcut hosts resolve the same profile; shortcut reconciliation
+  migrates cells that no longer fit after a profile change.
+
+## Current milestone: Scoped Desktop Layouts
+
 - Scope widget and shortcut layouts by logical workspace and display.
 
 ## Later

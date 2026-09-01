@@ -105,3 +105,8 @@ translate legacy four-column records into shared-grid spans before checking shor
 reservations; shortcut operations reserve visible widget spans. Reconciliation is
 ordered and deterministic, moving conflicting shortcuts to the first free cell
 without rewriting backward-compatible widget persistence.
+
+`DesktopGridSettingsStore` owns the selected density profile. Both desktop hosts
+derive their `DesktopGridSpec` from it, preventing visual and collision geometry
+from drifting apart. Profiles retain 12 columns for legacy widget compatibility;
+row count, gap and padding may vary, and shortcut reconciliation handles reductions.

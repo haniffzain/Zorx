@@ -14,7 +14,7 @@ import com.zorx.launcher.apps.AppManager
 import com.zorx.launcher.design.ZorxThemeManager
 import com.zorx.launcher.shell.ZorxShellSettingsStore
 import com.zorx.launcher.spatial.DesktopGridPlacement
-import com.zorx.launcher.spatial.DesktopGridSpec
+import com.zorx.launcher.spatial.DesktopGridSettingsStore
 import com.zorx.launcher.spatial.DesktopPlacementPolicy
 import com.zorx.launcher.spatial.GridEngine
 import com.zorx.launcher.spatial.SpatialBounds
@@ -144,11 +144,12 @@ class DesktopShortcutHost(context: Context) : FrameLayout(context) {
     }
 
     private fun createGrid(): GridEngine? {
-        val gap = (16 * resources.displayMetrics.density).toInt()
         val metrics = ZorxShellSettingsStore.resolve(context, width.coerceAtLeast(1), height.coerceAtLeast(1))
         val usableHeight = height - metrics.taskbarHeightPx - metrics.taskbarBottomMarginPx
-        if (width <= gap * 13 || usableHeight <= gap * 9) return null
-        return GridEngine(DesktopGridSpec(SpatialBounds(0, 0, width, usableHeight), gap = gap, padding = gap))
+        val profile = DesktopGridSettingsStore.read(context)
+        val gap = (profile.gapDp * resources.displayMetrics.density).toInt()
+        if (width <= gap * (profile.columns + 1) || usableHeight <= gap * (profile.rows + 1)) return null
+        return GridEngine(DesktopGridSettingsStore.spec(context, SpatialBounds(0, 0, width, usableHeight)))
     }
 
     private fun widgetPlacements(): List<DesktopGridPlacement> =

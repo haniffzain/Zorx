@@ -41,7 +41,9 @@
   collision rejection and removal interactions.
 - Phase 7F complete: shared widget/shortcut occupancy, cross-object collision
   rejection and deterministic migration of existing shortcut conflicts.
-- Configurable grid density and workspace/display-scoped desktop layouts.
+- Phase 7G complete: persistent Comfortable/Compact grid profiles applied to both
+  widget and shortcut geometry through the desktop View menu.
+- Phase 7H: workspace/display-scoped desktop layouts.
 - Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.
 - Implement `WallpaperService` integration, provider selection and lifecycle before
   claiming Android Live Wallpaper support; then validate it in Waydroid/device.

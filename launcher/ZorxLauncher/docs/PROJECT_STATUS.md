@@ -1,9 +1,9 @@
 # Project Status
 
-Updated through Phase 7D on 1 September 2026. Phase 7C is verified by GitHub
-Actions; Phase 7D verification is running in CI. The last Waydroid smoke run launched
-without an observed startup crash, but privileged lifecycle and visual interaction
-testing remain pending on a capable host.
+Updated through Phase 7G on 1 September 2026. Phases 7D–7F and the wallpaper audit
+are verified by GitHub Actions; Phase 7G verification follows its implementation
+commit. The last Waydroid smoke run launched without an observed startup crash, but
+privileged lifecycle and visual interaction testing remain pending on a capable host.
 
 ## Build
 
@@ -101,10 +101,9 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 
 ## Current milestone
 
-Phase 7F is implemented: widgets and shortcuts share collision ownership while
-retaining backward-compatible persistence. Phase 7G targets configurable grid
-density and workspace/display-scoped layouts. Runtime-only behavior remains
-explicitly unverified until a Waydroid/device smoke-test host is available.
+Phase 7G is implemented: widgets and shortcuts resolve one persistent grid profile.
+Phase 7H targets workspace/display-scoped desktop layouts. Runtime-only behavior
+remains explicitly unverified until a Waydroid/device smoke-test host is available.
 
 ## Phase 7E desktop shortcuts
 
@@ -126,6 +125,15 @@ explicitly unverified until a Waydroid/device smoke-test host is available.
   deterministically to the first free cell and are persisted after reconciliation.
 - Platform-independent tests cover legacy mapping, cross-object rejection and
   deterministic migration order.
+
+## Phase 7G configurable grid profiles
+
+- Desktop View exposes checked Comfortable and Compact grid choices.
+- Comfortable uses 12×8 cells with 16dp spacing; Compact uses 12×10 cells with
+  10dp spacing. Both retain the 12-column legacy widget mapping contract.
+- The selected profile persists centrally and is consumed by both widget and
+  shortcut hosts; shortcuts outside a reduced profile migrate deterministically.
+- Unit tests guard profile capacity, spacing and widget-compatibility invariants.
 
 ## Phase 6F wallpaper system
 

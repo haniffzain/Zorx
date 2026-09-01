@@ -34,6 +34,8 @@ import com.zorx.launcher.shell.ZorxShellSettingsStore
 import com.zorx.launcher.wallpaper.WallpaperView
 import com.zorx.launcher.interaction.SnapSlot
 import com.zorx.launcher.interaction.WindowGroupLayout
+import com.zorx.launcher.spatial.DesktopGridProfile
+import com.zorx.launcher.spatial.DesktopGridSettingsStore
 import android.widget.Toast
 
 class DesktopActivity : AppCompatActivity() {
@@ -398,7 +400,7 @@ class DesktopActivity : AppCompatActivity() {
         val widgetMenuY = y.toInt()
 
         val actions = mutableListOf<Pair<String, () -> Unit>>()
-        actions += "View" to {}
+        actions += "View  ›" to { showDesktopViewMenu(widgetMenuX, widgetMenuY) }
         actions += "Refresh" to { desktopSurface.invalidate() }
         actions += "Change Wallpaper" to {
             startActivity(ZorxSettingsActivity.intent(this, ZorxSettingsActivity.SECTION_BACKGROUND))
@@ -445,6 +447,19 @@ class DesktopActivity : AppCompatActivity() {
             slot.label to {
                 desktopSurface.snapWindow(windowId, slot)
                 desktopSurface.invalidate()
+            }
+        }
+        desktopContextMenu = showActionPopup(x, y, (230 * density).toInt(), actions)
+    }
+
+    private fun showDesktopViewMenu(x: Int, y: Int) {
+        val density = resources.displayMetrics.density
+        val selected = DesktopGridSettingsStore.read(this)
+        val actions = DesktopGridProfile.values().map { profile ->
+            "${profile.name.lowercase().replaceFirstChar(Char::uppercase)} grid${if (profile == selected) "  ✓" else ""}" to {
+                DesktopGridSettingsStore.save(this, profile)
+                widgetHost.render()
+                desktopShortcutHost.render()
             }
         }
         desktopContextMenu = showActionPopup(x, y, (230 * density).toInt(), actions)

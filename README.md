@@ -1,6 +1,6 @@
 # Zorx
 
-> Development status updated through Phase 7D on 1 September 2026.
+> Development status updated through Phase 7G on 1 September 2026.
 
 Zorx is a modern desktop environment for Android built directly on AOSP.
 
@@ -89,6 +89,8 @@ Project screenshots
 
 ✔ Shared widget/shortcut collision-aware placement
 
+✔ Persistent Comfortable/Compact desktop grid profiles
+
 ✔ Static wallpaper: gradient, solid color and persisted document images
 
 🚧 Android Live Wallpaper service/rendering
@@ -118,7 +120,7 @@ The active engineering work continues from `development` on the
 
 The near-term objective is to turn the verified native Android capabilities into a coherent desktop windowing experience:
 
-1. User-configurable grid density and per-workspace desktop layouts
+1. Per-workspace and per-display desktop object layouts
 2. Waydroid smoke testing for privileged task operations
 3. File Manager, Terminal and notification services
 
