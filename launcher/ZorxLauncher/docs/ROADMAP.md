@@ -35,6 +35,8 @@
   for visible windows in the active workspace.
 - Phase 7D complete: configurable 12-column Desktop Grid Engine with responsive
   geometry, collision/placement utilities and backward-compatible widget mapping.
-- Desktop icons and expanded grid persistence.
+- Phase 7E complete: persistent launchable desktop shortcuts with add, drag/snap,
+  collision rejection and removal interactions.
+- Expanded shared grid preferences and cross-object collision persistence.
 - Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.
 - Add slideshow/dynamic/live wallpaper providers only after live wallpaper rendering and persistence are validated in Waydroid.

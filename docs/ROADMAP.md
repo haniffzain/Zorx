@@ -25,14 +25,19 @@ Status updated through Phase 7D on `codex/continue-window-lifecycle`.
 - A responsive 12-column desktop grid now supplies span geometry, snapping,
   collision checks and backward-compatible widget placement.
 
-## Current milestone: Desktop Icons
+## Completed desktop icons foundation
 
-- Render launchable desktop shortcuts on the shared grid.
-- Persist positions and resolve collisions through `GridEngine`.
-- Support add, move and remove interactions without changing widget persistence.
+- Launchable shortcuts render on the shared grid and persist component identity and
+  positions independently of taskbar pins.
+- Add and drag placement resolves collisions through `GridEngine`; removal and
+  malformed/uninstalled entry cleanup do not change widget persistence.
+
+## Current milestone: Shared Grid Persistence
+
+- Add persistent grid preferences and cross-object collision ownership.
+- Migrate widgets and shortcuts through one placement repository while retaining
+  backward compatibility with existing widget records.
 
 ## Later
-
-- Expand grid preferences and shared object persistence.
 - File Manager, Terminal, Settings and notifications.
 - Physical multi-monitor rendering and privileged runtime verification.

@@ -101,9 +101,20 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 
 ## Current milestone
 
-Phase 7D is implemented and pushed. Phase 7E adds persistent launchable desktop
-icons on the shared grid. Runtime-only behavior remains explicitly unverified until
-a Waydroid/device smoke-test host is available.
+Phase 7E is implemented: persistent launchable desktop shortcuts use the shared
+grid, support collision-aware add/drag placement and removal, and discard invalid
+or uninstalled persisted entries. Runtime-only behavior remains explicitly
+unverified until a Waydroid/device smoke-test host is available.
+
+## Phase 7E desktop shortcuts
+
+- The desktop context menu lists installed launcher activities for shortcut
+  creation and provides an explicit remove-last action.
+- Shortcut component identity, label and grid position persist independently of
+  taskbar pins; duplicate components and full-grid placement fail safely.
+- Icons launch through the existing freeform `AppManager`, drag to the nearest
+  collision-free cell and reflow from responsive `GridEngine` bounds.
+- Persistence codec tests cover round-trip identity/placement and malformed data.
 
 ## Phase 6F wallpaper system
 

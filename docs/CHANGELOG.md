@@ -13,7 +13,9 @@
 - Added two-column, three-column and main-plus-stack arrangements (Phase 7C).
 - Added the responsive 12-column desktop grid, collision/placement utilities and
   backward-compatible widget mapping (Phase 7D).
-- Next: Phase 7E persistent launchable desktop icons.
+- Added persistent launchable desktop shortcuts with grid-aware add, drag/snap,
+  collision rejection and removal (Phase 7E).
+- Next: shared grid preferences and cross-object placement persistence.
 
 ## 20 August 2026 — development at b14b199
 

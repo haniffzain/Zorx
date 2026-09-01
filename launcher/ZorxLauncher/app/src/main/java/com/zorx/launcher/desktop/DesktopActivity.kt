@@ -15,6 +15,8 @@ import android.graphics.drawable.GradientDrawable
 import androidx.appcompat.app.AppCompatActivity
 import com.zorx.launcher.R
 import com.zorx.launcher.apps.AppDrawerView
+import com.zorx.launcher.apps.AppManager
+import com.zorx.launcher.desktopicons.DesktopShortcutHost
 import com.zorx.launcher.startmenu.StartMenuView
 import com.zorx.launcher.taskbar.TaskbarController
 import com.zorx.launcher.taskbar.TaskbarView
@@ -42,6 +44,7 @@ class DesktopActivity : AppCompatActivity() {
     private lateinit var desktopRoot: FrameLayout
     private lateinit var desktopSurface: DesktopSurface
     private lateinit var widgetHost: WidgetHost
+    private lateinit var desktopShortcutHost: DesktopShortcutHost
     private var desktopContextMenu: PopupWindow? = null
 
     private val shellSettingsListener = {
@@ -78,6 +81,9 @@ class DesktopActivity : AppCompatActivity() {
         desktop.addView(WallpaperView(this), FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         widgetHost = WidgetHost(this)
         desktop.addView(widgetHost, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+        desktopShortcutHost = DesktopShortcutHost(this)
+        desktop.addView(desktopShortcutHost, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+        desktopShortcutHost.post { desktopShortcutHost.render() }
         val desktopSurface =
             DesktopSurface(this)
 
@@ -368,6 +374,10 @@ class DesktopActivity : AppCompatActivity() {
         if (::desktopSurface.isInitialized) {
             desktopSurface.invalidate()
         }
+
+        if (::desktopShortcutHost.isInitialized) {
+            desktopShortcutHost.render()
+        }
     }
 
     private fun showDesktopContextMenu(
@@ -393,6 +403,7 @@ class DesktopActivity : AppCompatActivity() {
             startActivity(ZorxSettingsActivity.intent(this, ZorxSettingsActivity.SECTION_BACKGROUND))
         }
         actions += "Widgets  ›" to { showWidgetContextMenu(widgetMenuX, widgetMenuY) }
+        actions += "Desktop Icons  ›" to { showDesktopIconContextMenu(widgetMenuX, widgetMenuY) }
         actions += "Workspace  ›" to { showWorkspaceContextMenu(widgetMenuX, widgetMenuY) }
         desktopSurface.spatialEngine.getAllObjects()
             .filter { it.packageName != null }
@@ -482,6 +493,24 @@ class DesktopActivity : AppCompatActivity() {
             "Lock / Unlock Layout" to { widgetHost.toggleLock() }
         )
         desktopContextMenu = showActionPopup(x, y, popupWidth, actions)
+    }
+
+    private fun showDesktopIconContextMenu(x: Int, y: Int) {
+        val density = resources.displayMetrics.density
+        val popupWidth = (230 * density).toInt()
+        val actions = listOf<Pair<String, () -> Unit>>(
+            "Add Shortcut  ›" to { showAddDesktopShortcutMenu(x + popupWidth, y) },
+            "Remove Last Shortcut" to { desktopShortcutHost.removeLastShortcut() }
+        )
+        desktopContextMenu = showActionPopup(x, y, popupWidth, actions)
+    }
+
+    private fun showAddDesktopShortcutMenu(x: Int, y: Int) {
+        val density = resources.displayMetrics.density
+        val actions = AppManager(this).getInstalledApps().map { app ->
+            app.loadLabel(packageManager).toString() to { desktopShortcutHost.addShortcut(app) }
+        }
+        desktopContextMenu = showActionPopup(x, y, (260 * density).toInt(), actions)
     }
 
     private fun showAddWidgetMenu(x: Int, y: Int) {

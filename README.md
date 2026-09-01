@@ -85,6 +85,8 @@ Project screenshots
 
 ✔ Responsive desktop grid and persistent widgets
 
+✔ Persistent launchable desktop shortcuts
+
 🚧 Final menu implementation
 
 🚧 Final typography/font system
@@ -110,10 +112,9 @@ The active engineering work continues from `development` on the
 
 The near-term objective is to turn the verified native Android capabilities into a coherent desktop windowing experience:
 
-1. Desktop icons and shortcut persistence
-2. Expanded grid persistence and collision-aware placement
-3. Waydroid smoke testing for privileged task operations
-4. File Manager, Terminal and notification services
+1. Expanded shared-grid persistence and cross-object collision ownership
+2. Waydroid smoke testing for privileged task operations
+3. File Manager, Terminal and notification services
 
 ---
 

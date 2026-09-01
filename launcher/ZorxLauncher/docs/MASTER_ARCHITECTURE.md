@@ -88,3 +88,8 @@ path, preserving native synchronization.
 usable area above the taskbar into 12 columns and eight rows, distributes remainder
 pixels deterministically and exposes bounds, snapping, collision and first-free
 placement. Legacy four-column widget records map to three columns per unit.
+
+`DesktopShortcutHost` renders persisted launcher-component shortcuts on that grid
+between widgets and the window surface. `DesktopShortcutStore` owns component and
+placement persistence; launches remain delegated to `AppManager`, so shortcuts use
+the same freeform task lifecycle as the drawer and Start Menu.
