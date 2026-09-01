@@ -1,6 +1,9 @@
 # Project Status
 
-Build-verified on development after Phase 6G on 21 August 2026. The updated APK installs and launches in Waydroid without an observed startup crash; automated visual tab traversal remains unavailable on this host.
+Updated through Phase 7D on 1 September 2026. Phase 7C is verified by GitHub
+Actions; Phase 7D verification is running in CI. The last Waydroid smoke run launched
+without an observed startup crash, but privileged lifecycle and visual interaction
+testing remain pending on a capable host.
 
 ## Build
 
@@ -12,7 +15,7 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 - Runtime, spatial engine, repository and event pipeline.
 - Desktop surface, scene, compositor and window painter.
 - Native freeform launch and synthetic/native task registration path.
-- Focus, drag, bottom-right resize and edge/corner snap UI.
+- Focus, constrained drag, full-edge/corner resize and snap/arrangement UI.
 - Spatial minimize, maximize/restore and taskbar restore.
 - Coalesced native bounds synchronization for move events.
 - Start Menu and App Drawer integration with stable dismissal behavior.
@@ -98,7 +101,9 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 
 ## Current milestone
 
-Phase 6E is build-verified. Runtime visual testing remains pending a Waydroid-capable host; it has not been represented as completed.
+Phase 7D is implemented and pushed. Phase 7E adds persistent launchable desktop
+icons on the shared grid. Runtime-only behavior remains explicitly unverified until
+a Waydroid/device smoke-test host is available.
 
 ## Phase 6F wallpaper system
 

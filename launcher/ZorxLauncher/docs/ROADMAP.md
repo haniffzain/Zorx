@@ -5,7 +5,8 @@
 - Runtime, spatial engine, repository and event bus.
 - Desktop surface, scene, compositor and window painter.
 - Freeform launch, synthetic registration and native promotion attempt.
-- Focus, drag, bottom-right resize, minimize, maximize/restore and snap UI.
+- Focus, constrained drag, full-edge/corner resize, minimize, maximize/restore and
+  snap/arrangement UI.
 - Taskbar running-window controls, Start Menu and App Drawer integration.
 
 ## Active milestone

@@ -1,6 +1,6 @@
 # Zorx Development Roadmap
 
-Status verified on development at b14b199.
+Status updated through Phase 7D on `codex/continue-window-lifecycle`.
 
 ## Completed foundation
 
@@ -8,25 +8,31 @@ Status verified on development at b14b199.
 - Native freeform launch.
 - Desktop surface, scene, compositor and window painter.
 - Spatial repository and event pipeline.
-- Focus, drag, bottom-right resize and edge/corner snap UI.
+- Focus, constrained drag, full-edge/corner resize and snap/arrangement UI.
 - Spatial minimize, maximize/restore and taskbar restore.
 - Start Menu search handoff, App Drawer filtering and stable dismissal.
 - Coalesced move/resize bounds forwarding to native tasks.
 
-## Current milestone: Native Window Lifecycle Unification
+## Completed window lifecycle and organization
 
-- Use task ID as authoritative window identity.
-- Synchronize move, resize, snap, maximize and restore through one bounds pipeline.
-- Implement native close and registry cleanup.
-- Reconcile tasks changed or closed outside Zorx.
-- Support multiple tasks from the same package.
-- Render by z-index and refresh taskbar focus state.
-- Add lifecycle and interaction tests.
+- Task ID is the authoritative native window identity after promotion.
+- Move, resize, snap, maximize and restore share one native bounds pipeline.
+- Native close, exact registry cleanup and external-task reconciliation are implemented.
+- Multiple tasks from one package retain distinct identities.
+- Rendering follows z-index and taskbar focus state refreshes with spatial focus.
+- Full-edge resize, work-area constraints, snap choices and multi-window arrangements
+  are covered by platform-independent unit tests.
+- A responsive 12-column desktop grid now supplies span geometry, snapping,
+  collision checks and backward-compatible widget placement.
+
+## Current milestone: Desktop Icons
+
+- Render launchable desktop shortcuts on the shared grid.
+- Persist positions and resolve collisions through `GridEngine`.
+- Support add, move and remove interactions without changing widget persistence.
 
 ## Later
 
-- Full-edge resize and work-area constraints.
-- Snap layout chooser and multi-window arrangements.
-- Desktop grid, widgets, icons and persistence.
+- Expand grid preferences and shared object persistence.
 - File Manager, Terminal, Settings and notifications.
-- Virtual desktops and multi-monitor support.
+- Physical multi-monitor rendering and privileged runtime verification.

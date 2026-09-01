@@ -1,5 +1,20 @@
 # Changelog
 
+## 1 September 2026 — Phases 7A–7D
+
+- Unified native window lifecycle around promoted task IDs, including exact close,
+  external removal reconciliation and distinct tasks from the same package.
+- Routed drag, resize, snap, maximize and restore through one native bounds path;
+  added z-index rendering and taskbar focus refresh.
+- Upgraded to Android Gradle Plugin 8.8.2 and Gradle 8.10.2 for supported API 35
+  builds, with GitHub Actions unit-test/APK verification on JDK 17.
+- Added taskbar-aware full-edge/corner resize and work-area constraints (Phase 7A).
+- Added half/quarter snap chooser geometry (Phase 7B).
+- Added two-column, three-column and main-plus-stack arrangements (Phase 7C).
+- Added the responsive 12-column desktop grid, collision/placement utilities and
+  backward-compatible widget mapping (Phase 7D).
+- Next: Phase 7E persistent launchable desktop icons.
+
 ## 20 August 2026 — development at b14b199
 
 - Verified desktop runtime/compositor, focus, drag, bottom-right resize, snap,

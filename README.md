@@ -1,6 +1,6 @@
 # Zorx
 
-> Development status verified at b14b199 on 20 August 2026.
+> Development status updated through Phase 7D on 1 September 2026.
 
 Zorx is a modern desktop environment for Android built directly on AOSP.
 
@@ -75,13 +75,15 @@ Project screenshots
 
 ✔ Native task resize path identified and tested through Android framework interfaces
 
-🚧 Window Resize UI integration
+✔ Native task identity, close and external reconciliation
 
-🚧 Window Dragging
+✔ Full-edge/corner window dragging and resizing
 
-🚧 Snap Layout
+✔ Snap chooser and multi-window arrangements
 
-🚧 Multi Desktop
+✔ Four logical workspaces and display-topology foundation
+
+✔ Responsive desktop grid and persistent widgets
 
 🚧 Final menu implementation
 
@@ -103,18 +105,15 @@ Native Android applications have been successfully launched in Android freeform 
 
 ## Current Development Direction
 
-The `development` branch is the active engineering branch for the newest desktop work.
+The active engineering work continues from `development` on the
+`codex/continue-window-lifecycle` branch.
 
 The near-term objective is to turn the verified native Android capabilities into a coherent desktop windowing experience:
 
-1. Window movement
-2. Window resize UI
-3. Drag handles / title-bar interaction
-4. Maximize / restore / minimize
-5. Taskbar state synchronization
-6. Menu and application-launcher interaction
-7. Consistent typography and font system
-8. Snap layouts and multi-window organization
+1. Desktop icons and shortcut persistence
+2. Expanded grid persistence and collision-aware placement
+3. Waydroid smoke testing for privileged task operations
+4. File Manager, Terminal and notification services
 
 ---
 

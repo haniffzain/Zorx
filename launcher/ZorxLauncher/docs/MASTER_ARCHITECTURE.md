@@ -18,9 +18,11 @@ taskbar refresh and native bounds synchronization. App launch enters through
 AppManager and ZorxWindowService; WindowOpenedEvent bridges the task registry into
 the spatial desktop.
 
-Native task state and spatial state are separate and only partially synchronized.
-The next milestone defines task-based identity and one lifecycle contract without
-changing stable Start Menu or App Drawer dismissal behavior.
+Native task state and spatial state remain separate by responsibility but share an
+explicit identity and lifecycle contract. Promotion records the authoritative task
+ID, geometry operations use one synchronization path, native close cleans exact
+state and reconciliation handles external removal. Stable Start Menu and App Drawer
+dismissal behavior remains unchanged.
 
 ## Workspace and display location
 
@@ -74,3 +76,15 @@ through `EXTRA_SECTION`; they do not create parallel settings activities.
 All controls continue to write through `ZorxShellSettingsStore`,
 `ZorxThemeManager` or `ZorxWallpaperManager`, preserving the existing live
 listener notifications and persistence boundaries.
+
+## Window organization and desktop grid
+
+The interaction controller delegates pure geometry to resize/work-area and snap
+engines, then sends final bounds through `SpatialEngine`. Multi-window arrangements
+select visible, non-minimized active-workspace objects by z-order and use the same
+path, preserving native synchronization.
+
+`GridEngine` is the shared responsive desktop-placement authority. It divides the
+usable area above the taskbar into 12 columns and eight rows, distributes remainder
+pixels deterministically and exposes bounds, snapping, collision and first-free
+placement. Legacy four-column widget records map to three columns per unit.

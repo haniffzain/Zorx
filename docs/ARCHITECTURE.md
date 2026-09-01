@@ -1,6 +1,6 @@
 # Zorx Architecture
 
-Verified against development at b14b199 on 20 August 2026.
+Updated through Phase 7D on 1 September 2026.
 
 ## Runtime topology
 
@@ -18,13 +18,20 @@ through NativeTaskSynchronizer and AndroidWindowBackend.
 
 WindowOpenedEvent creates a desktop object. DesktopMovedEvent is forwarded to
 NativeTaskSynchronizer, which coalesces updates and calls AndroidWindowBackend.
-This is not yet a single source of truth: native close, external task removal,
-maximize/restore synchronization and multi-instance identity remain pending.
+Task promotion retains a stable presentation ID while assigning the authoritative
+native task ID. Move, resize, snap, maximize and restore use one bounds pipeline;
+native close and periodic external-task reconciliation clean both registry and
+spatial state. Multiple tasks from one package are discovered independently.
 
 DesktopSurface owns touch input and redraw scheduling. WindowInteractionController
-implements focus, drag, bottom-right resize, minimize, maximize/restore, close and
-edge/corner snap. The renderer package is mostly placeholder code; active painting
+implements focus, full-edge/corner resize, constrained drag, minimize,
+maximize/restore, close, snap and group arrangements. The renderer package is
+mostly placeholder code; active painting
 is performed by DesktopCompositor and WindowPainter.
+
+`GridEngine` owns taskbar-aware 12-column desktop placement geometry. Widgets keep
+their legacy four-column persisted coordinates and map each unit to three shared
+grid columns, allowing desktop icons to adopt the same collision model next.
 
 Desktop and taskbar touches currently dismiss the App Drawer and Start Menu. This
 stable behavior must remain unchanged during window lifecycle work.
