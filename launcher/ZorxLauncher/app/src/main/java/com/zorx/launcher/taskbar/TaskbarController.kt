@@ -8,7 +8,6 @@ import com.zorx.launcher.events.WindowOpenedEvent
 import com.zorx.launcher.events.desktop.DesktopRemovedEvent
 import com.zorx.launcher.events.desktop.DesktopFocusedEvent
 import com.zorx.launcher.events.desktop.DesktopStateChangedEvent
-import com.zorx.launcher.events.desktop.DesktopFocusedEvent
 import com.zorx.launcher.events.desktop.DesktopMovedEvent
 import com.zorx.launcher.spatial.DesktopObjectState
 import com.zorx.launcher.spatial.SpatialEngine
