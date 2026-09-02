@@ -46,6 +46,31 @@ Android. The project is currently under active private development.
 
 > One Android ecosystem. A focused desktop. The Zorx way.
 
+## Progress so far
+
+The private engineering track has already established the core Zorx desktop
+foundation:
+
+- Android 15/API 35 launcher and Recents foundations.
+- Native freeform application launch with task-aware window lifecycle.
+- Move, resize, snap, minimize, maximize/restore and close workflows.
+- A responsive desktop grid with persistent widgets and launchable shortcuts.
+- Four workspaces with workspace- and display-aware desktop layouts.
+- Multi-display presentation and window-routing foundations.
+- Window overview, Alt+Tab switching and synchronized application search.
+- Global shell shortcuts, keyboard focus traversal and accessible selection states.
+- Zorx JetBrains Mono boot and shutdown identity assets.
+
+## The road ahead
+
+The next public product goals are:
+
+1. Universal Zorx window decoration through Android WM Shell.
+2. Privileged device validation and production multi-monitor behavior.
+3. File Manager, Terminal, notifications and quick controls.
+4. Session recovery, migration and backup capabilities.
+5. Public device testing and the first stable Zorx release.
+
 ## Public updates
 
 This repository is the official public landing page for Zorx. Product announcements,
