@@ -37,6 +37,9 @@ import com.zorx.launcher.interaction.WindowGroupLayout
 import com.zorx.launcher.spatial.DesktopGridProfile
 import com.zorx.launcher.spatial.DesktopGridSettingsStore
 import com.zorx.launcher.spatial.DesktopLayoutScopeResolver
+import com.zorx.launcher.spatial.DesktopLayoutScope
+import com.zorx.launcher.spatial.GridEngine
+import com.zorx.launcher.spatial.SpatialBounds
 import android.widget.Toast
 
 class DesktopActivity : AppCompatActivity() {
@@ -413,6 +416,7 @@ class DesktopActivity : AppCompatActivity() {
         actions += "Widgets  ›" to { showWidgetContextMenu(widgetMenuX, widgetMenuY) }
         actions += "Desktop Icons  ›" to { showDesktopIconContextMenu(widgetMenuX, widgetMenuY) }
         actions += "Workspace  ›" to { showWorkspaceContextMenu(widgetMenuX, widgetMenuY) }
+        actions += "Layout  ›" to { showLayoutMobilityMenu(widgetMenuX, widgetMenuY) }
         desktopSurface.spatialEngine.getAllObjects()
             .filter { it.packageName != null }
             .maxByOrNull { it.zIndex }
@@ -499,6 +503,53 @@ class DesktopActivity : AppCompatActivity() {
         actions += "Next Workspace" to { ZorxWorkspaceManager.nextWorkspace(this) }
         actions += "Previous Workspace" to { ZorxWorkspaceManager.previousWorkspace(this) }
         desktopContextMenu = showActionPopup(x, y, (230 * density).toInt(), actions)
+    }
+
+    private fun showLayoutMobilityMenu(x: Int, y: Int) {
+        val density = resources.displayMetrics.density
+        val source = DesktopLayoutScopeResolver.current(this)
+        val actions = mutableListOf<Pair<String, () -> Unit>>()
+        ZorxWorkspaceManager.workspaces().filter { it.id.value != source.workspaceId }.forEach { workspace ->
+            actions += "Copy to Workspace ${workspace.order}" to {
+                transferDesktopLayout(source, DesktopLayoutScope(workspace.id.value, source.displayId), move = false)
+            }
+            actions += "Move to Workspace ${workspace.order}" to {
+                transferDesktopLayout(source, DesktopLayoutScope(workspace.id.value, source.displayId), move = true)
+            }
+        }
+        desktopContextMenu = showActionPopup(x, y, (260 * density).toInt(), actions)
+    }
+
+    private fun transferDesktopLayout(source: DesktopLayoutScope, target: DesktopLayoutScope, move: Boolean) {
+        val profile = DesktopGridSettingsStore.read(this)
+        val metrics = ZorxShellSettingsStore.resolve(this, desktopRoot.width, desktopRoot.height)
+        val usableHeight = desktopRoot.height - metrics.taskbarHeightPx - metrics.taskbarBottomMarginPx
+        val engine = runCatching {
+            GridEngine(DesktopGridSettingsStore.spec(this, SpatialBounds(0, 0, desktopRoot.width, usableHeight)))
+        }.getOrElse {
+            Toast.makeText(this, "Desktop grid is not ready", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val result = DesktopLayoutMobilityManager(this).transfer(
+            source,
+            target,
+            move,
+            engine,
+            profile.columns,
+            profile.rows
+        )
+        if (!result.success) {
+            Toast.makeText(this, result.reason ?: "Layout transfer failed", Toast.LENGTH_SHORT).show()
+            return
+        }
+        Toast.makeText(
+            this,
+            "${if (move) "Moved" else "Copied"} ${result.widgets} widgets and ${result.shortcuts} shortcuts",
+            Toast.LENGTH_SHORT
+        ).show()
+        if (move) ZorxWorkspaceManager.switchWorkspace(this, com.zorx.launcher.workspace.ZorxWorkspaceId(target.workspaceId))
+        widgetHost.render()
+        desktopShortcutHost.render()
     }
 
     private fun showWidgetContextMenu(x: Int, y: Int) {

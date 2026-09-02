@@ -15,5 +15,6 @@ multi-instance identity, snap/group arrangements and responsive desktop grid.
 Desktop shortcuts now use `GridEngine`, with `DesktopPlacementPolicy` preventing
 collisions across shortcut and legacy widget records. Grid profiles and desktop
 records now persist centrally, with rendering and occupancy scoped by workspace and
-display. Next: layout mobility, physical display surfaces and runtime verification
-of privileged operations. Stable Start Menu and App Drawer behavior must be preserved.
+display. Complete layouts can be copied/moved between workspaces after pure preflight
+planning. Next: physical display surfaces and runtime verification of privileged
+operations. Stable Start Menu and App Drawer behavior must be preserved.

@@ -1,6 +1,6 @@
 # Zorx Development Roadmap
 
-Status updated through Phase 7H on `codex/continue-window-lifecycle`.
+Status updated through Phase 7I on `codex/continue-window-lifecycle`.
 
 ## Completed foundation
 
@@ -53,10 +53,18 @@ Status updated through Phase 7H on `codex/continue-window-lifecycle`.
   workspaces refreshes both desktop hosts immediately.
 - Legacy records migrate to Workspace 1 / primary display.
 
-## Current milestone: Layout Mobility
+## Completed workspace layout mobility
 
-- Add copy/move controls for desktop objects between workspace/display scopes.
+- Desktop Layout menu copies or moves the active widget/shortcut layout to another
+  workspace after a complete collision/capacity preflight.
+- Widget relocation stays compatible with legacy column boundaries; copied Notes
+  retain their text configuration.
+- Failure leaves both source and destination collections unchanged.
+
+## Current milestone: Physical Display Surfaces
+
 - Bind display scope to physical per-display surfaces when Android exposes them.
+- Extend layout mobility from workspace targets to real display targets.
 
 ## Later
 - Android Live Wallpaper service/provider integration and device validation.

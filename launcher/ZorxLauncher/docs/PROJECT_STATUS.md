@@ -1,7 +1,7 @@
 # Project Status
 
-Updated through Phase 7H on 1 September 2026. Phases 7D–7G and the wallpaper audit
-are verified by GitHub Actions; Phase 7H verification follows its implementation
+Updated through Phase 7I on 1 September 2026. Phases 7D–7H and the wallpaper audit
+are verified by GitHub Actions; Phase 7I verification follows its implementation
 commit. The last Waydroid smoke run launched without an observed startup crash, but
 privileged lifecycle and visual interaction testing remain pending on a capable host.
 
@@ -101,10 +101,10 @@ GitHub Actions verifies unit tests and `assembleDebug` with Android Gradle Plugi
 
 ## Current milestone
 
-Phase 7H is implemented: widget and shortcut layout records are isolated by logical
-workspace and display. Phase 7I targets copy/move controls and physical display
-surface binding. Runtime-only behavior remains explicitly unverified until a
-Waydroid/device smoke-test host is available.
+Phase 7I is implemented: complete active layouts can be copied or moved between
+logical workspaces after collision/capacity preflight. Phase 7J targets physical
+display surface binding and display-to-display mobility. Runtime-only behavior
+remains explicitly unverified until a Waydroid/device smoke-test host is available.
 
 ## Phase 7E desktop shortcuts
 
@@ -147,6 +147,21 @@ Waydroid/device smoke-test host is available.
 - Records created before Phase 7H migrate to Workspace 1 / `primary`, providing a
   deterministic, backward-compatible default instead of duplicating them everywhere.
 - Scope identity and shortcut codec migration have platform-independent tests.
+
+## Phase 7I workspace layout mobility
+
+- Desktop Layout exposes Copy and Move actions for every non-active workspace.
+- `DesktopLayoutMobilityPlanner` plans the entire transfer before persistence:
+  requested positions are retained when free, conflicts relocate deterministically,
+  and insufficient capacity returns no plan without changing either layout.
+- Widgets stay on legacy three-column boundaries; shortcuts use individual cells.
+- Copy creates new widget identities and preserves Notes text. Move retains widget
+  identities and switches to the destination workspace after successful persistence.
+- Physical display targets are not shown while Zorx has only one desktop surface;
+  this remains Phase 7J rather than being represented as complete.
+- Verification boundary: preflight rejection performs no writes. Widget, shortcut
+  and Notes stores are still separate SharedPreferences writes, so crash-safe
+  transactional persistence and runtime interaction tests remain pending.
 
 ## Phase 6F wallpaper system
 

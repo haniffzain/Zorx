@@ -45,7 +45,9 @@
   widget and shortcut geometry through the desktop View menu.
 - Phase 7H complete: workspace/display-scoped widget and shortcut persistence,
   rendering, collision isolation and deterministic legacy migration.
-- Phase 7I: layout copy/move controls and physical display-surface binding.
+- Phase 7I complete: collision-safe, full-preflight Copy/Move layout controls between
+  workspaces with Notes configuration preservation.
+- Phase 7J: physical display-surface binding and display-to-display layout mobility.
 - Run the Phase 6E Waydroid smoke-test matrix, including logcat and cross-display native task movement where hardware exposure permits.
 - Implement `WallpaperService` integration, provider selection and lifecycle before
   claiming Android Live Wallpaper support; then validate it in Waydroid/device.

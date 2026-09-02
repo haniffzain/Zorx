@@ -25,7 +25,10 @@
 - Scoped widget and shortcut visibility, occupancy and persistence by workspace and
   display. Legacy records migrate deterministically to Workspace 1 / primary display
   without deleting records in inactive scopes (Phase 7H).
-- Next: desktop layout copy/move controls and physical multi-display surfaces.
+- Added preflighted copy/move of complete widget/shortcut layouts between workspaces,
+  including collision relocation, note configuration copy and no-write failure when
+  the destination cannot fit the complete layout (Phase 7I).
+- Next: physical multi-display surfaces and display-to-display mobility.
 
 ## 20 August 2026 — development at b14b199
 

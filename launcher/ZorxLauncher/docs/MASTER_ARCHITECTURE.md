@@ -116,3 +116,14 @@ Every widget and shortcut record also carries `workspaceId` and `displayId`.
 primary surface; both hosts filter rendering and occupancy to that exact pair while
 stores retain records from inactive scopes. Legacy records decode into Workspace 1
 and `primary`. Physical per-display view creation remains a later topology concern.
+
+`DesktopLayoutMobilityManager` coordinates cross-workspace copy/move. Its pure
+planner receives source objects, destination reservations and grid limits, then
+produces a complete placement map or no plan. Persistence begins only after a full
+plan exists. Widget identities are regenerated for copy and retained for move;
+shortcut component identity remains scope-local. Display targets remain gated on
+real per-display desktop surfaces.
+
+Preflight is all-or-nothing, but persistence spans separate SharedPreferences stores;
+it is not a crash-atomic transaction. Recovery/journaling is future work and must not
+be inferred from a successful capacity plan or CI build.
