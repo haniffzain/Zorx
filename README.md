@@ -1,5 +1,14 @@
 <div align="center">
 
+<pre>
+             /\_/\\
+            ( o.o )
+             > ^ <
+       ┌─────────────────┐
+       │      Z O R X    │
+       └─────────────────┘
+</pre>
+
 # Zorx
 
 ### A desktop shell for Android
@@ -14,6 +23,28 @@
 
 Zorx is an independent project exploring a focused, desktop-class experience for
 Android. The project is currently under active private development.
+
+## Why Zorx is different
+
+- **A real desktop direction for Android** — designed around windows, a taskbar,
+  workspaces and desktop-style navigation instead of a phone launcher enlarged for
+  a bigger screen.
+- **Native Android applications** — keeps the Android application ecosystem while
+  presenting supported apps in a coherent desktop environment.
+- **Purpose-built Zorx window experience** — a unified visual direction for window
+  titlebars, controls, focus and multitasking.
+- **Powerful multitasking** — designed for freeform windows, window switching, snap
+  layouts and organized multi-window workflows.
+- **Multiple workspaces and displays** — built with virtual desktops, display-aware
+  layouts and future production multi-monitor support in mind.
+- **Persistent personal desktop** — intended to preserve shortcuts, widgets,
+  layouts and workspace organization between sessions.
+- **Deep AOSP integration path** — developed toward product-level Android
+  integration rather than depending entirely on ordinary launcher limitations.
+- **A distinct product identity** — Zorx carries its own shell design, typography,
+  boot experience and carefully defined interaction language.
+
+> One Android ecosystem. A focused desktop. The Zorx way.
 
 ## Public updates
 
